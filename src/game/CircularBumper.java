@@ -34,9 +34,9 @@ public class CircularBumper implements Gadget {
         this.name = name;
         this.position = new Vect(x,y);
         this.boundary = new Circle(x+RADIUS,y+RADIUS,RADIUS);
-        
+
     }
-    
+
     /**
      * @return string name representing this gadget
      */
@@ -45,8 +45,8 @@ public class CircularBumper implements Gadget {
         checkRep();
         return this.name;
     }
-    
-    
+
+
     /**
      * @return set of tiles this gadget takes up on the board
      */
@@ -54,13 +54,13 @@ public class CircularBumper implements Gadget {
     public Set<Vect> getTiles(){
         checkRep();
         Set<Vect> tiles = new HashSet<Vect>();
-        
+
         Vect tile = position;
         tiles.add(tile);
-        
+
         return tiles;
     }
-    
+
     /**
      * 
      * @return Vect representing center of circular bumper
@@ -69,7 +69,7 @@ public class CircularBumper implements Gadget {
         checkRep();
         return new Vect(position.x()+RADIUS,position.y()+RADIUS);
     }
-    
+
     /**
      * @return char symbol that represents this gadget on the board string
      */
@@ -78,7 +78,7 @@ public class CircularBumper implements Gadget {
         checkRep();
         return SYMBOL;
     }
-    
+
     /**
      * @return Vect position of gadget on board
      */
@@ -87,7 +87,7 @@ public class CircularBumper implements Gadget {
         checkRep();
         return position;
     }
-    
+
     /***
      * Calculates time until collision with this ball.
      * @param ball
@@ -100,7 +100,7 @@ public class CircularBumper implements Gadget {
         final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
         return Geometry.timeUntilCircleCollision(boundary, ballShape, ball.getVelocity());
     }
-    
+
     /**
      * Simulates a collision with a circular bumper by updating the velocity of the
      * ball by the coefficient of reflection, 1.0.
@@ -116,7 +116,7 @@ public class CircularBumper implements Gadget {
         ball.setVelocity(velocity);
         checkRep();
     }
-    
+
     /**
      * Circle bumpers have no action.
      */
@@ -125,7 +125,7 @@ public class CircularBumper implements Gadget {
         //do nothing
         checkRep();
     }
-    
+
     /***
      * Progresses this gadget by the given amountOfTime (in seconds),
      * assuming the given physical constants.
@@ -147,41 +147,41 @@ public class CircularBumper implements Gadget {
     private void checkRep(){
         assert (this.position.x() >= 0 && this.position.x() <= BOARDSIZE);
         assert (this.position.y() >= 0 && this.position.y() <= BOARDSIZE);
-        
+
     }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result
-				+ ((position == null) ? 0 : position.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result
+            + ((position == null) ? 0 : position.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CircularBumper other = (CircularBumper) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (position == null) {
-			if (other.position != null)
-				return false;
-		} else if (!position.equals(other.position))
-			return false;
-		return true;
-	}
-    
-    
-    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CircularBumper other = (CircularBumper) obj;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (position == null) {
+            if (other.position != null)
+                return false;
+        } else if (!position.equals(other.position))
+            return false;
+        return true;
+    }
+
+
+
 }

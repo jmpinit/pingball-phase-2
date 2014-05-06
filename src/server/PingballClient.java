@@ -15,24 +15,24 @@ import java.util.concurrent.*;
  *
  */
 public class PingballClient {
-	
-	        
+
+
     public static final int DEFAULT_PORT = 10987; // default port
     public static final int MAX_PORT_NUM = 65535;
 
-/**
- * Constructor to be called for online play.
- * @param host hostname to connect to
- * @param port port of host to connect to
- * @param file constructor to create File
- * @throws IOException if connection not successful.
- */
+    /**
+     * Constructor to be called for online play.
+     * @param host hostname to connect to
+     * @param port port of host to connect to
+     * @param file constructor to create File
+     * @throws IOException if connection not successful.
+     */
     public PingballClient(String host, int port, String filename) throws IOException {
-    	 Socket socket = null;
-         PrintWriter out = null;    	 
-         BufferedReader in = null;
-         
-         try {
+        Socket socket = null;
+        PrintWriter out = null;    	 
+        BufferedReader in = null;
+
+        try {
             socket = new Socket(host, port);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -44,38 +44,38 @@ public class PingballClient {
             System.exit(1);
         }
         String fromServer; 
-        
-		FileReader in2;
+
+        FileReader in2;
         try {
-    		String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
+            String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
             out.println(content);
             out.println("STOP");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
-        
+
+
         while ((fromServer = in.readLine()) != null) {
             System.out.println(fromServer);
         }
-	}
-    
+    }
 
-    
+
+
     /** constructor for single player offline play
      * 
      * @param file File to be parsed to initialize the board
      * @throws IOException if reading file is unsuccessful
      */
     public PingballClient(String filename) throws IOException {
-		String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
-    	Board board = BoardFactory.parse(content);
-    	BlockingQueue<Integer> timeQueue = new ArrayBlockingQueue<Integer>(5);
+        String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
+        Board board = BoardFactory.parse(content);
+        BlockingQueue<Integer> timeQueue = new ArrayBlockingQueue<Integer>(5);
         Client client = new Client(board, null, false, timeQueue); // 
         Thread t = new Thread(new ClientRunnable(client, new ArrayBlockingQueue<Client>(1))); // disconnects
         t.start();        
     }
-    
+
     public static void main(String[] args) {
         // Command-line argument parsing is provided. Do not change this method.
         boolean onlinePlay = false;
@@ -88,7 +88,7 @@ public class PingballClient {
                 String flag = arguments.remove();
                 try {
                     if (flag.equals("--host")) {
-                    	onlinePlay = true;
+                        onlinePlay = true;
                         host = arguments.remove();
                     } else if (flag.equals("--port")) {
                         port = Integer.parseInt(arguments.remove());
@@ -114,11 +114,11 @@ public class PingballClient {
 
 
         try {
-        	if (onlinePlay) {
-        		new PingballClient(host, port, filename);
-        	} else {
-        		new PingballClient(filename);
-        	}
+            if (onlinePlay) {
+                new PingballClient(host, port, filename);
+            } else {
+                new PingballClient(filename);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

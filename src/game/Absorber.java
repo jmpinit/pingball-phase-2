@@ -44,15 +44,15 @@ public class Absorber implements Gadget {
     private final int height;
     private final Vect position;
     private Queue<Ball> storedBalls;
-    
+
     private final static double STOREDBALLVELOCITY = -50; //stored ball velocity is 50L/s upwards when shot out
 
     private final static double BOARDSIZE = 20; //size of board is 20Lx20L
     private final List<LineSegment> boundaries; //based on position and dimensions
-    
+
     private static final char SYMBOL = '=';
 
-    
+
     public Absorber(String name, int x, int y, int width, int height) {
         this.name = name;
         this.position = new Vect(x,y);
@@ -74,7 +74,7 @@ public class Absorber implements Gadget {
         checkRep();
         return this.name;
     }
-    
+
     /***
      * Get set of tiles that this gadgets occupies
      * @return Set<Vect>
@@ -92,7 +92,7 @@ public class Absorber implements Gadget {
         checkRep();
         return set;
     }
-    
+
     /***
      * Returns a char symbol to represent this gadget.
      * @return a char symbol to represent this gadget.
@@ -101,7 +101,7 @@ public class Absorber implements Gadget {
     public char getSymbol(){
         return SYMBOL;
     }
-    
+
     /***
      * Get current origin
      * @return current position
@@ -111,9 +111,9 @@ public class Absorber implements Gadget {
         checkRep();
         return position;
     }
-    
-    
-    
+
+
+
     /***
      * Calculates time until collision with this ball.
      * @param ball
@@ -142,9 +142,9 @@ public class Absorber implements Gadget {
                 return min;
             }
         } 
-            
+
     }
-    
+
 
     /***
      * States true iff ball is inside this absorber.
@@ -153,10 +153,10 @@ public class Absorber implements Gadget {
      */
     private boolean contains(Ball ball) {
         boolean contains =
-                   ball.getPosition().x() > this.position.x()
-                && ball.getPosition().x() < this.position.x() + this.width
-                && ball.getPosition().y() > this.position.y() 
-                && ball.getPosition().y() < this.position.y() + this.height;
+            ball.getPosition().x() > this.position.x()
+            && ball.getPosition().x() < this.position.x() + this.width
+            && ball.getPosition().y() > this.position.y() 
+            && ball.getPosition().y() < this.position.y() + this.height;
         checkRep();
         return contains;
     }
@@ -175,7 +175,7 @@ public class Absorber implements Gadget {
         //Do nothing.
         checkRep();
     }
-    
+
 
     /***
      * Progresses this gadget by the given amountOfTime (in seconds),
@@ -189,7 +189,7 @@ public class Absorber implements Gadget {
     @Override
     public void progressAndCollide(double amountOfTime, Ball ball){
         //Jump forward to collision (progressing to position of collision is unnecessary)
-        
+
         //Collide
         checkRep();
         //ball is stored .25Lx.25L away from the bottom right corner of absorber
@@ -224,45 +224,45 @@ public class Absorber implements Gadget {
         assert (this.position.y() >= 0 && this.position.y() <= BOARDSIZE);
     }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + height;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result
-				+ ((position == null) ? 0 : position.hashCode());
-		result = prime * result + width;
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + height;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result
+            + ((position == null) ? 0 : position.hashCode());
+        result = prime * result + width;
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Absorber other = (Absorber) obj;
-		if (height != other.height)
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (position == null) {
-			if (other.position != null)
-				return false;
-		} else if (!position.equals(other.position))
-			return false;
-		if (width != other.width)
-			return false;
-		return true;
-	}
-    
-    
-    
-    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Absorber other = (Absorber) obj;
+        if (height != other.height)
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (position == null) {
+            if (other.position != null)
+                return false;
+        } else if (!position.equals(other.position))
+            return false;
+        if (width != other.width)
+            return false;
+        return true;
+    }
+
+
+
+
 }

@@ -47,7 +47,7 @@ public class SquareBumper implements Gadget {
         this.boundaries = new ArrayList<LineSegment>(Arrays.asList(left,top,right,bottom));
         this.corners = new ArrayList<Circle>(Arrays.asList(topLeft,topRight,bottomRight,bottomLeft));
     }
-    
+
     /**
      * Check the rep invariant.
      */
@@ -64,7 +64,7 @@ public class SquareBumper implements Gadget {
         checkRep();
         return this.name;
     }
-    
+
     /**
      * @return set of tiles taken up by bumper
      */
@@ -76,7 +76,7 @@ public class SquareBumper implements Gadget {
         set.add(tile);
         return set;
     }
-    
+
     /**
      * @return char symbol that represents this gadget on a board string
      */
@@ -85,7 +85,7 @@ public class SquareBumper implements Gadget {
         checkRep();
         return SYMBOL;
     }
-    
+
     /**
      * @return Vect position of gadget on board
      */
@@ -94,8 +94,8 @@ public class SquareBumper implements Gadget {
         checkRep();
         return position;
     }
-    
-    
+
+
     /***
      * Calculates time until collision with this ball.
      * @param ball
@@ -122,7 +122,7 @@ public class SquareBumper implements Gadget {
         checkRep();
         return minTime;
     }
-    
+
     /***
      * Progresses this gadget by the given amountOfTime (in seconds),
      * simplifying to no physical constants/accelerations,
@@ -136,14 +136,14 @@ public class SquareBumper implements Gadget {
     public void progressAndCollide(double amountOfTime, Ball ball){
         checkRep();
         ball.progressIgnoringPhysicalConstants(amountOfTime);
-        
+
         //find closest wall
         final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
         LineSegment closestWall = boundaries.get(0);
         Circle closestCorner = corners.get(0);
         double minTime=Double.POSITIVE_INFINITY;
         double minCornerTime=Double.POSITIVE_INFINITY;
-        
+
         for (LineSegment line : boundaries) {
             double collisionTime = Geometry.timeUntilWallCollision(line, ballShape, ball.getVelocity());
             if (collisionTime < minTime) {
@@ -158,7 +158,7 @@ public class SquareBumper implements Gadget {
                 closestCorner = circle;
             }
         }
-        
+
         Vect velocity;
         if (minTime < minCornerTime) {
             velocity = physics.Geometry.reflectWall(closestWall,ball.getVelocity());
@@ -166,11 +166,11 @@ public class SquareBumper implements Gadget {
         else {
             velocity = physics.Geometry.reflectCircle(closestCorner.getCenter(), ball.getPosition(), ball.getVelocity());
         }
-        
+
         ball.setVelocity(velocity);
         checkRep();
     }
-    
+
     /**
      * Square bumpers have no action.
      */
@@ -196,45 +196,45 @@ public class SquareBumper implements Gadget {
         //do nothing
     }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((corners == null) ? 0 : corners.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result
-				+ ((position == null) ? 0 : position.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((corners == null) ? 0 : corners.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result
+            + ((position == null) ? 0 : position.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SquareBumper other = (SquareBumper) obj;
-		if (corners == null) {
-			if (other.corners != null)
-				return false;
-		} else if (!corners.equals(other.corners))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (position == null) {
-			if (other.position != null)
-				return false;
-		} else if (!position.equals(other.position))
-			return false;
-		return true;
-	}
-    
-    
-    
-    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SquareBumper other = (SquareBumper) obj;
+        if (corners == null) {
+            if (other.corners != null)
+                return false;
+        } else if (!corners.equals(other.corners))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (position == null) {
+            if (other.position != null)
+                return false;
+        } else if (!position.equals(other.position))
+            return false;
+        return true;
+    }
+
+
+
+
 }

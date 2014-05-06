@@ -52,52 +52,52 @@ public class ServerTest {
     }
 
     @Test public void boardConstructorWorksSinglePlayer() {
-    	// see unitTests in BoardFactoryTests.
-        }    
-    
+        // see unitTests in BoardFactoryTests.
+    }    
+
     @Test public void boardConstructorWorksMultiPlayer() {
-    	// see unitTests in BoardFactoryTests.
-        }    
+        // see unitTests in BoardFactoryTests.
+    }    
 
     @Test public void serverRecordsSingleClientsName() {
-    	// manually tested: server prints out current online named clients correctly
-        }    
+        // manually tested: server prints out current online named clients correctly
+    }    
 
     @Test public void serverCorrectlyHandlesSingleDisconnect() {
-    	// when single board disconnects, server prints out its name correctly.
-        }    
-    
+        // when single board disconnects, server prints out its name correctly.
+    }    
+
     @Test public void serverRecordsManyClientsName() {
-    	// manually tested: server prints out current online named clients correctly
-        }    
-    
+        // manually tested: server prints out current online named clients correctly
+    }    
+
     @Test public void serverCorrectlyHandlesMultipleDisconnects() {
-    	// when client disconnects, other clients which are joined set their walls to transparent again.
-        }    
+        // when client disconnects, other clients which are joined set their walls to transparent again.
+    }    
 
     @Test public void serverGluesDistinctLeftRight() {
-    	// 'h NAME1 NAME2' fed into System.in correctly updates boards to glue left and right.
-        }    
-    
+        // 'h NAME1 NAME2' fed into System.in correctly updates boards to glue left and right.
+    }    
+
     @Test public void serverGluesDistinctUpDown() {
-    	// 'v NAME1 NAME2' fed into System.in correctly updates boards to glue left and right.
-        }    
+        // 'v NAME1 NAME2' fed into System.in correctly updates boards to glue left and right.
+    }    
 
     @Test public void serverGluesSameBoardToItself() {
-    	// 'v NAME1 NAME2' fed into System.in correctly updates top of board to glue to bottom of board.
-        }    
-    
+        // 'v NAME1 NAME2' fed into System.in correctly updates top of board to glue to bottom of board.
+    }    
+
     @Test public void serverGluesOverridingPrevious() {
-    	// 'v NAME1 NAME2' followed by 'v NAME1 NAME3' correctly glues board1 and board3 and unglues board1 and board2.
-        }    
+        // 'v NAME1 NAME2' followed by 'v NAME1 NAME3' correctly glues board1 and board3 and unglues board1 and board2.
+    }    
 
     @Test public void serverGluesNonPersistentUponDisconnect() {
-    	// When board1 and board2 are glued and then board1 disconnects and connects again,
-    	// server treats board1 and board2 as unglued.
-        }    
-    
+        // When board1 and board2 are glued and then board1 disconnects and connects again,
+        // server treats board1 and board2 as unglued.
+    }    
+
     @Test public void ballsTransferBetweenBoards() {
-    	// see unit tests in BoardTests.
-        }    
-    
+        // see unit tests in BoardTests.
+    }    
+
 }

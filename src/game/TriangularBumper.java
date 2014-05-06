@@ -27,58 +27,58 @@ public class TriangularBumper implements Gadget {
     private final String name;
     private final Vect position;
     private final double angle;
-    
+
     private final static double BOARDSIZE = 20; //size of board is 20Lx20L
     private final List<LineSegment> boundaries; //based on position and dimensions
     private final List<Circle> corners;
-    
+
     private static final char SYMBOL1 = '\\';
     private static final char SYMBOL2 = '/';
 
-   
+
     /**
      * Creates triangle bumpers on the board from file information
      * @param file board file
      */
     public TriangularBumper(String name,double x, double y, double orientation) {
-       this.name = name;
-       this.position = new Vect(x,y);
-       this.angle = orientation;
-       
-       //create boundaries
-       LineSegment vertical = (orientation == 0||orientation == 270) ? new LineSegment(x,y,x,y+1) : new LineSegment(x+1,y,x+1,y+1);
-       LineSegment horizontal = (orientation == 0||orientation == 90) ? new LineSegment(x,y,x+1,y) : new LineSegment(x,y+1,x+1,y+1);
-       LineSegment hypotenuse = (orientation == 0||orientation == 180) ? new LineSegment(x,y+1,x+1,y) : new LineSegment(x,y,x+1,y+1);
-       
-       if (orientation == 0){
-           Circle firstCorner = new Circle(x,y,0);
-           Circle secondCorner = new Circle(x+1,y,0);
-           Circle thirdCorner = new Circle(x,y+1,0);
-           corners = new ArrayList<Circle>(Arrays.asList(firstCorner,secondCorner,thirdCorner));
-       }
-       else if (orientation == 90) {
-           Circle firstCorner = new Circle(x,y,0);
-           Circle secondCorner = new Circle(x+1,y,0);
-           Circle thirdCorner = new Circle(x+1,y+1,0);
-           corners = new ArrayList<Circle>(Arrays.asList(firstCorner,secondCorner,thirdCorner));
-       }
-       else if (orientation == 180) {
-           Circle firstCorner = new Circle(x+1,y,0);
-           Circle secondCorner = new Circle(x+1,y+1,0);
-           Circle thirdCorner = new Circle(x,y+1,0);
-           corners = new ArrayList<Circle>(Arrays.asList(firstCorner,secondCorner,thirdCorner));
-       }
-       else {
-           Circle firstCorner = new Circle(x+1,y+1,0);
-           Circle secondCorner = new Circle(x,y+1,0);
-           Circle thirdCorner = new Circle(x,y,0);
-           corners = new ArrayList<Circle>(Arrays.asList(firstCorner,secondCorner,thirdCorner));
-       }
-       
-       this.boundaries = new ArrayList<LineSegment>(Arrays.asList(horizontal,vertical,hypotenuse));
+        this.name = name;
+        this.position = new Vect(x,y);
+        this.angle = orientation;
+
+        //create boundaries
+        LineSegment vertical = (orientation == 0||orientation == 270) ? new LineSegment(x,y,x,y+1) : new LineSegment(x+1,y,x+1,y+1);
+        LineSegment horizontal = (orientation == 0||orientation == 90) ? new LineSegment(x,y,x+1,y) : new LineSegment(x,y+1,x+1,y+1);
+        LineSegment hypotenuse = (orientation == 0||orientation == 180) ? new LineSegment(x,y+1,x+1,y) : new LineSegment(x,y,x+1,y+1);
+
+        if (orientation == 0){
+            Circle firstCorner = new Circle(x,y,0);
+            Circle secondCorner = new Circle(x+1,y,0);
+            Circle thirdCorner = new Circle(x,y+1,0);
+            corners = new ArrayList<Circle>(Arrays.asList(firstCorner,secondCorner,thirdCorner));
+        }
+        else if (orientation == 90) {
+            Circle firstCorner = new Circle(x,y,0);
+            Circle secondCorner = new Circle(x+1,y,0);
+            Circle thirdCorner = new Circle(x+1,y+1,0);
+            corners = new ArrayList<Circle>(Arrays.asList(firstCorner,secondCorner,thirdCorner));
+        }
+        else if (orientation == 180) {
+            Circle firstCorner = new Circle(x+1,y,0);
+            Circle secondCorner = new Circle(x+1,y+1,0);
+            Circle thirdCorner = new Circle(x,y+1,0);
+            corners = new ArrayList<Circle>(Arrays.asList(firstCorner,secondCorner,thirdCorner));
+        }
+        else {
+            Circle firstCorner = new Circle(x+1,y+1,0);
+            Circle secondCorner = new Circle(x,y+1,0);
+            Circle thirdCorner = new Circle(x,y,0);
+            corners = new ArrayList<Circle>(Arrays.asList(firstCorner,secondCorner,thirdCorner));
+        }
+
+        this.boundaries = new ArrayList<LineSegment>(Arrays.asList(horizontal,vertical,hypotenuse));
     }
-    
-    
+
+
     /**
      * @return string name of gadget
      */
@@ -87,8 +87,8 @@ public class TriangularBumper implements Gadget {
         checkRep();
         return this.name;
     }
-    
-    
+
+
     /**
      * @return Set<Vect> of board tiles taken up by gadget
      */
@@ -100,7 +100,7 @@ public class TriangularBumper implements Gadget {
         set.add(tile);
         return set;
     }
-    
+
     /**
      * 
      * @return A char symbol representing the bumper on the board
@@ -123,7 +123,7 @@ public class TriangularBumper implements Gadget {
         }
 
     }
-    
+
     /**
      * @return Vect position of top left corner of gadget
      */
@@ -134,14 +134,14 @@ public class TriangularBumper implements Gadget {
     }
 
     /**
-    *
-    * @param ball ball on board
-    * 
-    * @return a double representing the time, in seconds, that
-    * it would take a ball traveling at a velocity to collide with 
-    * the closest boundary of the bumper
-    * 
-    */
+     *
+     * @param ball ball on board
+     * 
+     * @return a double representing the time, in seconds, that
+     * it would take a ball traveling at a velocity to collide with 
+     * the closest boundary of the bumper
+     * 
+     */
     @Override
     public double timeTillCollision(Ball ball){
         checkRep();
@@ -153,7 +153,7 @@ public class TriangularBumper implements Gadget {
                 minTime = collisionTime;
             }
         }
-        
+
         for (Circle corner : corners) {
             double collisionTime = physics.Geometry.timeUntilCircleCollision(corner, ballShape, ball.getVelocity());
             if (collisionTime < minTime){
@@ -163,7 +163,7 @@ public class TriangularBumper implements Gadget {
         checkRep();
         return minTime;
     }
-    
+
     @Override
     public void progressAndCollide(double amountOfTime, Ball ball){
         checkRep();
@@ -177,7 +177,7 @@ public class TriangularBumper implements Gadget {
         for (LineSegment line : boundaries) {
             double collisionTime = physics.Geometry.timeUntilWallCollision(line, ballShape, ball.getVelocity());
             if (collisionTime < minTime) {
-            	minTime = collisionTime;
+                minTime = collisionTime;
                 closestWall = line;
             }
         }
@@ -188,7 +188,7 @@ public class TriangularBumper implements Gadget {
                 closestCorner = circle;
             }
         }
-        
+
         Vect velocity;
         if (minTime < minCornerTime) {
             velocity = physics.Geometry.reflectWall(closestWall,ball.getVelocity());
@@ -199,7 +199,7 @@ public class TriangularBumper implements Gadget {
         ball.setVelocity(velocity);
         checkRep();
     }
-    
+
     /**
      * Triangular bumpers have no action.
      */
@@ -208,7 +208,7 @@ public class TriangularBumper implements Gadget {
         //Do nothing.
         checkRep();
     }
-    
+
     /***
      * Progresses this gadget by the given amountOfTime (in seconds),
      * assuming the given physical constants.
@@ -234,46 +234,46 @@ public class TriangularBumper implements Gadget {
     }
 
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		long temp;
-		temp = Double.doubleToLongBits(angle);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((corners == null) ? 0 : corners.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        long temp;
+        temp = Double.doubleToLongBits(angle);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + ((corners == null) ? 0 : corners.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
 
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TriangularBumper other = (TriangularBumper) obj;
-		if (Double.doubleToLongBits(angle) != Double
-				.doubleToLongBits(other.angle))
-			return false;
-		if (corners == null) {
-			if (other.corners != null)
-				return false;
-		} else if (!corners.equals(other.corners))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
-    
-    
-    
-    
-    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        TriangularBumper other = (TriangularBumper) obj;
+        if (Double.doubleToLongBits(angle) != Double
+                .doubleToLongBits(other.angle))
+            return false;
+        if (corners == null) {
+            if (other.corners != null)
+                return false;
+        } else if (!corners.equals(other.corners))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
+    }
+
+
+
+
+
 }

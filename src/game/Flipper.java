@@ -46,11 +46,11 @@ public class Flipper implements Gadget {
     private LineSegment flipperShape;
     private boolean isRotatingCounterclockwise;
     private boolean isRotating;
-    
+
     //Note: all angles are measured in degrees, counterclockwise from 'down'
 
-    
-    
+
+
     /***
      * Creates flippers on the board from file.
      * @param file board file
@@ -58,34 +58,34 @@ public class Flipper implements Gadget {
     public Flipper(String leftOrRight, String name, double x, double y, double orientation) {
         this.name = name;
         this.boundingBoxPosition = new Vect(x,y);
-        
+
         this.currentAngle = 0;
         if (orientation == 90) {
-        	this.currentAngle = 270 * Math.PI / 180;
+            this.currentAngle = 270 * Math.PI / 180;
         } else if (orientation == 270) {
-        	this.currentAngle = 90 * Math.PI / 180;
+            this.currentAngle = 90 * Math.PI / 180;
         } else if (orientation == 180) {
-        	this.currentAngle = 180 * Math.PI / 180;
+            this.currentAngle = 180 * Math.PI / 180;
         }
         if (leftOrRight.equals("left")) {
             this.minAngle = this.currentAngle;
             if (this.minAngle != 270 * Math.PI / 180){
-            	this.maxAngle = this.currentAngle + 90*(Math.PI/180);
+                this.maxAngle = this.currentAngle + 90*(Math.PI/180);
             } else {
-            	this.maxAngle = 0;
+                this.maxAngle = 0;
             }
             this.isRotatingCounterclockwise = true; //left starts with rotating counterclckwise
         }
         else { //leftOrRight equals right
             this.maxAngle = this.currentAngle;
             if (this.maxAngle != 0){
-            	this.minAngle = this.currentAngle - 90*(Math.PI/180);
+                this.minAngle = this.currentAngle - 90*(Math.PI/180);
             } else {
-            	this.minAngle = 270 * (Math.PI/180);
+                this.minAngle = 270 * (Math.PI/180);
             }
             this.isRotatingCounterclockwise = false; //right starts with rotating clockwise
         }
-        
+
         //find pivot
         if (this.maxAngle == 0*(Math.PI/180)) {
             this.pivotPosition = new Vect(x + LENGTH,y);
@@ -98,7 +98,7 @@ public class Flipper implements Gadget {
                 final Vect otherEnd = new Vect(pivotPosition.x()-LENGTH,pivotPosition.y());
                 flipperShape = new LineSegment(pivotPosition, otherEnd);
             }
-            
+
         }
         else if (this.maxAngle == 90*(Math.PI/180)) {
             this.pivotPosition = new Vect(x,y);
@@ -139,10 +139,10 @@ public class Flipper implements Gadget {
                 flipperShape = new LineSegment(pivotPosition, otherEnd);
             }
         }
-        
+
         this.isRotating = false;
     }
-   
+
     /**
      * @return String name of gadget
      */
@@ -150,7 +150,7 @@ public class Flipper implements Gadget {
     public String getName(){
         return this.name;
     }
-    
+
     /**
      * @return Set<Vect> of board tiles taken up by gadget
      */
@@ -159,7 +159,7 @@ public class Flipper implements Gadget {
         Set<Vect> tiles = new HashSet<Vect>();
         Vect tile1;
         Vect tile2 = null;
-                
+
         //find pivot
         if (this.maxAngle == 0) {
             tile1 = new Vect(pivotPosition.x()-1,pivotPosition.y());
@@ -197,12 +197,12 @@ public class Flipper implements Gadget {
                 tile2 = new Vect(pivotPosition.x()-1,pivotPosition.y()-LENGTH);
             }
         }
-        
-        
+
+
         if (tile2 == null) { //flipper's in da middle!
             final double otherEndX = pivotPosition.x() + LENGTH * Math.sin(currentAngle);
             final double otherEndY = pivotPosition.y() + LENGTH * Math.cos(currentAngle);
-    
+
             tile2 = new Vect (Math.floor(otherEndX), Math.floor(otherEndY));
         }
 
@@ -211,7 +211,7 @@ public class Flipper implements Gadget {
 
         return tiles;
     }
-    
+
     /**
      * @return char symbol that represents this gadget on a board
      */
@@ -219,7 +219,7 @@ public class Flipper implements Gadget {
     public char getSymbol(){
         if (isRotating) {
             return ROTATINGSYMBOL;
-            
+
         }
         if (this.currentAngle == 0 || this.currentAngle == 180*(Math.PI/180)){
             return VERTICALSYMBOL;
@@ -228,7 +228,7 @@ public class Flipper implements Gadget {
             return HORIZONTALSYMBOL;
         }       
     }
-    
+
     /**
      * @return Vect pivot point of flipper
      */
@@ -252,7 +252,7 @@ public class Flipper implements Gadget {
         }
     }
 
-    
+
     @Override
     public double timeTillCollision(Ball ball){
         final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
@@ -270,7 +270,7 @@ public class Flipper implements Gadget {
             return collisionTime;
         }
     }
-    
+
     /**
      * Simulates a collision with a flipper by updating the velocity of the
      * ball by the coefficient of reflection, 0.95.
@@ -286,24 +286,24 @@ public class Flipper implements Gadget {
     public void progressAndCollide(double amountOfTime, Ball ball){
         progress(amountOfTime,0,0,0);
         ball.progressIgnoringPhysicalConstants(amountOfTime);
-        
+
         //updates velocity based on linear velocity of flipper motion
         final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
         Vect velocity;
         if (isRotating) {
-        	velocity = physics.Geometry.reflectRotatingWall(
-                flipperShape,
-                pivotPosition,
-                getRotationalVelocity(),
-                ballShape,
-                ball.getVelocity(),
-                0.95); }
+            velocity = physics.Geometry.reflectRotatingWall(
+                    flipperShape,
+                    pivotPosition,
+                    getRotationalVelocity(),
+                    ballShape,
+                    ball.getVelocity(),
+                    0.95); }
         else {
-        	velocity = physics.Geometry.reflectWall(flipperShape, ball.getVelocity(), 0.95);
+            velocity = physics.Geometry.reflectWall(flipperShape, ball.getVelocity(), 0.95);
         }
         ball.setVelocity(velocity);
     }
-    
+
     /**
      * Rotate the gadget 90*(Math.PI/180) degrees at a rate of 1080 degrees per second.
      * The left gadget rotates counter-clockwise, and the right gadget 
@@ -313,7 +313,7 @@ public class Flipper implements Gadget {
     public void doAction(){
         isRotating = true;
     }
-    
+
     /**
      * Progresses this gadget by the given amountOfTime (in milliseconds),
      * assuming the given physical constants.
@@ -326,35 +326,35 @@ public class Flipper implements Gadget {
     @Override
     public void progress(double amountOfTime, double gravity, double mu,
             double mu2) {
-          //if flipper is mid-rotation
-          if (isRotating){
-                  this.currentAngle += getRotationalVelocity()*amountOfTime ;
-                  this.currentAngle = (this.currentAngle >= 2 * Math.PI) ? this.currentAngle - 2 * Math.PI : this.currentAngle;
-                  this.currentAngle = (this.currentAngle < 0) ? this.currentAngle + 2 * Math.PI : this.currentAngle;
-                  flipperShape = physics.Geometry.rotateAround(flipperShape, pivotPosition, new Angle(-getRotationalVelocity()*amountOfTime));
-                  //checks if done
-                  if (!isRotatingCounterclockwise && ((this.minAngle == 0 && this.currentAngle > 3 * Math.PI / 2) || (this.currentAngle < this.minAngle && this.minAngle != 0))) {
-                	  double tmpmin = (minAngle == 0) ? 2*Math.PI : minAngle;
-                	  double diff = Math.abs(this.currentAngle - tmpmin);
-                      flipperShape = physics.Geometry.rotateAround(flipperShape, pivotPosition, new Angle(diff));
-                      this.currentAngle += diff;
-                      this.currentAngle = (this.currentAngle >= 2 * Math.PI) ? this.currentAngle - 2 * Math.PI : this.currentAngle;
-                      this.currentAngle = (this.currentAngle < 0) ? this.currentAngle + 2 * Math.PI : this.currentAngle;
-                      isRotating = false;
-                      isRotatingCounterclockwise = !isRotatingCounterclockwise;
-                  } else if (isRotatingCounterclockwise && ((this.maxAngle == 0 && currentAngle < Math.PI / 2) || (this.maxAngle != 0 && currentAngle > maxAngle))) {
-                	  double tmpmax = (maxAngle == 0) ? 2*Math.PI : maxAngle;
-                	  double diff = Math.abs(this.maxAngle - this.currentAngle);
-                      flipperShape = physics.Geometry.rotateAround(flipperShape, pivotPosition, new Angle(-diff));
-                      this.currentAngle -= diff;
-                      this.currentAngle = (this.currentAngle >= 2 * Math.PI) ? this.currentAngle - 2 * Math.PI : this.currentAngle;
-                      this.currentAngle = (this.currentAngle < 0) ? this.currentAngle + 2 * Math.PI : this.currentAngle;
-                      isRotating = false;
-                      isRotatingCounterclockwise = !isRotatingCounterclockwise;
-                  }
-          }
+        //if flipper is mid-rotation
+        if (isRotating){
+            this.currentAngle += getRotationalVelocity()*amountOfTime ;
+            this.currentAngle = (this.currentAngle >= 2 * Math.PI) ? this.currentAngle - 2 * Math.PI : this.currentAngle;
+            this.currentAngle = (this.currentAngle < 0) ? this.currentAngle + 2 * Math.PI : this.currentAngle;
+            flipperShape = physics.Geometry.rotateAround(flipperShape, pivotPosition, new Angle(-getRotationalVelocity()*amountOfTime));
+            //checks if done
+            if (!isRotatingCounterclockwise && ((this.minAngle == 0 && this.currentAngle > 3 * Math.PI / 2) || (this.currentAngle < this.minAngle && this.minAngle != 0))) {
+                double tmpmin = (minAngle == 0) ? 2*Math.PI : minAngle;
+                double diff = Math.abs(this.currentAngle - tmpmin);
+                flipperShape = physics.Geometry.rotateAround(flipperShape, pivotPosition, new Angle(diff));
+                this.currentAngle += diff;
+                this.currentAngle = (this.currentAngle >= 2 * Math.PI) ? this.currentAngle - 2 * Math.PI : this.currentAngle;
+                this.currentAngle = (this.currentAngle < 0) ? this.currentAngle + 2 * Math.PI : this.currentAngle;
+                isRotating = false;
+                isRotatingCounterclockwise = !isRotatingCounterclockwise;
+            } else if (isRotatingCounterclockwise && ((this.maxAngle == 0 && currentAngle < Math.PI / 2) || (this.maxAngle != 0 && currentAngle > maxAngle))) {
+                double tmpmax = (maxAngle == 0) ? 2*Math.PI : maxAngle;
+                double diff = Math.abs(this.maxAngle - this.currentAngle);
+                flipperShape = physics.Geometry.rotateAround(flipperShape, pivotPosition, new Angle(-diff));
+                this.currentAngle -= diff;
+                this.currentAngle = (this.currentAngle >= 2 * Math.PI) ? this.currentAngle - 2 * Math.PI : this.currentAngle;
+                this.currentAngle = (this.currentAngle < 0) ? this.currentAngle + 2 * Math.PI : this.currentAngle;
+                isRotating = false;
+                isRotatingCounterclockwise = !isRotatingCounterclockwise;
+            }
+        }
 
     }
-    
+
 
 }

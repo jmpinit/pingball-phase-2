@@ -9,5 +9,5 @@ package gameParts;
  *
  */
 public enum SideBoard {
-	NONE, RIGHT, LEFT, TOP, BOTTOM
+    NONE, RIGHT, LEFT, TOP, BOTTOM
 }

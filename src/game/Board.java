@@ -29,7 +29,7 @@ public class Board {
     public static final double DEFAULTGRAVITY = 25.0;
     public static final double DEFAULTMU1 = 0.025;
     public static final double DEFAULTMU2 = 0.025;
-    
+
     //IMMUTABLE ATTRIBUTES:
     private final String name; //name of board
     private final Double gravity; //coefficient of acceleration downwards due to gravity force, in units L/(sec^2)
@@ -54,7 +54,7 @@ public class Board {
     private Board leftBoard;
     private Board rightBoard;
 
-    
+
     /***
      * Creates a new board from the given parameters
      * 
@@ -75,10 +75,10 @@ public class Board {
         this.gadgetsToEffects = gadgetsToEffects;
         this.stepSize = stepSizeInSeconds;
         this.balls = startingBalls;
-        
+
         //CONSTRUCTED AS ALWAYS
         this.ballQueue = new LinkedBlockingQueue<Ball>();
-            //walls:
+        //walls:
         this.topWall = new Wall( new Vect(0,0),new Vect(SIDELENGTH,0)  );
         this.bottomWall = new Wall( new Vect(0,SIDELENGTH),new Vect(SIDELENGTH,SIDELENGTH)  );
         this.leftWall = new Wall( new Vect(0,0),new Vect(0,SIDELENGTH)  );
@@ -88,14 +88,14 @@ public class Board {
         walls.add(bottomWall);
         walls.add(leftWall);
         walls.add(rightWall);
-            //boards:
+        //boards:
         this.topBoard = null;
         this.bottomBoard = null;
         this.leftBoard = null;
         this.rightBoard = null;
     }
-    
-    
+
+
     /***
      * Returns name of board.
      * @return name of this board
@@ -111,14 +111,14 @@ public class Board {
     @Override
     public String toString(){
         char[][] arrayRep = new char[SIDELENGTH+1+1][SIDELENGTH+1+1]; //square array represenation of 20x20 board + walls
-        
+
         //fill with spaces
         for (int i = 0; i < arrayRep.length; i ++) {
             for (int j = 0; j < arrayRep.length; j ++) {
                 arrayRep[i][j] = ' ';
             }
         }
-        
+
         //overwrite with walls
         for (int i = 0; i < arrayRep.length; i ++) {
             arrayRep[0][i] = '.'; //top wall
@@ -126,7 +126,7 @@ public class Board {
             arrayRep[i][0] = '.'; //left wall
             arrayRep[i][arrayRep.length-1] = '.'; //right wall
         }
-        
+
         //overwrite with any currently joined boards' names
         if (topBoard != null) {
             String nameToWrite = topBoard.getName();
@@ -171,14 +171,14 @@ public class Board {
                 arrayRep[(int) tile.y() + 1][(int) (tile.x() + 1)] = gadget.getSymbol();
             }
         }
-        
+
         //overwrite with ball locations
         for (Ball ball : balls ) {
             for (Vect tile : ball.getTiles()) {
                 arrayRep[(int) tile.y() + 1][(int) (tile.x() + 1)] = ball.getSymbol();
             }
         }
-        
+
         //make string representation
         String stringRep = "";
         for (int j = 0; j < arrayRep.length; j ++) {
@@ -189,7 +189,7 @@ public class Board {
         }
         return stringRep;
     }
-    
+
     /***
      * Progresses the board by one time step,
      * adding any queued balls,
@@ -204,7 +204,7 @@ public class Board {
     public void step() throws InterruptedException{
         addQueuedBalls();
         double timeTillEndOfStep = stepSize; //Currently at beginning of time step
-        
+
         while (timeTillEndOfStep > 0) {
             //FIND TIME TO FAST FORWARD THROUGH
             double timeToFastForwardThrough = timeTillEndOfStep; //If no collisions is found, next update is to the end of this time step
@@ -224,7 +224,7 @@ public class Board {
                             collidingBall = ball;
                             collidingGamePiece = otherBall;
                             timeToFastForwardThrough = timeTillCollision;
-                        }
+                                }
                     }
                     //Look for collisions with gadgets
                     for (GamePiece gadget : getGadgets() ) { //check all gadgets
@@ -250,7 +250,7 @@ public class Board {
                     }
                 }
             }
-            
+
             //FASTFORWARD EVERYTHING THAT IS NOT COLLIDING, USING PHYSICAL CONSTANTS
             //  progress active balls that are not colliding
             Set<Ball> ballsToDeleteFromThisBoard = new HashSet<Ball>();
@@ -273,13 +273,13 @@ public class Board {
                 }
             }
             boolean me = false;
-            
+
             //FASTFORWARD AND COLLIDE ALL THINGS THAT ARE COLLIDING, IF ANY, IGNORING PHYSICAL CONSTANTS
             if (foundCollision) {
                 collidingGamePiece.progressAndCollide(timeToFastForwardThrough, collidingBall);
-                
+
                 if (getGadgets().contains(collidingGamePiece)) { //if it's a board gadget
-                   GamePiece collidingGadget = collidingGamePiece;
+                    GamePiece collidingGadget = collidingGamePiece;
                     //do other actions caused by the collision
                     for (GamePiece gadgetToAct : gadgetsToEffects.get(collidingGadget)){
                         me = true;
@@ -287,7 +287,7 @@ public class Board {
                     }
                 }
             }
-            
+
             timeTillEndOfStep -= timeToFastForwardThrough;
         }//repeat until at end of time step
     }    
@@ -299,7 +299,7 @@ public class Board {
      * @return Board that contains this ball, either this or one of the 4 attached boards
      */
     private SideBoard getBoardContaining(Ball ball) {
-    	
+
         if (ball.getPosition().x() < 0 && leftBoard != null) { //to left of this board
             return SideBoard.LEFT;
         }
@@ -340,7 +340,7 @@ public class Board {
         }
         thisBallsBoard.ballQueue.put(ball);
     }
-    
+
     /***
      * Places all queued balls in their correct location on this board.
      * Cannot be called while board's attribute balls is being edited.
@@ -348,8 +348,8 @@ public class Board {
     private void addQueuedBalls() {
         ballQueue.drainTo(balls);
         //Note: drainTo is only guaranteed to work if balls is not being edited elsewhere
-}
-    
+    }
+
     /***
      * Gets a set of this board's gadgets.
      * @return this board's gadgets
@@ -357,7 +357,7 @@ public class Board {
     private Set<GamePiece> getGadgets(){
         return gadgetsToEffects.keySet();
     }
-    
+
     /***
      * Joins left wall with given board,
      * and updates the String representation of this board to reflect the join,
@@ -366,14 +366,14 @@ public class Board {
      * @param otherBoard the board which is being joined
      */
     public void joinLeftWallTo(Board otherBoard){
-    	if (leftBoard != null) { 
-    		leftBoard.disjoinRight();
-    	}
+        if (leftBoard != null) { 
+            leftBoard.disjoinRight();
+        }
         leftBoard = otherBoard;
         leftWall.setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
-    
+
     /***
      * Joins right wall with given board,
      * and updates the String representation of the board to reflect the join,
@@ -382,14 +382,14 @@ public class Board {
      * @param otherBoard the board which is being joined
      */
     public void joinRightWallTo(Board otherBoard){
-    	if (rightBoard != null) { 
-    		rightBoard.disjoinLeft();
-    	}
+        if (rightBoard != null) { 
+            rightBoard.disjoinLeft();
+        }
         rightBoard = otherBoard;
         rightWall.setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
-    
+
     /***
      * Joins top wall with given board,
      * and updates the String representation of the board to reflect the join,
@@ -398,14 +398,14 @@ public class Board {
      * @param otherBoard the board which is being joined
      */
     public void joinTopWallTo(Board otherBoard){
-    	if (topBoard != null) { 
-    		topBoard.disjoinBottom();
-    	}
+        if (topBoard != null) { 
+            topBoard.disjoinBottom();
+        }
         topBoard = otherBoard;
         topWall.setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
-    
+
     /***
      * Joins bottom wall with given board,
      * and updates the String representation of the board to reflect the join,
@@ -414,15 +414,15 @@ public class Board {
      * @param otherBoard the board which is being joined
      */
     public void joinBottomWallTo(Board otherBoard){
-    	if (bottomBoard != null) { 
-    		bottomBoard.disjoinTop();
-    	}
+        if (bottomBoard != null) { 
+            bottomBoard.disjoinTop();
+        }
         bottomBoard = otherBoard;
         bottomWall.setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
-    
-    
+
+
     /***
      * Disjoins all connections to (and knowledge of) the given board
      * 
@@ -442,7 +442,7 @@ public class Board {
             disjoinRight();
         }
     }
-    
+
     /***
      * Disjoins all connections to (and knowledge of) the current left board, if any
      */
@@ -450,8 +450,8 @@ public class Board {
         leftBoard = null;
         leftWall.setTransparency(false);
     }
-    
-    
+
+
     /***
      * Disjoins all connections to (and knowledge of) the current right board, if any
      */
@@ -459,7 +459,7 @@ public class Board {
         rightBoard = null;
         rightWall.setTransparency(false);
     }
-    
+
     /***
      * Disjoins all connections to (and knowledge of) the current top board, if any
      */
@@ -475,54 +475,54 @@ public class Board {
         bottomBoard = null;
         bottomWall.setTransparency(false);
     }
-    
+
     public Board getTopBoard(){
-    	return topBoard;
+        return topBoard;
     }
 
     public Board getBottomBoard(){
-    	return bottomBoard;
+        return bottomBoard;
     }
-    
+
     public Board getRightBoard(){
-    	return rightBoard;
+        return rightBoard;
     }
-    
+
     public Board getLeftBoard(){
-    	return leftBoard;
+        return leftBoard;
     }
 
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((balls == null) ? 0 : balls.hashCode());
-		result = prime
-				* result
-				+ ((gadgetsToEffects == null) ? 0 : gadgetsToEffects.hashCode());
-		result = prime * result + ((gravity == null) ? 0 : gravity.hashCode());
-		result = prime * result + ((mu == null) ? 0 : mu.hashCode());
-		result = prime * result + ((mu2 == null) ? 0 : mu2.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((balls == null) ? 0 : balls.hashCode());
+        result = prime
+            * result
+            + ((gadgetsToEffects == null) ? 0 : gadgetsToEffects.hashCode());
+        result = prime * result + ((gravity == null) ? 0 : gravity.hashCode());
+        result = prime * result + ((mu == null) ? 0 : mu.hashCode());
+        result = prime * result + ((mu2 == null) ? 0 : mu2.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
 
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Board other = (Board) obj;
-		return (this+"").equals(other+"");
-	}
-    
-    
-    
-    
-    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Board other = (Board) obj;
+        return (this+"").equals(other+"");
+    }
+
+
+
+
+
 }
