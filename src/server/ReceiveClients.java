@@ -1,16 +1,17 @@
-package pingball.server;
+package server;
+
+import game.Board;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentMap;
 
 import boardfile.BoardFactory;
-import gameParts.*;
 
 /**
  * Specialized thread to focus on receiving client connections
@@ -40,7 +41,7 @@ public class ReceiveClients implements Runnable {
         while (true) {
             // block until a client connects
             Socket clientSocket;
-            try {				
+            try {
                 clientSocket = serverSocket.accept();
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));            
                 String line = in.readLine();

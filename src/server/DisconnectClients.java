@@ -1,7 +1,5 @@
-package pingball.server;
+package server;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;

@@ -1,9 +1,10 @@
-package pingball.server;
-import gameParts.*;
+package server;
 
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
+import game.Board;
+
+import java.net.Socket;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class Client {
 

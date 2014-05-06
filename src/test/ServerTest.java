@@ -1,10 +1,4 @@
-package pingball.server;
-
-import gameParts.*;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.util.Arrays;
+package test;
 
 import org.junit.Before;
 import org.junit.BeforeClass;

@@ -1,4 +1,4 @@
-package gameParts;
+package game;
 
 import java.util.Set;
 

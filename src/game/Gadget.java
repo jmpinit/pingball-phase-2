@@ -1,4 +1,4 @@
-package gameParts;
+package game;
 
 /**
  * Gadgets are pieces localized to a specific position on a specific board.

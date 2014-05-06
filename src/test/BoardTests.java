@@ -1,14 +1,28 @@
-package gameParts;
+package test;
 
-import physics.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import game.Absorber;
+import game.Ball;
+import game.Board;
+import game.CircularBumper;
+import game.Flipper;
+import game.GamePiece;
+import game.SquareBumper;
+import game.TriangularBumper;
 
-import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import org.junit.*;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import physics.Vect;
 
 
 /**

@@ -1,18 +1,29 @@
-package boardfile;
+package test;
 
-import gameParts.*;
-import physics.*;
-import pingball.server.PingballServer;
+import static org.junit.Assert.assertEquals;
+import game.Absorber;
+import game.Ball;
+import game.Board;
+import game.CircularBumper;
+import game.Flipper;
+import game.GamePiece;
+import game.SquareBumper;
+import game.TriangularBumper;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import org.junit.*;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import physics.Vect;
+import server.PingballServer;
+import boardfile.BoardFactory;
 
 
 /**

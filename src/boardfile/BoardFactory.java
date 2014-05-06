@@ -1,25 +1,32 @@
 package boardfile;
 
-import gameParts.*;
+import game.Absorber;
+import game.Ball;
+import game.Board;
+import game.CircularBumper;
+import game.Flipper;
+import game.GamePiece;
+import game.SquareBumper;
+import game.TriangularBumper;
 
 import java.io.IOException;
-import java.nio.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import physics.Vect;
-import pingball.server.PingballServer;
+import server.PingballServer;
 
 public class BoardFactory {
 
