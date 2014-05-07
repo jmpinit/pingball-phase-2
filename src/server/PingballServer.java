@@ -2,20 +2,26 @@ package server;
 
 import game.Board;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import boardfile.BoardFactory;
 
 /**
  * Thread safety argument:
@@ -49,7 +55,8 @@ public class PingballServer {
 
     public static final int FRAMERATE = 20;
     public static final int NUM_MILLISECONDS = 1000;
-
+    
+    Thread disconnectorThread;
 
     /**
      * Constructor initializes everything
@@ -94,9 +101,9 @@ public class PingballServer {
      *                     (IOExceptions from individual clients do *not* terminate serve())
      */
     public void serve() throws IOException {
-        Thread receiveClients = new Thread(new ReceiveClients(serverSocket, clientNames, disconnects));
+        Thread receiveClients = new Thread(connector);
         receiveClients.start();
-        Thread disconClients = new Thread(new DisconnectClients(serverSocket, clientNames, disconnects));
+        Thread disconClients = new Thread(disconnector);
         disconClients.start();
 
         Timer timer = new Timer();
@@ -202,6 +209,63 @@ public class PingballServer {
             e.printStackTrace();
         }
     }
+    
+    Runnable disconnector = new Runnable() {
+        @Override
+        public void run() {
+            Client client;
+            while (true) {
+                try {
+                    client = disconnects.take();
+                    // TODO
+                    //List<Client> others = client.getBoard().getNeighbors();
+                    System.out.println(client.getBoard().getName() + " just disconnected!");
+                    synchronized(clientNames) {
+                        Set<String> names = clientNames.keySet();
+                        for (String name: names) {
+                            Client other = clientNames.get(name);
+                            other.getBoard().disjoin(client.getBoard());
+                        }
+                        clientNames.remove(client.getBoard().getName());
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+    
+    Runnable connector = new Runnable() {
+        @Override
+        public void run() {
+            while (true) {
+                // block until a client connects
+                Socket clientSocket;
+                try {
+                    clientSocket = serverSocket.accept();
+                    BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));            
+                    String line = in.readLine();
+                    StringBuilder content = new StringBuilder();
+                    while (!line.equals("STOP")) {
+                        content.append(line + "\n");
+                        line = in.readLine();
+                    }
+                    Board board = BoardFactory.parse(content.toString());
+                    synchronized(clientNames){
+                        Client client = new Client(board, clientSocket, true, new ArrayBlockingQueue<Integer>(5));
+                        if (board.getName() != null){
+                            clientNames.put(board.getName(), client);
+                        }
+                        Thread t = new Thread(new ClientRunnable(client, disconnects));
+                        t.start();
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
 
     /**
      * Initializes the server
