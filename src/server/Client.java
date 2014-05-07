@@ -6,8 +6,10 @@ import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * Data on the server associated with a remote client playing pingball.
+ */
 public class Client {
-
     private static final int CAPACITY = 5;
     private final Board board;
     private final Socket socket;
@@ -24,7 +26,6 @@ public class Client {
     public Board getBoard() {
         return board;
     }
-
 
     public Socket getSocket() {
         return socket;
@@ -55,6 +56,4 @@ public class Client {
         }
         return n;
     }
-
-
 }

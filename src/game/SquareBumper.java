@@ -51,7 +51,7 @@ public class SquareBumper implements Gadget {
     /**
      * Check the rep invariant.
      */
-    private void checkRep(){
+    private void checkRep() {
         assert (this.position.x() >= 0 && this.position.x() <= BOARDSIZE);
         assert (this.position.y() >= 0 && this.position.y() <= BOARDSIZE);
     }
@@ -60,7 +60,7 @@ public class SquareBumper implements Gadget {
      * @return string name representing name of bumper
      */
     @Override
-    public String getName(){
+    public String getName() {
         checkRep();
         return this.name;
     }
@@ -69,7 +69,7 @@ public class SquareBumper implements Gadget {
      * @return set of tiles taken up by bumper
      */
     @Override
-    public Set<Vect> getTiles(){
+    public Set<Vect> getTiles() {
         checkRep();
         Vect tile = position;
         Set<Vect> set = new HashSet<Vect>();
@@ -81,7 +81,7 @@ public class SquareBumper implements Gadget {
      * @return char symbol that represents this gadget on a board string
      */
     @Override
-    public char getSymbol(){
+    public char getSymbol() {
         checkRep();
         return SYMBOL;
     }
@@ -90,7 +90,7 @@ public class SquareBumper implements Gadget {
      * @return Vect position of gadget on board
      */
     @Override
-    public Vect getPosition(){
+    public Vect getPosition() {
         checkRep();
         return position;
     }
@@ -103,7 +103,7 @@ public class SquareBumper implements Gadget {
      * collision between the ball and the gadget
      */
     @Override
-    public double timeTillCollision(Ball ball){
+    public double timeTillCollision(Ball ball) {
         checkRep();
         double minTime=Double.POSITIVE_INFINITY;
         final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
@@ -133,7 +133,7 @@ public class SquareBumper implements Gadget {
      * @param ball ball to collide with
      */
     @Override
-    public void progressAndCollide(double amountOfTime, Ball ball){
+    public void progressAndCollide(double amountOfTime, Ball ball) {
         checkRep();
         ball.progressIgnoringPhysicalConstants(amountOfTime);
 
@@ -175,7 +175,7 @@ public class SquareBumper implements Gadget {
      * Square bumpers have no action.
      */
     @Override
-    public void doAction(){
+    public void doAction() {
         checkRep();
         //do nothing
     }

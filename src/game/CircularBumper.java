@@ -41,7 +41,7 @@ public class CircularBumper implements Gadget {
      * @return string name representing this gadget
      */
     @Override
-    public String getName(){
+    public String getName() {
         checkRep();
         return this.name;
     }
@@ -51,7 +51,7 @@ public class CircularBumper implements Gadget {
      * @return set of tiles this gadget takes up on the board
      */
     @Override
-    public Set<Vect> getTiles(){
+    public Set<Vect> getTiles() {
         checkRep();
         Set<Vect> tiles = new HashSet<Vect>();
 
@@ -65,7 +65,7 @@ public class CircularBumper implements Gadget {
      * 
      * @return Vect representing center of circular bumper
      */
-    private Vect getCenter(){
+    private Vect getCenter() {
         checkRep();
         return new Vect(position.x()+RADIUS,position.y()+RADIUS);
     }
@@ -74,7 +74,7 @@ public class CircularBumper implements Gadget {
      * @return char symbol that represents this gadget on the board string
      */
     @Override
-    public char getSymbol(){
+    public char getSymbol() {
         checkRep();
         return SYMBOL;
     }
@@ -83,7 +83,7 @@ public class CircularBumper implements Gadget {
      * @return Vect position of gadget on board
      */
     @Override
-    public Vect getPosition(){
+    public Vect getPosition() {
         checkRep();
         return position;
     }
@@ -95,7 +95,7 @@ public class CircularBumper implements Gadget {
      * collision between the ball and the gadget
      */
     @Override
-    public double timeTillCollision(Ball ball){
+    public double timeTillCollision(Ball ball) {
         checkRep();
         final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
         return Geometry.timeUntilCircleCollision(boundary, ballShape, ball.getVelocity());
@@ -109,7 +109,7 @@ public class CircularBumper implements Gadget {
      * 
      */
     @Override
-    public void progressAndCollide(double amountOfTime, Ball ball){
+    public void progressAndCollide(double amountOfTime, Ball ball) {
         checkRep();
         ball.progressIgnoringPhysicalConstants(amountOfTime);
         Vect velocity = physics.Geometry.reflectCircle(this.getCenter(), ball.getPosition(), ball.getVelocity());
@@ -121,7 +121,7 @@ public class CircularBumper implements Gadget {
      * Circle bumpers have no action.
      */
     @Override
-    public void doAction(){
+    public void doAction() {
         //do nothing
         checkRep();
     }
@@ -144,7 +144,7 @@ public class CircularBumper implements Gadget {
     /**
      * Check the rep invariant.
      */
-    private void checkRep(){
+    private void checkRep() {
         assert (this.position.x() >= 0 && this.position.x() <= BOARDSIZE);
         assert (this.position.y() >= 0 && this.position.y() <= BOARDSIZE);
 

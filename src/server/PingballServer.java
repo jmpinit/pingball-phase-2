@@ -45,10 +45,6 @@ import boardfile.BoardFactory;
  * 
  */
 public class PingballServer {
-    private final ServerSocket serverSocket;
-    private final ConcurrentMap<String, Client> clientNames;
-    private final BlockingQueue<Client> disconnects;
-    private final int port;
     public static final int DEFAULT_PORT = 10987; // default port
     public static final int MAX_PORT_NUM = 65535;
     public static final int DC_CAPACITY = 10;
@@ -56,8 +52,10 @@ public class PingballServer {
     public static final int FRAMERATE = 20;
     public static final int NUM_MILLISECONDS = 1000;
     
-    Thread disconnectorThread;
-
+    private final ServerSocket serverSocket;
+    private final ConcurrentMap<String, Client> clientNames;
+    private final BlockingQueue<Client> disconnects;
+    
     /**
      * Constructor initializes everything
      * @param port
@@ -65,20 +63,24 @@ public class PingballServer {
      */
     public PingballServer(int port) throws IOException {
         // initialize everything
-        this.port = port;
         serverSocket = new ServerSocket(port);
         clientNames = new ConcurrentHashMap<String, Client>();
         disconnects = new ArrayBlockingQueue<Client>(DC_CAPACITY);
     }
 
-    private String StringListOfBoards() {
+    /**
+     * @return a message containing the names of the boards of the connected clients.
+     */
+    private String getListOfBoards() {
         StringBuilder s = new StringBuilder();
-        synchronized(clientNames){
-            for (Client client : clientNames.values()){
+        
+        synchronized(clientNames) {
+            for (Client client : clientNames.values()) {
                 s.append(client.getBoard().getName() + ", ");
             }
         }
-        if (s.length() > 0){
+        
+        if (s.length() > 0) {
             s.delete(s.length()-2, s.length());
             s.append(".");
             return s.toString();
@@ -109,27 +111,29 @@ public class PingballServer {
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new myTimerTask(clientNames),0,NUM_MILLISECONDS / FRAMERATE);
 
-
-
         Scanner sc = new Scanner (System.in);
         System.out.println("Welcome to the Pingball server.");
-        System.out.println("Boards available for gluing are: " + StringListOfBoards());
+        System.out.println("Boards available for gluing are: " + getListOfBoards());
         System.out.println("To glue boards, type 'h NAME1 NAME2' or 'v NAME1 NAME2'.");
+        
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String regex = "(h|v) ([a-zA-Z_0-9]+) ([a-zA-Z_0-9]+)";
+            
             if ( ! line.matches(regex)) {
                 System.out.println("Invalid gluing command.");
             } else {
                 String[] args = line.split(" ");
                 Board firstBoard = null;
                 Board secondBoard = null;
-                synchronized(clientNames){
-                    if (clientNames.keySet().contains(args[1]) && clientNames.keySet().contains(args[2])){
+                
+                synchronized(clientNames) {
+                    if (clientNames.keySet().contains(args[1]) && clientNames.keySet().contains(args[2])) {
                         firstBoard = clientNames.get(args[1]).getBoard();
                         secondBoard = clientNames.get(args[2]).getBoard();
                     }
                 }
+                
                 if (firstBoard != null && secondBoard != null) {
                     if ("h".equals(args[0])) {
                         firstBoard.joinRightWallTo(secondBoard);
@@ -140,19 +144,18 @@ public class PingballServer {
                         firstBoard.joinBottomWallTo(secondBoard);
                         secondBoard.joinTopWallTo(firstBoard);
                     }
+                    
                     System.out.println("Gluing command successful.");
                 } else {
                     System.out.println("Invalid gluing command.");
                 }
             }
-            System.out.println("Boards available for gluing are: " + StringListOfBoards());
+            System.out.println("Boards available for gluing are: " + getListOfBoards());
         }
         sc.close();
     }
 
-
     private class myTimerTask extends TimerTask {
-
         private final ConcurrentMap<String, Client> clientNames;
         private Integer i;
 
@@ -164,13 +167,14 @@ public class PingballServer {
         @Override
         public void run() {
             Collection<Client> clients = clientNames.values();
-            for (Client client: clients){
+            
+            for (Client client: clients) {
                 client.sendTime(i);
             }
+            
             i++;
         }
     }
-
 
     /**
      * Reads arguments passed in from command line and accordingly initializes server
@@ -178,12 +182,15 @@ public class PingballServer {
     public static void main(String[] args) {
         Queue<String> arguments = new LinkedList<String>(Arrays.asList(args));
         int port = DEFAULT_PORT;
+        
         try {
             while ( ! arguments.isEmpty()) {
                 String flag = arguments.remove();
+                
                 try {
                     if (flag.equals("--port")) {
                         port = Integer.parseInt(arguments.remove());
+                        
                         if (port < 0 || port > MAX_PORT_NUM) {
                             throw new IllegalArgumentException("port " + port + " out of range");
                         }
@@ -195,7 +202,6 @@ public class PingballServer {
                 } catch (NumberFormatException nfe) {
                     throw new IllegalArgumentException("unable to parse number for " + flag);
                 }
-
             }
         } catch (IllegalArgumentException iae) {
             System.err.println(iae.getMessage());
@@ -214,6 +220,7 @@ public class PingballServer {
         @Override
         public void run() {
             Client client;
+            
             while (true) {
                 try {
                     client = disconnects.take();
@@ -241,25 +248,33 @@ public class PingballServer {
             while (true) {
                 // block until a client connects
                 Socket clientSocket;
+                
                 try {
+                    // set up communication to the client
                     clientSocket = serverSocket.accept();
                     BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));            
-                    String line = in.readLine();
+                    
+                    // read in the board
                     StringBuilder content = new StringBuilder();
+                    String line = in.readLine();
                     while (!line.equals("STOP")) {
                         content.append(line + "\n");
                         line = in.readLine();
                     }
+                    
                     Board board = BoardFactory.parse(content.toString());
-                    synchronized(clientNames){
+                    
+                    // add the data for the client
+                    synchronized(clientNames) {
                         Client client = new Client(board, clientSocket, true, new ArrayBlockingQueue<Integer>(5));
-                        if (board.getName() != null){
+                        
+                        if (board.getName() != null) {
                             clientNames.put(board.getName(), client);
                         }
+                        
                         Thread t = new Thread(new ClientRunnable(client, disconnects));
                         t.start();
                     }
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -272,7 +287,6 @@ public class PingballServer {
      */
 
     public static void runPingballServer(int port) throws IOException {
-
         PingballServer server = new PingballServer(port);
         server.serve();
     }

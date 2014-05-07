@@ -69,7 +69,7 @@ public class Flipper implements Gadget {
         }
         if (leftOrRight.equals("left")) {
             this.minAngle = this.currentAngle;
-            if (this.minAngle != 270 * Math.PI / 180){
+            if (this.minAngle != 270 * Math.PI / 180) {
                 this.maxAngle = this.currentAngle + 90*(Math.PI/180);
             } else {
                 this.maxAngle = 0;
@@ -78,7 +78,7 @@ public class Flipper implements Gadget {
         }
         else { //leftOrRight equals right
             this.maxAngle = this.currentAngle;
-            if (this.maxAngle != 0){
+            if (this.maxAngle != 0) {
                 this.minAngle = this.currentAngle - 90*(Math.PI/180);
             } else {
                 this.minAngle = 270 * (Math.PI/180);
@@ -147,7 +147,7 @@ public class Flipper implements Gadget {
      * @return String name of gadget
      */
     @Override
-    public String getName(){
+    public String getName() {
         return this.name;
     }
 
@@ -155,7 +155,7 @@ public class Flipper implements Gadget {
      * @return Set<Vect> of board tiles taken up by gadget
      */
     @Override
-    public Set<Vect> getTiles(){
+    public Set<Vect> getTiles() {
         Set<Vect> tiles = new HashSet<Vect>();
         Vect tile1;
         Vect tile2 = null;
@@ -216,12 +216,12 @@ public class Flipper implements Gadget {
      * @return char symbol that represents this gadget on a board
      */
     @Override
-    public char getSymbol(){
+    public char getSymbol() {
         if (isRotating) {
             return ROTATINGSYMBOL;
 
         }
-        if (this.currentAngle == 0 || this.currentAngle == 180*(Math.PI/180)){
+        if (this.currentAngle == 0 || this.currentAngle == 180*(Math.PI/180)) {
             return VERTICALSYMBOL;
         }
         else {
@@ -233,7 +233,7 @@ public class Flipper implements Gadget {
      * @return Vect pivot point of flipper
      */
     @Override
-    public Vect getPosition(){
+    public Vect getPosition() {
         return boundingBoxPosition;
     }
 
@@ -254,10 +254,10 @@ public class Flipper implements Gadget {
 
 
     @Override
-    public double timeTillCollision(Ball ball){
+    public double timeTillCollision(Ball ball) {
         final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
         //calculates collision time to possibly rotating flipper
-        if (isRotating){
+        if (isRotating) {
             double collisionTime = physics.Geometry.timeUntilRotatingWallCollision(
                     flipperShape,
                     pivotPosition,
@@ -283,7 +283,7 @@ public class Flipper implements Gadget {
      * @param ball ball on board
      */
     @Override
-    public void progressAndCollide(double amountOfTime, Ball ball){
+    public void progressAndCollide(double amountOfTime, Ball ball) {
         progress(amountOfTime,0,0,0);
         ball.progressIgnoringPhysicalConstants(amountOfTime);
 
@@ -310,7 +310,7 @@ public class Flipper implements Gadget {
      * rotates clockwise.
      */
     @Override
-    public void doAction(){
+    public void doAction() {
         isRotating = true;
     }
 
@@ -327,7 +327,7 @@ public class Flipper implements Gadget {
     public void progress(double amountOfTime, double gravity, double mu,
             double mu2) {
         //if flipper is mid-rotation
-        if (isRotating){
+        if (isRotating) {
             this.currentAngle += getRotationalVelocity()*amountOfTime ;
             this.currentAngle = (this.currentAngle >= 2 * Math.PI) ? this.currentAngle - 2 * Math.PI : this.currentAngle;
             this.currentAngle = (this.currentAngle < 0) ? this.currentAngle + 2 * Math.PI : this.currentAngle;

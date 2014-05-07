@@ -20,13 +20,9 @@ import java.util.concurrent.BlockingQueue;
 import boardfile.BoardFactory;
 
 /**
- * Class activated by client to play Pingball.
- * @author yqlu
- *
+ * Play a local game of pingball.
  */
 public class PingballClient {
-
-
     public static final int DEFAULT_PORT = 10987; // default port
     public static final int MAX_PORT_NUM = 65535;
 
@@ -53,9 +49,9 @@ public class PingballClient {
             System.err.println("Could not connect to host.");
             System.exit(1);
         }
+        
         String fromServer; 
 
-        FileReader in2;
         try {
             String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
             out.println(content);
@@ -64,16 +60,13 @@ public class PingballClient {
             e.printStackTrace();
         }
 
-
-        while ((fromServer = in.readLine()) != null) {
+        while((fromServer = in.readLine()) != null) {
             System.out.println(fromServer);
         }
     }
 
-
-
-    /** constructor for single player offline play
-     * 
+    /**
+     * Constructor for single player local play.
      * @param file File to be parsed to initialize the board
      * @throws IOException if reading file is unsuccessful
      */
@@ -81,30 +74,32 @@ public class PingballClient {
         String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
         Board board = BoardFactory.parse(content);
         BlockingQueue<Integer> timeQueue = new ArrayBlockingQueue<Integer>(5);
-        Client client = new Client(board, null, false, timeQueue); // 
+        Client client = new Client(board, null, false, timeQueue);
         Thread t = new Thread(new ClientRunnable(client, new ArrayBlockingQueue<Client>(1))); // disconnects
         t.start();        
     }
 
     public static void main(String[] args) {
-        // Command-line argument parsing is provided. Do not change this method.
         boolean onlinePlay = false;
         String host = "";
         int port = DEFAULT_PORT;
         String filename = null;
+        
         Queue<String> arguments = new LinkedList<String>(Arrays.asList(args));
+        
         try {
-            while ( ! arguments.isEmpty()) {
+            while(!arguments.isEmpty()) {
                 String flag = arguments.remove();
+                
                 try {
                     if (flag.equals("--host")) {
                         onlinePlay = true;
                         host = arguments.remove();
                     } else if (flag.equals("--port")) {
                         port = Integer.parseInt(arguments.remove());
-                        if (port < 0 || port > MAX_PORT_NUM) {
+                        
+                        if(port < 0 || port > MAX_PORT_NUM)
                             throw new IllegalArgumentException("port " + port + " out of range");
-                        }
                     } else if (flag.equals("--file")) {
                         filename = arguments.remove();
                     } else {
@@ -122,9 +117,8 @@ public class PingballClient {
             return;
         }
 
-
         try {
-            if (onlinePlay) {
+            if(onlinePlay) {
                 new PingballClient(host, port, filename);
             } else {
                 new PingballClient(filename);

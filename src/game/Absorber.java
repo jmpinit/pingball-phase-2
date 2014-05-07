@@ -70,7 +70,7 @@ public class Absorber implements Gadget {
      * @return a String name representing name of gadget
      */
     @Override
-    public String getName(){
+    public String getName() {
         checkRep();
         return this.name;
     }
@@ -80,11 +80,11 @@ public class Absorber implements Gadget {
      * @return Set<Vect>
      */
     @Override
-    public Set<Vect> getTiles(){
+    public Set<Vect> getTiles() {
         checkRep();
         Set<Vect> set = new HashSet<Vect>();
-        for (int i=0; i<width; i++){
-            for (int j=0; j<height;j++){
+        for (int i=0; i<width; i++) {
+            for (int j=0; j<height;j++) {
                 Vect tile = new Vect(this.position.x()+i,this.position.y()+j);
                 set.add(tile);
             }
@@ -98,7 +98,7 @@ public class Absorber implements Gadget {
      * @return a char symbol to represent this gadget.
      */
     @Override
-    public char getSymbol(){
+    public char getSymbol() {
         return SYMBOL;
     }
 
@@ -107,7 +107,7 @@ public class Absorber implements Gadget {
      * @return current position
      */
     @Override
-    public Vect getPosition(){
+    public Vect getPosition() {
         checkRep();
         return position;
     }
@@ -121,16 +121,16 @@ public class Absorber implements Gadget {
      * collision between the ball and the gadget
      */
     @Override
-    public double timeTillCollision(Ball ball){
+    public double timeTillCollision(Ball ball) {
         checkRep();
-        if (this.contains(ball)){
+        if (this.contains(ball)) {
             return Double.POSITIVE_INFINITY;
         } else {
             double min = Double.POSITIVE_INFINITY;
             final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
             for (LineSegment line : boundaries) {
                 double time = physics.Geometry.timeUntilWallCollision(line,ballShape,ball.getVelocity());
-                if (time < min){
+                if (time < min) {
                     min = time;
                 }
             }
@@ -171,7 +171,7 @@ public class Absorber implements Gadget {
      * @param mu2 constant value of the friction with respect to distance
      */
     @Override
-    public void progress(double amountOfTime, double gravity, double mu, double mu2){
+    public void progress(double amountOfTime, double gravity, double mu, double mu2) {
         //Do nothing.
         checkRep();
     }
@@ -187,7 +187,7 @@ public class Absorber implements Gadget {
      * @param ball ball to collide with
      */
     @Override
-    public void progressAndCollide(double amountOfTime, Ball ball){
+    public void progressAndCollide(double amountOfTime, Ball ball) {
         //Jump forward to collision (progressing to position of collision is unnecessary)
 
         //Collide
@@ -204,7 +204,7 @@ public class Absorber implements Gadget {
      * Activates and releases one stored ball, if one exists.
      */
     @Override
-    public void doAction(){
+    public void doAction() {
         checkRep();
         if (!storedBalls.isEmpty()) {
             Ball ballToShootOut = storedBalls.remove();
@@ -217,7 +217,7 @@ public class Absorber implements Gadget {
     /**
      * Check the rep invariant.
      */
-    private void checkRep(){
+    private void checkRep() {
         assert (width <= BOARDSIZE);
         assert (height <= BOARDSIZE);
         assert (this.position.x() >= 0 && this.position.x() <= BOARDSIZE);

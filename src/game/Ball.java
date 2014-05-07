@@ -30,7 +30,7 @@ public class Ball implements GamePiece{
     
     private static final char SYMBOL = '*';
 
-    public Ball(String name, Vect position, Vect velocity){
+    public Ball(String name, Vect position, Vect velocity) {
         this.name = name;
         this.position = position;
         this.velocity = velocity;
@@ -236,7 +236,7 @@ public class Ball implements GamePiece{
     /**
      * Check rep invariant.
      */
-    private void checkRep(){
+    private void checkRep() {
         assert (this.position.x() >= 0 && this.position.x() <= BOARDSIZE);
         assert (this.position.y() >= 0 && this.position.y() <= BOARDSIZE);
     }

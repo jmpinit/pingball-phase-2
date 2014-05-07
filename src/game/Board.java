@@ -109,7 +109,7 @@ public class Board {
      * @return a string representation of the board in its current state.
      */
     @Override
-    public String toString(){
+    public String toString() {
         char[][] arrayRep = new char[SIDELENGTH+1+1][SIDELENGTH+1+1]; //square array represenation of 20x20 board + walls
 
         //fill with spaces
@@ -213,7 +213,7 @@ public class Board {
             Ball collidingBall = null;
             GamePiece collidingGamePiece = null;
             for (Ball ball : balls) {
-                if (ball.isActive()){
+                if (ball.isActive()) {
                     //Look for collisions with other balls
                     for (Ball otherBall : balls) {
                         double timeTillCollision = otherBall.timeTillCollision(ball);
@@ -281,7 +281,7 @@ public class Board {
                 if (getGadgets().contains(collidingGamePiece)) { //if it's a board gadget
                     GamePiece collidingGadget = collidingGamePiece;
                     //do other actions caused by the collision
-                    for (GamePiece gadgetToAct : gadgetsToEffects.get(collidingGadget)){
+                    for (GamePiece gadgetToAct : gadgetsToEffects.get(collidingGadget)) {
                         me = true;
                         gadgetToAct.doAction();
                     }
@@ -354,7 +354,7 @@ public class Board {
      * Gets a set of this board's gadgets.
      * @return this board's gadgets
      */
-    private Set<GamePiece> getGadgets(){
+    private Set<GamePiece> getGadgets() {
         return gadgetsToEffects.keySet();
     }
 
@@ -365,7 +365,7 @@ public class Board {
      * exiting the left hand side of this board.
      * @param otherBoard the board which is being joined
      */
-    public void joinLeftWallTo(Board otherBoard){
+    public void joinLeftWallTo(Board otherBoard) {
         if (leftBoard != null) { 
             leftBoard.disjoinRight();
         }
@@ -381,7 +381,7 @@ public class Board {
      * exiting the right hand side of this board.
      * @param otherBoard the board which is being joined
      */
-    public void joinRightWallTo(Board otherBoard){
+    public void joinRightWallTo(Board otherBoard) {
         if (rightBoard != null) { 
             rightBoard.disjoinLeft();
         }
@@ -397,7 +397,7 @@ public class Board {
      * exiting the top of this board.
      * @param otherBoard the board which is being joined
      */
-    public void joinTopWallTo(Board otherBoard){
+    public void joinTopWallTo(Board otherBoard) {
         if (topBoard != null) { 
             topBoard.disjoinBottom();
         }
@@ -413,7 +413,7 @@ public class Board {
      * exiting the bottom of this board.
      * @param otherBoard the board which is being joined
      */
-    public void joinBottomWallTo(Board otherBoard){
+    public void joinBottomWallTo(Board otherBoard) {
         if (bottomBoard != null) { 
             bottomBoard.disjoinTop();
         }
@@ -446,7 +446,7 @@ public class Board {
     /***
      * Disjoins all connections to (and knowledge of) the current left board, if any
      */
-    public void disjoinLeft(){
+    public void disjoinLeft() {
         leftBoard = null;
         leftWall.setTransparency(false);
     }
@@ -455,7 +455,7 @@ public class Board {
     /***
      * Disjoins all connections to (and knowledge of) the current right board, if any
      */
-    public void disjoinRight(){
+    public void disjoinRight() {
         rightBoard = null;
         rightWall.setTransparency(false);
     }
@@ -463,7 +463,7 @@ public class Board {
     /***
      * Disjoins all connections to (and knowledge of) the current top board, if any
      */
-    public void disjoinTop(){
+    public void disjoinTop() {
         topBoard = null;
         topWall.setTransparency(false);
     }
@@ -471,24 +471,24 @@ public class Board {
     /***
      * Disjoins all connections to (and knowledge of) the current bottom board, if any
      */
-    public void disjoinBottom(){
+    public void disjoinBottom() {
         bottomBoard = null;
         bottomWall.setTransparency(false);
     }
 
-    public Board getTopBoard(){
+    public Board getTopBoard() {
         return topBoard;
     }
 
-    public Board getBottomBoard(){
+    public Board getBottomBoard() {
         return bottomBoard;
     }
 
-    public Board getRightBoard(){
+    public Board getRightBoard() {
         return rightBoard;
     }
 
-    public Board getLeftBoard(){
+    public Board getLeftBoard() {
         return leftBoard;
     }
 

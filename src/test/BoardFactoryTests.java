@@ -46,7 +46,7 @@ public class BoardFactoryTests {
     @Before public void setUp() {
     }
 
-    @Test public void SampleBoard1ConstructorTest(){
+    @Test public void SampleBoard1ConstructorTest() {
         String content = null;
         try {
             content = BoardFactory.readFile("boards/sampleBoard4.pb", StandardCharsets.UTF_8);

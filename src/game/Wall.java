@@ -30,7 +30,7 @@ public class Wall implements GamePiece {
     private static final char SYMBOL = '.';
 
     
-    public Wall(Vect oneEnd, Vect otherEnd){
+    public Wall(Vect oneEnd, Vect otherEnd) {
         this.name = "wall"; //all walls are named "wall"
         this.endA = oneEnd;
         this.endB = otherEnd;
@@ -42,7 +42,7 @@ public class Wall implements GamePiece {
      * @return a String name representing name of gadget
      */
     @Override
-    public String getName(){
+    public String getName() {
         checkRep();
         return name;
     }
@@ -52,11 +52,11 @@ public class Wall implements GamePiece {
      * @return Set<Vect>
      */
     @Override
-    public Set<Vect> getTiles(){
+    public Set<Vect> getTiles() {
         checkRep();
         Set<Vect> tiles = new HashSet<Vect>();
-        for (int i=0; i<endB.x()-endA.x(); i++){
-            for (int j=0; j<endB.y()-endA.y();j++){
+        for (int i=0; i<endB.x()-endA.x(); i++) {
+            for (int j=0; j<endB.y()-endA.y();j++) {
                 Vect tile = new Vect(
                         Math.min(endA.x(),endB.x()) +i,
                         Math.min(endA.y(),endB.y()) +j
@@ -73,7 +73,7 @@ public class Wall implements GamePiece {
      * @return a char symbol to represent this gadget.
      */    
     @Override
-    public char getSymbol(){
+    public char getSymbol() {
         checkRep();
         return SYMBOL;
     }
@@ -83,7 +83,7 @@ public class Wall implements GamePiece {
      * @return current position
      */
     @Override
-    public Vect getPosition(){
+    public Vect getPosition() {
         checkRep();
         return this.wall.p1();
     }
@@ -159,7 +159,7 @@ public class Wall implements GamePiece {
         //Do nothing.  
     }
     
-    private void checkRep(){
+    private void checkRep() {
         assert (this.endA.x() >= 0 && this.endA.x() <=BOARDSIZE);
         assert (this.endB.x() >= 0 && this.endB.x() <=BOARDSIZE);
     }

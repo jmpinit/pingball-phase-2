@@ -9,48 +9,48 @@ import java.util.concurrent.BlockingQueue;
 
 /**
  * Runnable that runs for every client
- * @author yqlu
- *
  */
 public class ClientRunnable implements Runnable {
     private final Client client;
     private final BlockingQueue<Client> disconnects;
     private final PrintWriter out;
 
-
     public ClientRunnable(Client client, BlockingQueue<Client> disconnects) {
         this.client = client;
         this.disconnects = disconnects;
-        PrintWriter tmpOut = null;
-        if (client.isOnline()) {
+        PrintWriter out = null;
+        
+        // setup communication with the client
+        if(client.isOnline()) {
             try {
-                tmpOut = new PrintWriter(this.client.getSocket().getOutputStream(), true);
-            } catch (IOException e) {
+                out = new PrintWriter(this.client.getSocket().getOutputStream(), true);
+            } catch(IOException e) {
                 e.printStackTrace();
-
+                // TODO disconnect clients we can't communicate with
             }
         } else {
-            tmpOut = new PrintWriter(new OutputStreamWriter(System.out));
+            out = new PrintWriter(new OutputStreamWriter(System.out));
         }
-        this.out = tmpOut;
-
-        if (!client.isOnline() || client.getBoard().getName() == null){
+        
+        this.out = out;
+        
+        if(!client.isOnline() || client.getBoard().getName() == null) {
             // run the clock yourself
             Timer timer = new Timer();
-            timer.scheduleAtFixedRate(new myTimerTask(client),0,PingballServer.NUM_MILLISECONDS/PingballServer.FRAMERATE);
+            timer.scheduleAtFixedRate(new myTimerTask(client), 0, PingballServer.NUM_MILLISECONDS/PingballServer.FRAMERATE);
         }
     }
 
     @Override
     public void run() {
-        while (true){
-            Integer t = client.getTime();
+        while (true) {            
             try {
                 client.getBoard().step();
                 out.println(client.getBoard());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            
             if (out.checkError()) {
                 if (client.isOnline()) {
                     try {
@@ -61,9 +61,7 @@ public class ClientRunnable implements Runnable {
                 }
             }
         }
-
     }
-
 
     /**
      * TODO
@@ -81,7 +79,6 @@ public class ClientRunnable implements Runnable {
      */
 
     private class myTimerTask extends TimerTask {
-
         private final Client client;
         private Integer i;
 
@@ -95,6 +92,5 @@ public class ClientRunnable implements Runnable {
             client.sendTime(i);
             i++;
         }
-    }    	
-
+    }
 }

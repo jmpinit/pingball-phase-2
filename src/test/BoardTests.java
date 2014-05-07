@@ -101,12 +101,12 @@ public class BoardTests {
         actions = new HashMap<GamePiece, Set<GamePiece>>();
     }
 
-    @Test public void WallDirectCollisionTest(){
+    @Test public void WallDirectCollisionTest() {
         balls.add(ball1);
         ball1.setVelocity(new Vect(-1.0, 0.0));
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 100; i++){
+        for (int i = 0; i < 100; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -119,14 +119,14 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }
 
-    @Test public void TwoBallsCollisionTest(){
+    @Test public void TwoBallsCollisionTest() {
         ball1 = new Ball("ball1", new Vect(2.5, 5.2), new Vect(7.3, 0.12));
         ball2 = new Ball("ball2", new Vect(5.2, 2.5), new Vect(0.12, 7.3));
         balls.add(ball1);
         balls.add(ball2);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -143,12 +143,12 @@ public class BoardTests {
     }    
 
 
-    @Test public void WallObliqueCollisionTest(){
+    @Test public void WallObliqueCollisionTest() {
         balls.add(ball2);
         ball2.setVelocity(new Vect(-1.1, -0.8));
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 100; i++){
+        for (int i = 0; i < 100; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -161,12 +161,12 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }    
 
-    @Test public void SquareBumperDirectCollisionTest(){
+    @Test public void SquareBumperDirectCollisionTest() {
         actions.put(sqb, new HashSet<GamePiece>());
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -179,12 +179,12 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }
 
-    @Test public void SquareBumperObliqueCollisionTest(){
+    @Test public void SquareBumperObliqueCollisionTest() {
         actions.put(sqb, new HashSet<GamePiece>());
         balls.add(ball2);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -197,12 +197,12 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }
 
-    @Test public void CircleBumperDirectCollisionTest(){
+    @Test public void CircleBumperDirectCollisionTest() {
         actions.put(ccb, new HashSet<GamePiece>());
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -215,12 +215,12 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }
 
-    @Test public void CircularBumperObliqueCollisionTest(){
+    @Test public void CircularBumperObliqueCollisionTest() {
         actions.put(ccb, new HashSet<GamePiece>());
         balls.add(ball2);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -233,12 +233,12 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }    
 
-    @Test public void TriangularBumperLegCollisionTest(){
+    @Test public void TriangularBumperLegCollisionTest() {
         actions.put(trib1, new HashSet<GamePiece>());
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -251,12 +251,12 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }    
 
-    @Test public void TriangularBumperHypotenuseCollisionTest(){
+    @Test public void TriangularBumperHypotenuseCollisionTest() {
         actions.put(trib2, new HashSet<GamePiece>());
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -269,12 +269,12 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }    
 
-    @Test public void AbsorberCollisionNoTriggerTest(){
+    @Test public void AbsorberCollisionNoTriggerTest() {
         actions.put(abs, new HashSet<GamePiece>());
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -287,13 +287,13 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }    
 
-    @Test public void AbsorberCollisionSelfTriggerTest(){
+    @Test public void AbsorberCollisionSelfTriggerTest() {
         actions.put(abs, new HashSet<GamePiece>());
         actions.get(abs).add(abs);
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -306,7 +306,7 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }    
 
-    @Test public void AbsorberCollisionTriggerByOtherGadgetTest(){
+    @Test public void AbsorberCollisionTriggerByOtherGadgetTest() {
         SquareBumper sqb2 = new SquareBumper("sqb2", 10, 15);
         actions.put(sqb2, new HashSet<GamePiece>());
 
@@ -317,7 +317,7 @@ public class BoardTests {
 
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -328,7 +328,7 @@ public class BoardTests {
                 ball1.getPosition().y() - 6.75);
         // ball is deactivated and stuck inside Absorber
         assertTrue(diff.length() < 1e-10);
-        for (int i = 0; i < 87; i++){
+        for (int i = 0; i < 87; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -341,13 +341,13 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }        
 
-    @Test public void FlipperCollisionTest(){
+    @Test public void FlipperCollisionTest() {
         actions.put(leftf, new HashSet<GamePiece>());
         balls.add(ball3);
 
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -360,11 +360,11 @@ public class BoardTests {
         assertTrue(diff.length() < 1e-10);
     }    
 
-    @Test public void GravityAndFrictionTest(){
+    @Test public void GravityAndFrictionTest() {
         balls.add(ball1);
         board = new Board("board", Board.DEFAULTGRAVITY, Board.DEFAULTMU1, Board.DEFAULTMU2,
                 actions, 0.05, balls);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -374,7 +374,7 @@ public class BoardTests {
         Vect diff = new Vect(ball1.getPosition().x() - 6.285096824423805,
                 ball1.getPosition().y() - 16.438896255810622);
         assertTrue(diff.length() < 1e-10);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board.step();
             } catch (InterruptedException e) {
@@ -388,7 +388,7 @@ public class BoardTests {
 
     }    
 
-    @Test public void JoinTwoBoardsAndTransferBallsTest(){
+    @Test public void JoinTwoBoardsAndTransferBallsTest() {
         Set<Ball> balls1 = new HashSet<Ball>();
         ball1.setPosition(new Vect(18, 5));
         balls1.add(ball1);
@@ -398,7 +398,7 @@ public class BoardTests {
                 actions, 0.05, balls);
         board1.joinRightWallTo(board2);
         board2.joinLeftWallTo(board1);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board1.step();
                 board2.step();
@@ -415,7 +415,7 @@ public class BoardTests {
         // ball has transfered from board1 to board2
     }
 
-    @Test public void DisjoinBoardsThatWerentJoinedTest(){
+    @Test public void DisjoinBoardsThatWerentJoinedTest() {
         Set<Ball> balls1 = new HashSet<Ball>();
         ball1.setPosition(new Vect(18, 5));
         balls1.add(ball1);
@@ -427,7 +427,7 @@ public class BoardTests {
         board2.disjoin(board1);
         board1.joinRightWallTo(board2);
         board2.joinLeftWallTo(board1);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board1.step();
                 board2.step();
@@ -443,7 +443,7 @@ public class BoardTests {
 
 
 
-    @Test public void QueueMultipleBallsTest(){
+    @Test public void QueueMultipleBallsTest() {
         Set<Ball> balls1 = new HashSet<Ball>();
         ball1.setPosition(new Vect(18, 5));
         ball2 = new Ball("ball2", new Vect(18.0, 10.0), new Vect(1.0,0.0));
@@ -455,7 +455,7 @@ public class BoardTests {
                 actions, 0.05, balls);
         board1.joinRightWallTo(board2);
         board2.joinLeftWallTo(board1);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board1.step();
                 board2.step();
@@ -472,7 +472,7 @@ public class BoardTests {
 
     }    	
 
-    @Test public void JoinMultipleSidesOfBoards(){
+    @Test public void JoinMultipleSidesOfBoards() {
         Board board1 = new Board("board1", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
         Board board2 = new Board("board2", 0.0, 0.0, 0.0,
@@ -490,7 +490,7 @@ public class BoardTests {
         assertEquals(board1, board2.getBottomBoard());
     }            
 
-    @Test public void JoinOverwritingExistingJoin(){
+    @Test public void JoinOverwritingExistingJoin() {
         Board board1 = new Board("board1", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
         Board board2 = new Board("board2", 0.0, 0.0, 0.0,
@@ -514,14 +514,14 @@ public class BoardTests {
 
 
 
-    @Test public void JoinAndDisjoinBoardFromItself(){
+    @Test public void JoinAndDisjoinBoardFromItself() {
         Board board1 = new Board("board1", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
         ball1.setPosition(new Vect(18.0, 10.0));
         balls.add(ball1);
         board1.joinRightWallTo(board1);
         board1.joinLeftWallTo(board1);
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
             try {
                 board1.step();
             } catch (InterruptedException e) {
@@ -540,7 +540,7 @@ public class BoardTests {
 
     }            
 
-    @Test public void UnjoinBoardsAndThenJoinThemDifferently(){
+    @Test public void UnjoinBoardsAndThenJoinThemDifferently() {
         Board board1 = new Board("board1", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
         Board board2 = new Board("board2", 0.0, 0.0, 0.0,

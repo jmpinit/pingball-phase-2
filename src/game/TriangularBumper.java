@@ -50,7 +50,7 @@ public class TriangularBumper implements Gadget {
         LineSegment horizontal = (orientation == 0||orientation == 90) ? new LineSegment(x,y,x+1,y) : new LineSegment(x,y+1,x+1,y+1);
         LineSegment hypotenuse = (orientation == 0||orientation == 180) ? new LineSegment(x,y+1,x+1,y) : new LineSegment(x,y,x+1,y+1);
 
-        if (orientation == 0){
+        if (orientation == 0) {
             Circle firstCorner = new Circle(x,y,0);
             Circle secondCorner = new Circle(x+1,y,0);
             Circle thirdCorner = new Circle(x,y+1,0);
@@ -83,7 +83,7 @@ public class TriangularBumper implements Gadget {
      * @return string name of gadget
      */
     @Override
-    public String getName(){
+    public String getName() {
         checkRep();
         return this.name;
     }
@@ -93,7 +93,7 @@ public class TriangularBumper implements Gadget {
      * @return Set<Vect> of board tiles taken up by gadget
      */
     @Override
-    public Set<Vect> getTiles(){
+    public Set<Vect> getTiles() {
         checkRep();
         Vect tile = position;
         Set<Vect> set = new HashSet<Vect>();
@@ -106,16 +106,16 @@ public class TriangularBumper implements Gadget {
      * @return A char symbol representing the bumper on the board
      */
     @Override
-    public char getSymbol(){
+    public char getSymbol() {
         checkRep();
         //gadget angles of 0, 90, 180, 270 degrees
         if (this.angle == 0) {
             return '/';
         }
-        if (this.angle == 180){
+        if (this.angle == 180) {
             return '/';
         }
-        if (this.angle == 90){
+        if (this.angle == 90) {
             return '\\';
         }
         else {// (this.angle == 270)
@@ -128,7 +128,7 @@ public class TriangularBumper implements Gadget {
      * @return Vect position of top left corner of gadget
      */
     @Override
-    public Vect getPosition(){
+    public Vect getPosition() {
         checkRep();
         return position;
     }
@@ -143,7 +143,7 @@ public class TriangularBumper implements Gadget {
      * 
      */
     @Override
-    public double timeTillCollision(Ball ball){
+    public double timeTillCollision(Ball ball) {
         checkRep();
         double minTime=Double.POSITIVE_INFINITY;
         final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
@@ -156,7 +156,7 @@ public class TriangularBumper implements Gadget {
 
         for (Circle corner : corners) {
             double collisionTime = physics.Geometry.timeUntilCircleCollision(corner, ballShape, ball.getVelocity());
-            if (collisionTime < minTime){
+            if (collisionTime < minTime) {
                 minTime = collisionTime;
             }
         }
@@ -165,7 +165,7 @@ public class TriangularBumper implements Gadget {
     }
 
     @Override
-    public void progressAndCollide(double amountOfTime, Ball ball){
+    public void progressAndCollide(double amountOfTime, Ball ball) {
         checkRep();
         ball.progressIgnoringPhysicalConstants(amountOfTime);
         //find closest wall
@@ -204,7 +204,7 @@ public class TriangularBumper implements Gadget {
      * Triangular bumpers have no action.
      */
     @Override
-    public void doAction(){
+    public void doAction() {
         //Do nothing.
         checkRep();
     }
@@ -219,7 +219,7 @@ public class TriangularBumper implements Gadget {
      * @param mu2 constant value of the friction with respect to distance
      */
     @Override
-    public void progress(double amountOfTime, double gravity, double mu, double mu2){
+    public void progress(double amountOfTime, double gravity, double mu, double mu2) {
         //Do nothing.
         checkRep();
     }
@@ -227,7 +227,7 @@ public class TriangularBumper implements Gadget {
     /**
      * Check the rep invariant.
      */
-    private void checkRep(){
+    private void checkRep() {
         assert (this.angle == 0 || this.angle == 90 ||this.angle == 180 ||this.angle == 270); //angles of 0, 90, 180, 270 degrees
         assert (this.position.x() >= 0 && this.position.x() <= BOARDSIZE);
         assert (this.position.y() >= 0 && this.position.y() <= BOARDSIZE);
