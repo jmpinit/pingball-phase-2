@@ -1,7 +1,10 @@
-package server;
+package client;
 
 import game.Board;
 
+import java.awt.Color;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +19,10 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import javax.swing.JFrame;
+
+import server.Client;
+import server.ClientRunnable;
 import boardfile.BoardFactory;
 
 /**
@@ -59,6 +66,25 @@ public class PingballClient {
             e.printStackTrace();
         }
 
+        JFrame gui = new PingballGUI();
+        
+        gui.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                System.out.println("key pressed");
+                // TODO send input to server
+            }
+
+            public void keyReleased(KeyEvent e) {
+                System.out.println("key released");
+            }
+        });
+        
+        /* TODO
+        while((serializedEvent = in.readLine()) != null) {
+            gui.handleEvent(serializedEvent);
+        }
+         */
+        
         while((fromServer = in.readLine()) != null) {
             System.out.println(fromServer);
         }
