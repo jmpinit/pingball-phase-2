@@ -109,7 +109,7 @@ public class PingballServer {
         disconClients.start();
 
         Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new myTimerTask(clientNames),0,NUM_MILLISECONDS / FRAMERATE);
+        timer.scheduleAtFixedRate(new myTimerTask(), 0, NUM_MILLISECONDS / FRAMERATE);
 
         Scanner sc = new Scanner (System.in);
         System.out.println("Welcome to the Pingball server.");
@@ -156,11 +156,9 @@ public class PingballServer {
     }
 
     private class myTimerTask extends TimerTask {
-        private final ConcurrentMap<String, Client> clientNames;
         private Integer i;
 
-        public myTimerTask(ConcurrentMap<String, Client> clientNames) {
-            this.clientNames = clientNames;
+        public myTimerTask() {
             this.i = 0;
         }
 
