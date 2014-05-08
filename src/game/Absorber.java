@@ -35,7 +35,6 @@ import physics.Vect;
  * it should be moved to the bottom right-hand corner of the absorber, 
  * and then be shot upward as described above. 
  * 
- * @author jzwang
  *
  */
 public class Absorber implements Gadget {
@@ -52,7 +51,14 @@ public class Absorber implements Gadget {
 
     private static final char SYMBOL = '=';
 
-
+    /**
+     * Creates a new absorber with inputted parameters
+     * @param name, of particular gadget
+     * @param x, x-coordinate of top left absorber
+     * @param y, y-coordinate of top left absorber
+     * @param width dimension of gadget - how far right it extends
+     * @param height dimension of gadget - how far down it extends
+     */
     public Absorber(String name, int x, int y, int width, int height) {
         this.name = name;
         this.position = new Vect(x,y);
