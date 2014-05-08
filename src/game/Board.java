@@ -184,7 +184,12 @@ public class Board {
         //overwrite with ball locations
         for (Ball ball : balls ) {
             for (Vect tile : ball.getTiles()) {
-                arrayRep[(int) tile.y() + 1][(int) (tile.x() + 1)] = ball.getSymbol();
+                double x = tile.x() + 1;
+                double y = tile.y() + 1;
+                
+                if(y >= 0 && y < arrayRep.length && x >=0 && x < arrayRep[0].length) {
+                    arrayRep[(int)x][(int)y] = ball.getSymbol();
+                }
             }
         }
 
