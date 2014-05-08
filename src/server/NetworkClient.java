@@ -49,8 +49,10 @@ public class NetworkClient implements Runnable {
     public void run() {
         while (true) {            
             try {
-                board.step();
-                out.println(board);
+                synchronized(Board.class) {
+                    board.step();
+                    out.println(board);
+                }
                 out.println((char)12); // mark end of board
                 Thread.sleep(100); // FIXME
             } catch (InterruptedException e) {
