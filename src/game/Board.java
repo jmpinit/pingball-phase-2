@@ -35,7 +35,7 @@ public class Board {
     private final Double gravity; //coefficient of acceleration downwards due to gravity force, in units L/(sec^2)
     private final Double mu; //coefficient of acceleration against direction of motion, due to a friction force acting per second
     private final Double mu2; //coefficient of acceleration against direction of motion, due to a friction force acting per L
-    private final Map<GamePiece, Set<GamePiece>> gadgetsToEffects;//mapping of each gadget on the board to any *other* gadgets that react when the original gadget is triggered
+    private final Map<Gadget, Set<Gadget>> gadgetsToEffects;//mapping of each gadget on the board to any *other* gadgets that react when the original gadget is triggered
     //Note: It is the trigger-effect relationships between gadgets that are immutable and are maintained by this map. The gadgets themselves may be mutable.
     private final double stepSize; //step size, in seconds
 
@@ -66,7 +66,7 @@ public class Board {
      * @param stepSize length of this board's step size in seconds
      * @param balls a set of balls that start on the board
      */
-    public Board(String name, Double gravity, Double mu, Double mu2, Map<GamePiece, Set<GamePiece>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls) {
+    public Board(String name, Double gravity, Double mu, Double mu2, Map<Gadget, Set<Gadget>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls) {
         //CONSTRUCTED FROM GIVEN PARAMETERS
         this.name = name;
         this.gravity = gravity;
@@ -281,7 +281,7 @@ public class Board {
                 if (getGadgets().contains(collidingGamePiece)) { //if it's a board gadget
                     GamePiece collidingGadget = collidingGamePiece;
                     //do other actions caused by the collision
-                    for (GamePiece gadgetToAct : gadgetsToEffects.get(collidingGadget)) {
+                    for (Gadget gadgetToAct : gadgetsToEffects.get(collidingGadget)) {
                         me = true;
                         gadgetToAct.doAction();
                     }
@@ -354,7 +354,7 @@ public class Board {
      * Gets a set of this board's gadgets.
      * @return this board's gadgets
      */
-    private Set<GamePiece> getGadgets() {
+    private Set<Gadget> getGadgets() {
         return gadgetsToEffects.keySet();
     }
 

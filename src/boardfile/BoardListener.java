@@ -2,8 +2,11 @@
 
 package boardfile;
 
+import game.Board;
+
 import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.Token;
+
 
 public interface BoardListener extends ParseTreeListener {
     void enterSqbline(BoardParser.SqblineContext ctx);
@@ -86,4 +89,5 @@ public interface BoardListener extends ParseTreeListener {
 
     void enterTriggerfield(BoardParser.TriggerfieldContext ctx);
     void exitTriggerfield(BoardParser.TriggerfieldContext ctx);
+    
 }

@@ -7,74 +7,59 @@ import physics.Vect;
 
 /***
 
- * A game piece is any component of a board in a pingball game, except the board itself.
- * This includes bumpers, flippers, absorbers, balls, and board walls.
+ * A game piece is a named component on a board of a pingball game.
+ * (i.e. any Ball or Gadget)
  * 
  * @author pkalluri
  */
 
 public interface GamePiece {    
-    
     /***
-     * @return a String name representing name of gadget
+     * Get name.
+     * @return a String representation of the name of this
      */
     public String getName();
     
     /***
-     * Returns a char symbol to represent this gadget.
-     * @return a char symbol to represent this gadget.
+     * Get a char symbol to represent this game piece in its current state
+     * @return a char symbol to represent this gadget in its current state
      */
     public char getSymbol();
     
     /***
-     * Get current origin
+     * Get current position
      * @return current position
      */
     public Vect getPosition();
     
     /***
-     * Get set of tiles that this gadgets occupies
-     * @return Set<Vect>
+     * Get set of tiles that this game piece currently occupies
+     * @return the set of tiles that this game piece currently occupies
      */
     public Set<Vect> getTiles();
     
     /***
-     * Progresses this gadget by the given amountOfTime (in seconds),
-     * assuming the given physical constants.
+     * Progresses this gadget by the given amount of time, assuming the given physical constants
      * 
-     * @param amountOfTime amount of time to progress
-     * @param gravity constant value of gravity
-     * @param mu constant value of the friction with respect to time
-     * @param mu2 constant value of the friction with respect to distance
+     * @param amountOfTime amount of time to progress, in seconds
+     * @param gravity gravitational constant, in TODO: figure out the units here
+     * @param mu constant representing friction with respect to time, in 1/second
+     * @param mu2 constant representing friction with respect to distance, in 1/L
      */
     public void progress(double amountOfTime, double gravity, double mu, double mu2);
     
-
     /***
-     * Does this gadget's action.
-     */
-    //for example, a flipper rotating
-    public void doAction();
-    
-    
-    
-    /***
-     * Calculates time until collision with this ball.
-     * @param ball
-     * @return a double representing the time, in seconds, to 
-     * collision between the ball and the gadget
+     * Calculates time until collision with given ball, ignoring any physical constants
+     * @param ball the ball with which this will collide in the returned amount of time
+     * @return the time until collision between this and the ball, in seconds,
      */
     public double timeTillCollision(Ball ball);  
 
-    
-
     /***
-     * Progresses this gadget by the given amountOfTime (in seconds),
-     * simplifying to no physical constants/accelerations,
-     * and collides given ball with this gadget,
-     * by updating ball's velocity and this gadget's velocity accordingly.
+     * Progresses this gadget by the given amount of time, ignoring any physical constants,
+     * and collides this with the given ball by updating ball and gamepiece accordingly.
      * 
-     * @param amountOfTime amount of time to progress
+     * @param amountOfTime amount of time to progress, in seconds.
      * @param ball ball to collide with
      */
     public void progressAndCollide(double amountOfTime, Ball ball);

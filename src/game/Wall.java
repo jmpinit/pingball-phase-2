@@ -18,7 +18,7 @@ import physics.Vect;
  * @author pkalluri
  *
  */
-public class Wall implements GamePiece {
+public class Wall implements Gadget {
     private final String name;
     private final Vect endA;
     private final Vect endB;
