@@ -5,44 +5,34 @@ import game.Board;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import boardfile.BoardFactory;
 
 /**
- * Thread safety argument:
- * The only objects which are accessed by multiple threads are:
- * 
- *  clientNames -- any operation reading from or modifying this needs to obtain a lock on it
- *  (when a client connects / disconnects / gluing happens / balls are transferred between clients...)
- *  
- *  disconnects -- threadsafe BlockingQueue used and only operations called are peek, put and take (which block)
- *  
- * individual client's board objects
- * (when gluing happens, balls are passed, ...)
- * ball queues are implemented with threadsafe blocking queues
- * gluing requires server to obtain locks for both client boards
- * this is only ever done by the server -- no deadlocks possible
- * 
- * ungluing is only ever triggered by 1 of clients disconnecting, and requires
- * lock of the board still existing to update said board. No deadlock possible.
- * 
- * boards are timed by threadsafe blocking queues with messages sent by a single Timer thread.
- * 
+ * # Thread safety argument:
+ * - connector creates new client threads for each connection.
+ *      The creation part of that operation is thread-safe because it is fully confined to the connector thread.
+ *      The registration part of the operation (adding the client to the list of connected clients) is
+ *      thread-safe because it synchronizes on the list of clients and in doing so prevents the only other thread
+ *      that mutates the list of clients, disconnector, from interleaving a change in the list.
+ * - disconnector cleans up after clients who have disconnected.
+ *      To tell whether a client has disconnected, disconnector checks an externally read-only flag on each client.
+ *      If the flag is set then it synchronizes on the list of clients and removes the client from the list.
+ *      It also synchronizes on the Board class and registers the removal of the client's board with the boards it
+ *      was connected to. Any code that wants to change a particular Board synchronizes on the Board class, so no Board
+ *      operations can be interleaved. Specifically, the only other mutators of boards outside of board's own hierarchy
+ *      are PingballServer and NetworkClient. Both of them synchronize on the Board class during Board operations.
  */
 public class PingballServer {
     public static final int DEFAULT_PORT = 10987; // default port
@@ -54,7 +44,6 @@ public class PingballServer {
     
     private final ServerSocket serverSocket;
     private final ConcurrentMap<String, NetworkClient> clientFromName;
-    private final BlockingQueue<NetworkClient> pendingDisconnects;
     
     /**
      * Constructor initializes everything
@@ -65,7 +54,74 @@ public class PingballServer {
         // initialize everything
         serverSocket = new ServerSocket(port);
         clientFromName = new ConcurrentHashMap<String, NetworkClient>();
-        pendingDisconnects = new ArrayBlockingQueue<NetworkClient>(DC_CAPACITY);
+    }
+
+    /**
+     * Run the server.
+     * A specialized thread (receiveClient) listens for client connections and handles them
+     * by creating new threads for each client.
+     * 
+     * The main thread focuses on reading gluing instructions in from System.in.
+     * 
+     * Never returns unless an exception is thrown.
+     * 
+     * @throws IOException if the main server socket is broken
+     *                     (IOExceptions from individual clients do *not* terminate serve())
+     */
+    public void serve() throws IOException {
+        // start allowing clients to connect
+        Thread receiveClients = new Thread(connector);
+        receiveClients.start();
+        
+        // start disconnecting clients that request it
+        Thread disconClients = new Thread(disconnector);
+        disconClients.start();
+
+        // server CLI user interface
+        Scanner sc = new Scanner (System.in);
+        System.out.println("Welcome to the Pingball server.");
+        System.out.println("Boards available for gluing are: " + getListOfBoards());
+        System.out.println("To glue boards, type 'h NAME1 NAME2' or 'v NAME1 NAME2'.");
+        
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            String regex = "(h|v) ([a-zA-Z_0-9]+) ([a-zA-Z_0-9]+)";
+            
+            if (!line.matches(regex)) {
+                System.out.println("Invalid gluing command.");
+            } else {
+                String[] args = line.split(" ");
+                Board firstBoard = null;
+                Board secondBoard = null;
+                
+                synchronized(clientFromName) {
+                    if (clientFromName.keySet().contains(args[1]) && clientFromName.keySet().contains(args[2])) {
+                        firstBoard = clientFromName.get(args[1]).getBoard();
+                        secondBoard = clientFromName.get(args[2]).getBoard();
+                    }
+                }
+                
+                synchronized (Board.class) {
+                    if (firstBoard != null && secondBoard != null) {
+                        if ("h".equals(args[0])) {
+                            firstBoard.joinRightWallTo(secondBoard);
+                            secondBoard.joinLeftWallTo(firstBoard);
+                        } else {
+                            firstBoard.getName();
+                            secondBoard.getName();
+                            firstBoard.joinBottomWallTo(secondBoard);
+                            secondBoard.joinTopWallTo(firstBoard);
+                        }
+                        
+                        System.out.println("Gluing command successful.");
+                    } else {
+                        System.out.println("Invalid gluing command.");
+                    }
+                }
+            }
+            System.out.println("Boards available for gluing are: " + getListOfBoards());
+        }
+        sc.close();
     }
 
     /**
@@ -88,68 +144,6 @@ public class PingballServer {
             s.append("<NONE>");
             return s.toString();
         }
-    }
-
-    /**
-     * Run the server.
-     * A specialized thread (receiveClient) listens for client connections and handles them
-     * by creating new threads for each client.
-     * 
-     * The main thread focuses on reading gluing instructions in from System.in.
-     * 
-     * Never returns unless an exception is thrown.
-     * 
-     * @throws IOException if the main server socket is broken
-     *                     (IOExceptions from individual clients do *not* terminate serve())
-     */
-    public void serve() throws IOException {
-        Thread receiveClients = new Thread(connector);
-        receiveClients.start();
-        Thread disconClients = new Thread(disconnector);
-        disconClients.start();
-
-        Scanner sc = new Scanner (System.in);
-        System.out.println("Welcome to the Pingball server.");
-        System.out.println("Boards available for gluing are: " + getListOfBoards());
-        System.out.println("To glue boards, type 'h NAME1 NAME2' or 'v NAME1 NAME2'.");
-        
-        while (sc.hasNextLine()) {
-            String line = sc.nextLine();
-            String regex = "(h|v) ([a-zA-Z_0-9]+) ([a-zA-Z_0-9]+)";
-            
-            if ( ! line.matches(regex)) {
-                System.out.println("Invalid gluing command.");
-            } else {
-                String[] args = line.split(" ");
-                Board firstBoard = null;
-                Board secondBoard = null;
-                
-                synchronized(clientFromName) {
-                    if (clientFromName.keySet().contains(args[1]) && clientFromName.keySet().contains(args[2])) {
-                        firstBoard = clientFromName.get(args[1]).getBoard();
-                        secondBoard = clientFromName.get(args[2]).getBoard();
-                    }
-                }
-                
-                if (firstBoard != null && secondBoard != null) {
-                    if ("h".equals(args[0])) {
-                        firstBoard.joinRightWallTo(secondBoard);
-                        secondBoard.joinLeftWallTo(firstBoard);
-                    } else {
-                        firstBoard.getName();
-                        secondBoard.getName();
-                        firstBoard.joinBottomWallTo(secondBoard);
-                        secondBoard.joinTopWallTo(firstBoard);
-                    }
-                    
-                    System.out.println("Gluing command successful.");
-                } else {
-                    System.out.println("Invalid gluing command.");
-                }
-            }
-            System.out.println("Boards available for gluing are: " + getListOfBoards());
-        }
-        sc.close();
     }
 
     /**
@@ -192,6 +186,11 @@ public class PingballServer {
         }
     }
     
+    /**
+     * Checks for clients who have flagged themselves as disconnected,
+     * removes them from the server, and closes the sides of boards on other clients
+     * that previously opened onto 
+     */
     Runnable disconnector = new Runnable() {
         @Override
         public void run() {
@@ -199,14 +198,17 @@ public class PingballServer {
                 for(NetworkClient client: clientFromName.values()) {
                     if(client.shouldDisconnect()) {
                         synchronized(clientFromName) {
-                            Set<String> names = clientFromName.keySet();
-                            
+                            clientFromName.remove(client.getBoard().getName());
+                        }
+                        
+                        Set<String> names = clientFromName.keySet();
+                        Board clientBoard = client.getBoard();
+                        
+                        synchronized(Board.class) {
                             for (String name: names) {
                                 NetworkClient other = clientFromName.get(name);
-                                other.getBoard().disjoin(client.getBoard());
+                                other.getBoard().disjoin(clientBoard);
                             }
-                            
-                            clientFromName.remove(client.getBoard().getName());
                         }
                         
                         System.out.println(client.getBoard().getName() + " just disconnected!");
@@ -216,14 +218,18 @@ public class PingballServer {
         }
     };
     
+    /**
+     * Listens to the server socket and spins off threads
+     * running new NetworkClients to handle connections.
+     */
     Runnable connector = new Runnable() {
         @Override
         public void run() {
             while (true) {
-                // block until a client connects
                 Socket clientSocket;
                 
                 try {
+                    // block until a client connects
                     // set up communication to the client
                     clientSocket = serverSocket.accept();
                     BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));            
@@ -236,17 +242,28 @@ public class PingballServer {
                         line = in.readLine();
                     }
                     
+                    // create a Board from the board data
                     Board board = BoardFactory.parse(content.toString());
                     
                     // add the data for the client
-                    synchronized(clientFromName) {
-                        NetworkClient client = new NetworkClient(board, clientSocket, true);
-                        
-                        if (board.getName() != null)
+                    if (board.getName() != null) { // if client with that name doesn't already exist
+                        synchronized(clientFromName) {
+                            NetworkClient client = new NetworkClient(board, clientSocket, true);
+                            
                             clientFromName.put(board.getName(), client);
-                        
-                        Thread t = new Thread(client);
-                        t.start();
+                            
+                            Thread t = new Thread(client);
+                            t.start();
+                            
+                            System.out.println(board.getName() + " just connected.");
+                        }
+                    } else {
+                        try {
+                            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                            out.println("Client with your name has already joined the server.");
+                        } catch(IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

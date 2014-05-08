@@ -8,7 +8,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
- * Runnable that runs for every client
+ * Runs in a separate thread for every client.
+ * # Thread safety argument
+ * - board is directly modified by the thread for this Runnable when step is called.
+ *      But only one NetworkClient calls step on a given board, so the mutation is confined.
+ * - disconnect is used as a flag to handle disconnection. This thread does not directly
+ *      remove the client from the server, so the 
  */
 public class NetworkClient implements Runnable {
     private final PrintWriter out;
@@ -44,8 +49,10 @@ public class NetworkClient implements Runnable {
     public void run() {
         while (true) {            
             try {
-                board.step();
-                out.println(board);
+                synchronized(Board.class) {
+                    board.step();
+                    out.println(board);
+                }
                 out.println((char)12); // mark end of board
                 Thread.sleep(100); // FIXME
             } catch (InterruptedException e) {

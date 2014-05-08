@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -28,8 +27,8 @@ public class Canvas extends JPanel {
     public Canvas(int width, int height) {
         this.setPreferredSize(new Dimension(width, height));
         
-        blockWidth = width/20;
-        blockHeight = height/20;
+        blockWidth = width/PingballGUI.BOARD_WIDTH;
+        blockHeight = height/PingballGUI.BOARD_HEIGHT;
         
         boardImage = new Color[width][height];
         for(Color[] col: boardImage)
@@ -72,8 +71,8 @@ public class Canvas extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         fillWindow(g2);
         
-        for(int y=0; y < 20; y++) {
-            for(int x=0; x < 20; x++) {
+        for(int y=0; y < PingballGUI.BOARD_HEIGHT; y++) {
+            for(int x=0; x < PingballGUI.BOARD_WIDTH; x++) {
                 g2.setColor(boardImage[x][y]);
                 g2.fill(new Rectangle(x*blockWidth, y*blockHeight, blockWidth, blockHeight));
             }
