@@ -2,7 +2,6 @@ package client;
 
 import game.Board;
 
-import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
@@ -16,13 +15,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
-import javax.swing.JFrame;
-
-import server.Client;
-import server.ClientRunnable;
+import server.NetworkClient;
 import boardfile.BoardFactory;
 
 /**
@@ -56,8 +50,6 @@ public class PingballClient {
             System.exit(1);
         }
         
-        String fromServer; 
-
         try {
             String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
             out.println(content);
@@ -105,8 +97,8 @@ public class PingballClient {
     public PingballClient(String filename) throws IOException {
         String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
         Board board = BoardFactory.parse(content);
-        Client client = new Client(board, null, false);
-        Thread t = new Thread(new ClientRunnable(client, new ArrayBlockingQueue<Client>(1))); // disconnects
+        NetworkClient client = new NetworkClient(board, null, false);
+        Thread t = new Thread(client); // disconnects
         t.start();        
     }
 

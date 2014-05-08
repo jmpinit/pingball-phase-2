@@ -53,8 +53,8 @@ public class PingballServer {
     public static final int NUM_MILLISECONDS = 1000;
     
     private final ServerSocket serverSocket;
-    private final ConcurrentMap<String, Client> clientFromName;
-    private final BlockingQueue<Client> pendingDisconnects;
+    private final ConcurrentMap<String, NetworkClient> clientFromName;
+    private final BlockingQueue<NetworkClient> pendingDisconnects;
     
     /**
      * Constructor initializes everything
@@ -64,8 +64,8 @@ public class PingballServer {
     public PingballServer(int port) throws IOException {
         // initialize everything
         serverSocket = new ServerSocket(port);
-        clientFromName = new ConcurrentHashMap<String, Client>();
-        pendingDisconnects = new ArrayBlockingQueue<Client>(DC_CAPACITY);
+        clientFromName = new ConcurrentHashMap<String, NetworkClient>();
+        pendingDisconnects = new ArrayBlockingQueue<NetworkClient>(DC_CAPACITY);
     }
 
     /**
@@ -75,8 +75,8 @@ public class PingballServer {
         StringBuilder s = new StringBuilder();
         
         synchronized(clientFromName) {
-            for (Client client : clientFromName.values()) {
-                s.append(client.getBoard().getName() + ", ");
+            for(NetworkClient client : clientFromName.values()) {
+                s.append(client.getName() + ", ");
             }
         }
         
@@ -195,24 +195,22 @@ public class PingballServer {
     Runnable disconnector = new Runnable() {
         @Override
         public void run() {
-            Client client;
-            
             while (true) {
-                try {
-                    client = pendingDisconnects.take();
-                    // TODO
-                    //List<Client> others = client.getBoard().getNeighbors();
-                    System.out.println(client.getBoard().getName() + " just disconnected!");
-                    synchronized(clientFromName) {
-                        Set<String> names = clientFromName.keySet();
-                        for (String name: names) {
-                            Client other = clientFromName.get(name);
-                            other.getBoard().disjoin(client.getBoard());
+                for(NetworkClient client: clientFromName.values()) {
+                    if(client.shouldDisconnect()) {
+                        synchronized(clientFromName) {
+                            Set<String> names = clientFromName.keySet();
+                            
+                            for (String name: names) {
+                                NetworkClient other = clientFromName.get(name);
+                                other.getBoard().disjoin(client.getBoard());
+                            }
+                            
+                            clientFromName.remove(client.getBoard().getName());
                         }
-                        clientFromName.remove(client.getBoard().getName());
+                        
+                        System.out.println(client.getBoard().getName() + " just disconnected!");
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
         }
@@ -242,13 +240,12 @@ public class PingballServer {
                     
                     // add the data for the client
                     synchronized(clientFromName) {
-                        Client client = new Client(board, clientSocket, true);
+                        NetworkClient client = new NetworkClient(board, clientSocket, true);
                         
-                        if (board.getName() != null) {
+                        if (board.getName() != null)
                             clientFromName.put(board.getName(), client);
-                        }
                         
-                        Thread t = new Thread(new ClientRunnable(client, pendingDisconnects));
+                        Thread t = new Thread(client);
                         t.start();
                     }
                 } catch (IOException e) {
