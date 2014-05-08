@@ -123,7 +123,7 @@ public class PingballGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         
-        canvas = new Canvas(400, 400);
+        canvas = new Canvas(200, 200);
         add(canvas, BorderLayout.CENTER);
         
         lookup = new Color[127];
