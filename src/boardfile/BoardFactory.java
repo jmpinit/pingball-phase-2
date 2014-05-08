@@ -5,7 +5,7 @@ import game.Ball;
 import game.Board;
 import game.CircularBumper;
 import game.Flipper;
-import game.GamePiece;
+import game.Gadget;
 import game.SquareBumper;
 import game.TriangularBumper;
 
@@ -74,8 +74,8 @@ public class BoardFactory {
      */
     private static class BoardCreatorListener extends BoardBaseListener {
         private Set<Ball> balls = new HashSet<Ball>();
-        private Map<GamePiece, Set<GamePiece>> actions = new HashMap<GamePiece, Set<GamePiece>>();
-        private Map<String, GamePiece> gadgets = new HashMap<String, GamePiece>();
+        private Map<Gadget, Set<Gadget>> actions = new HashMap<Gadget, Set<Gadget>>();
+        private Map<String, Gadget> gadgets = new HashMap<String, Gadget>();
         private Board board;
 
         @Override public void enterSqbline(BoardParser.SqblineContext ctx) { 
@@ -83,14 +83,14 @@ public class BoardFactory {
                     Integer.parseInt(ctx.xfield().INT().getText()), 
                     Integer.parseInt(ctx.yfield().INT().getText()));
             gadgets.put(ctx.namefield().NAME().getText(), sqb);
-            actions.put(sqb, new HashSet<GamePiece>());
+            actions.put(sqb, new HashSet<Gadget>());
         }
         @Override public void enterCcbline(BoardParser.CcblineContext ctx) { 
             CircularBumper ccb = new CircularBumper(ctx.namefield().NAME().getText(), 
                     Integer.parseInt(ctx.xfield().INT().getText()), 
                     Integer.parseInt(ctx.yfield().INT().getText()));
             gadgets.put(ctx.namefield().NAME().getText(), ccb);
-            actions.put(ccb, new HashSet<GamePiece>());
+            actions.put(ccb, new HashSet<Gadget>());
         }
         @Override public void enterTribline(BoardParser.TriblineContext ctx) { 
             TriangularBumper trib = new TriangularBumper(ctx.namefield().NAME().getText(), 
@@ -98,7 +98,7 @@ public class BoardFactory {
                     Integer.parseInt(ctx.yfield().INT().getText()),
                     Integer.parseInt(ctx.ortfield().INT().getText()));
             gadgets.put(ctx.namefield().NAME().getText(), trib);
-            actions.put(trib, new HashSet<GamePiece>());
+            actions.put(trib, new HashSet<Gadget>());
         }
 
         @Override public void enterAbsline(BoardParser.AbslineContext ctx) { 
@@ -108,7 +108,7 @@ public class BoardFactory {
                     Integer.parseInt(ctx.widthfield().INT().getText()),
                     Integer.parseInt(ctx.heightfield().INT().getText()));
             gadgets.put(ctx.namefield().NAME().getText(), abs);
-            actions.put(abs, new HashSet<GamePiece>());
+            actions.put(abs, new HashSet<Gadget>());
         }
 
         @Override public void enterRightfline(BoardParser.RightflineContext ctx) { 
@@ -117,7 +117,7 @@ public class BoardFactory {
                     Integer.parseInt(ctx.yfield().INT().getText()),
                     Integer.parseInt(ctx.ortfield().INT().getText()));
             gadgets.put(ctx.namefield().NAME().getText(), flip);
-            actions.put(flip, new HashSet<GamePiece>());
+            actions.put(flip, new HashSet<Gadget>());
         }
         @Override public void enterLeftfline(BoardParser.LeftflineContext ctx) { 
             Flipper flip = new Flipper("left", ctx.namefield().NAME().getText(), 
@@ -125,7 +125,7 @@ public class BoardFactory {
                     Integer.parseInt(ctx.yfield().INT().getText()),
                     Integer.parseInt(ctx.ortfield().INT().getText()));
             gadgets.put(ctx.namefield().NAME().getText(), flip);
-            actions.put(flip, new HashSet<GamePiece>());
+            actions.put(flip, new HashSet<Gadget>());
         }
 
         @Override public void exitBoard(BoardParser.BoardContext ctx) { 
