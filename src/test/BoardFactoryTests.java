@@ -6,7 +6,7 @@ import game.Ball;
 import game.Board;
 import game.CircularBumper;
 import game.Flipper;
-import game.GamePiece;
+import game.Gadget;
 import game.SquareBumper;
 import game.TriangularBumper;
 
@@ -72,16 +72,16 @@ public class BoardFactoryTests {
         Flipper flipr = new Flipper("right", "FlipR", 12, 7, 0);
 
         Absorber abs = new Absorber("abs", 10, 17, 10, 2);
-        Map<GamePiece, Set<GamePiece>> actions = new HashMap<GamePiece, Set<GamePiece>>();
-        actions.put(sqA, new HashSet<GamePiece>());
-        actions.put(sqB, new HashSet<GamePiece>());
-        actions.put(sqC, new HashSet<GamePiece>());
-        actions.put(sqD, new HashSet<GamePiece>());
-        actions.put(cc, new HashSet<GamePiece>());
-        actions.put(tri, new HashSet<GamePiece>());
-        actions.put(flipl, new HashSet<GamePiece>());
-        actions.put(flipr, new HashSet<GamePiece>());
-        actions.put(abs, new HashSet<GamePiece>());
+        Map<Gadget, Set<Gadget>> actions = new HashMap<Gadget, Set<Gadget>>();
+        actions.put(sqA, new HashSet<Gadget>());
+        actions.put(sqB, new HashSet<Gadget>());
+        actions.put(sqC, new HashSet<Gadget>());
+        actions.put(sqD, new HashSet<Gadget>());
+        actions.put(cc, new HashSet<Gadget>());
+        actions.put(tri, new HashSet<Gadget>());
+        actions.put(flipl, new HashSet<Gadget>());
+        actions.put(flipr, new HashSet<Gadget>());
+        actions.put(abs, new HashSet<Gadget>());
         actions.get(abs).add(abs);
 
         Board constructedBoard = new Board("ExampleA", 20.0, Board.DEFAULTMU1, Board.DEFAULTMU2, actions, 1.0/(double)PingballServer.FRAMERATE, balls);
