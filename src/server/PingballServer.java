@@ -53,8 +53,8 @@ public class PingballServer {
     public static final int NUM_MILLISECONDS = 1000;
     
     private final ServerSocket serverSocket;
-    private final ConcurrentMap<String, Client> clientNames;
-    private final BlockingQueue<Client> disconnects;
+    private final ConcurrentMap<String, NetworkClient> clientFromName;
+    private final BlockingQueue<NetworkClient> pendingDisconnects;
     
     /**
      * Constructor initializes everything
@@ -64,8 +64,8 @@ public class PingballServer {
     public PingballServer(int port) throws IOException {
         // initialize everything
         serverSocket = new ServerSocket(port);
-        clientNames = new ConcurrentHashMap<String, Client>();
-        disconnects = new ArrayBlockingQueue<Client>(DC_CAPACITY);
+        clientFromName = new ConcurrentHashMap<String, NetworkClient>();
+        pendingDisconnects = new ArrayBlockingQueue<NetworkClient>(DC_CAPACITY);
     }
 
     /**
@@ -74,9 +74,9 @@ public class PingballServer {
     private String getListOfBoards() {
         StringBuilder s = new StringBuilder();
         
-        synchronized(clientNames) {
-            for (Client client : clientNames.values()) {
-                s.append(client.getBoard().getName() + ", ");
+        synchronized(clientFromName) {
+            for(NetworkClient client : clientFromName.values()) {
+                s.append(client.getName() + ", ");
             }
         }
         
@@ -108,9 +108,6 @@ public class PingballServer {
         Thread disconClients = new Thread(disconnector);
         disconClients.start();
 
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new myTimerTask(clientNames),0,NUM_MILLISECONDS / FRAMERATE);
-
         Scanner sc = new Scanner (System.in);
         System.out.println("Welcome to the Pingball server.");
         System.out.println("Boards available for gluing are: " + getListOfBoards());
@@ -127,10 +124,10 @@ public class PingballServer {
                 Board firstBoard = null;
                 Board secondBoard = null;
                 
-                synchronized(clientNames) {
-                    if (clientNames.keySet().contains(args[1]) && clientNames.keySet().contains(args[2])) {
-                        firstBoard = clientNames.get(args[1]).getBoard();
-                        secondBoard = clientNames.get(args[2]).getBoard();
+                synchronized(clientFromName) {
+                    if (clientFromName.keySet().contains(args[1]) && clientFromName.keySet().contains(args[2])) {
+                        firstBoard = clientFromName.get(args[1]).getBoard();
+                        secondBoard = clientFromName.get(args[2]).getBoard();
                     }
                 }
                 
@@ -153,27 +150,6 @@ public class PingballServer {
             System.out.println("Boards available for gluing are: " + getListOfBoards());
         }
         sc.close();
-    }
-
-    private class myTimerTask extends TimerTask {
-        private final ConcurrentMap<String, Client> clientNames;
-        private Integer i;
-
-        public myTimerTask(ConcurrentMap<String, Client> clientNames) {
-            this.clientNames = clientNames;
-            this.i = 0;
-        }
-
-        @Override
-        public void run() {
-            Collection<Client> clients = clientNames.values();
-            
-            for (Client client: clients) {
-                client.sendTime(i);
-            }
-            
-            i++;
-        }
     }
 
     /**
@@ -219,24 +195,22 @@ public class PingballServer {
     Runnable disconnector = new Runnable() {
         @Override
         public void run() {
-            Client client;
-            
             while (true) {
-                try {
-                    client = disconnects.take();
-                    // TODO
-                    //List<Client> others = client.getBoard().getNeighbors();
-                    System.out.println(client.getBoard().getName() + " just disconnected!");
-                    synchronized(clientNames) {
-                        Set<String> names = clientNames.keySet();
-                        for (String name: names) {
-                            Client other = clientNames.get(name);
-                            other.getBoard().disjoin(client.getBoard());
+                for(NetworkClient client: clientFromName.values()) {
+                    if(client.shouldDisconnect()) {
+                        synchronized(clientFromName) {
+                            Set<String> names = clientFromName.keySet();
+                            
+                            for (String name: names) {
+                                NetworkClient other = clientFromName.get(name);
+                                other.getBoard().disjoin(client.getBoard());
+                            }
+                            
+                            clientFromName.remove(client.getBoard().getName());
                         }
-                        clientNames.remove(client.getBoard().getName());
+                        
+                        System.out.println(client.getBoard().getName() + " just disconnected!");
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
         }
@@ -265,14 +239,13 @@ public class PingballServer {
                     Board board = BoardFactory.parse(content.toString());
                     
                     // add the data for the client
-                    synchronized(clientNames) {
-                        Client client = new Client(board, clientSocket, true, new ArrayBlockingQueue<Integer>(5));
+                    synchronized(clientFromName) {
+                        NetworkClient client = new NetworkClient(board, clientSocket, true);
                         
-                        if (board.getName() != null) {
-                            clientNames.put(board.getName(), client);
-                        }
+                        if (board.getName() != null)
+                            clientFromName.put(board.getName(), client);
                         
-                        Thread t = new Thread(new ClientRunnable(client, disconnects));
+                        Thread t = new Thread(client);
                         t.start();
                     }
                 } catch (IOException e) {
