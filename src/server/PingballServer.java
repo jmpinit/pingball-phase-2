@@ -108,9 +108,6 @@ public class PingballServer {
         Thread disconClients = new Thread(disconnector);
         disconClients.start();
 
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new myTimerTask(), 0, NUM_MILLISECONDS / FRAMERATE);
-
         Scanner sc = new Scanner (System.in);
         System.out.println("Welcome to the Pingball server.");
         System.out.println("Boards available for gluing are: " + getListOfBoards());
@@ -153,25 +150,6 @@ public class PingballServer {
             System.out.println("Boards available for gluing are: " + getListOfBoards());
         }
         sc.close();
-    }
-
-    private class myTimerTask extends TimerTask {
-        private Integer i;
-
-        public myTimerTask() {
-            this.i = 0;
-        }
-
-        @Override
-        public void run() {
-            Collection<Client> clients = clientFromName.values();
-            
-            for (Client client: clients) {
-                client.sendTime(i);
-            }
-            
-            i++;
-        }
     }
 
     /**
@@ -264,7 +242,7 @@ public class PingballServer {
                     
                     // add the data for the client
                     synchronized(clientFromName) {
-                        Client client = new Client(board, clientSocket, true, new ArrayBlockingQueue<Integer>(5));
+                        Client client = new Client(board, clientSocket, true);
                         
                         if (board.getName() != null) {
                             clientFromName.put(board.getName(), client);

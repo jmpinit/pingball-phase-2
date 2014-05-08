@@ -105,8 +105,7 @@ public class PingballClient {
     public PingballClient(String filename) throws IOException {
         String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
         Board board = BoardFactory.parse(content);
-        BlockingQueue<Integer> timeQueue = new ArrayBlockingQueue<Integer>(5);
-        Client client = new Client(board, null, false, timeQueue);
+        Client client = new Client(board, null, false);
         Thread t = new Thread(new ClientRunnable(client, new ArrayBlockingQueue<Client>(1))); // disconnects
         t.start();        
     }

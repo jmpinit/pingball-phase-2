@@ -3,8 +3,6 @@ package server;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -33,12 +31,6 @@ public class ClientRunnable implements Runnable {
         }
         
         this.out = out;
-        
-        if(!client.isOnline() || client.getBoard().getName() == null) {
-            // run the clock yourself
-            Timer timer = new Timer();
-            timer.scheduleAtFixedRate(new myTimerTask(client), 0, PingballServer.NUM_MILLISECONDS/PingballServer.FRAMERATE);
-        }
     }
 
     @Override
@@ -62,37 +54,6 @@ public class ClientRunnable implements Runnable {
                     }
                 }
             }
-        }
-    }
-
-    /**
-     * TODO
-     * timer loop:
-     * figure out what balls were added to you
-     * add them to board
-     * run board.step()
-     * print to out or System.out (depending on client.isOnline())
-     * mail balls to other clients --> synchronize on clientNames
-     * flush inbox
-     * 
-     * surround in try/catch:
-     * upon error: call server to delete from clientNames (disconnects)
-     * tell each neighbor board to seal up wall --> synchronize on clientNames
-     */
-
-    private class myTimerTask extends TimerTask {
-        private final Client client;
-        private Integer i;
-
-        public myTimerTask(Client client) {
-            this.client = client;
-            this.i = 0;
-        }
-
-        @Override
-        public void run() {
-            client.sendTime(i);
-            i++;
         }
     }
 }

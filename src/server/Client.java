@@ -14,13 +14,11 @@ public class Client {
     private final Board board;
     private final Socket socket;
     private final boolean online;
-    private BlockingQueue<Integer> timeQueue;
 
-    public Client(Board board, Socket socket, boolean online, BlockingQueue<Integer> timeQueue) {
+    public Client(Board board, Socket socket, boolean online) {
         this.board = board;
         this.socket = socket;
         this.online = online;
-        this.timeQueue = new ArrayBlockingQueue<Integer>(CAPACITY);
     }
 
     public Board getBoard() {
@@ -33,27 +31,5 @@ public class Client {
 
     public boolean isOnline() {
         return online;
-    }
-
-    public void sendTime(Integer t) {
-        try {
-            this.timeQueue.put(t);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Integer peekTime() {
-        return this.timeQueue.peek();
-    }
-
-    public Integer getTime() {
-        Integer n = -1;
-        try {
-            n = this.timeQueue.take();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return n;
     }
 }
