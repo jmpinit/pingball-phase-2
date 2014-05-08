@@ -83,16 +83,6 @@ public class Ball implements GamePiece{
         );
     }
     
-
-    /***
-     * Does this gadget's action.
-     */
-    @Override
-    public void doAction() {
-        checkRep();
-        //Do nothing.
-    }
-    
     /***
      * Calculates time until collision with this ball.
      * @param ball
