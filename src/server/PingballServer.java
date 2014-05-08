@@ -247,6 +247,8 @@ public class PingballServer {
                         
                         Thread t = new Thread(client);
                         t.start();
+                        
+                        System.out.println(board.getName() + " just connected.");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

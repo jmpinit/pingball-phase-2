@@ -2,8 +2,6 @@ package client;
 
 import game.Board;
 
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -57,36 +55,11 @@ public class PingballClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        PingballGUI gui = new PingballGUI();
         
-        gui.addKeyListener(new KeyAdapter() {
-            public void keyPressed(KeyEvent e) {
-                System.out.println("key pressed");
-                // TODO send input to server
-            }
-
-            public void keyReleased(KeyEvent e) {
-                System.out.println("key released");
-            }
-        });
-        
-        String line;
-        StringBuilder boardBuilder = new StringBuilder();
-        while((line = in.readLine()) != null) {
-            if(line.length() > 0) {
-                if((int)line.charAt(0) == 12) {
-                    gui.parseEvent(boardBuilder.toString());
-                    boardBuilder.setLength(0);
-                } else {
-                    boardBuilder.append(line+"\n");
-                }
-            }
-        }
-        
-        /*while((fromServer = in.readLine()) != null) {
+        String fromServer;
+        while((fromServer = in.readLine()) != null) {
             System.out.println(fromServer);
-        }*/
+        }
     }
 
     /**
