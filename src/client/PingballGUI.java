@@ -49,15 +49,11 @@ public class PingballGUI extends JFrame {
         BufferedReader in = null;
         
         /*
-         * Setup GUI
-         */
-        
-        makeGUI();
-        
-        /*
          * Setup networking
          */
 
+        String name = "unknown";
+        
         try {
             socket = new Socket(host, port);
             out = new PrintWriter(socket.getOutputStream(), true);
@@ -72,6 +68,8 @@ public class PingballGUI extends JFrame {
         
         try {
             String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
+            Board board = BoardFactory.parse(content);
+            name = board.getName();
             out.println(content);
             out.println("STOP");
         } catch (IOException e) {
@@ -88,6 +86,8 @@ public class PingballGUI extends JFrame {
                 System.out.println("key released");
             }
         });
+        
+        makeGUI(name);
         
         String line;
         StringBuilder boardBuilder = new StringBuilder();
@@ -109,17 +109,17 @@ public class PingballGUI extends JFrame {
      * @throws IOException if reading file is unsuccessful
      */
     public PingballGUI(String filename) throws IOException {
-        makeGUI();
-        
         String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
         Board board = BoardFactory.parse(content);
         NetworkClient client = new NetworkClient(board, null, false);
         Thread t = new Thread(client); // disconnects
         t.start();
+        
+        makeGUI(board.getName());
     }
     
-    private void makeGUI() {
-        setTitle("Pingball");
+    private void makeGUI(String name) {
+        setTitle(name);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         
