@@ -30,9 +30,10 @@ import server.PingballServer;
 
 public class BoardFactory {
 
-    /**
+    /***
+     * Parses the given input into a new Board.
      * @param input string representing a conjunctive boolean expression
-     * @return Board corresponding to the input
+     * @return new Board corresponding to the input
      */
     public static Board parse(String input) {
         // Create a stream of tokens using the lexer.
@@ -48,29 +49,29 @@ public class BoardFactory {
         // Generate the parse tree using the starter rule.
         ParseTree tree = parser.board(); // "expression" is the starter rule
 
-        // debugging option #1: print the tree to the console
-        //        System.err.println(tree.toStringTree(parser));
-
-        // debugging option #2: show the tree in a window
-        //((RuleContext)tree).inspect(parser);
-
-        // debugging option #3: walk the tree with a listener
-        //        new ParseTreeWalker().walk(new PrintEverythingListener(), tree);
-
-        // Finally, construct an Board value by walking over the parse tree.
-
+        // Finally, construct a Board value by walking over the parse tree.
         ParseTreeWalker walker = new ParseTreeWalker();
         BoardCreatorListener listener = new BoardCreatorListener();
         walker.walk(listener, tree);
         return listener.getBoard();
     }
 
+    /***
+     * Decodes the file at the given file path into text, using the given encoding.
+     * @param path the file path of the file to decode
+     * @param encoding the encodiding with which to decode the file
+     * @return a text representation of the file
+     * @throws IOException
+     */
     public static String readFile(String path, Charset encoding) throws IOException {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded, encoding);
     }    
 
-
+    /***
+     * BoardCreatorListener creates a new Board, updating the new Board
+     * via a collection of methods converting parsing contexts into Board updates.
+     */
     private static class BoardCreatorListener extends BoardBaseListener {
         private Set<Ball> balls = new HashSet<Ball>();
         private Map<GamePiece, Set<GamePiece>> actions = new HashMap<GamePiece, Set<GamePiece>>();
