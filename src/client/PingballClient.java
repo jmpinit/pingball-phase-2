@@ -66,7 +66,7 @@ public class PingballClient {
             e.printStackTrace();
         }
 
-        JFrame gui = new PingballGUI();
+        PingballGUI gui = new PingballGUI();
         
         gui.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -79,15 +79,22 @@ public class PingballClient {
             }
         });
         
-        /* TODO
-        while((serializedEvent = in.readLine()) != null) {
-            gui.handleEvent(serializedEvent);
+        String line;
+        StringBuilder boardBuilder = new StringBuilder();
+        while((line = in.readLine()) != null) {
+            if(line.length() > 0) {
+                if((int)line.charAt(0) == 12) {
+                    gui.parseEvent(boardBuilder.toString());
+                    boardBuilder.setLength(0);
+                } else {
+                    boardBuilder.append(line+"\n");
+                }
+            }
         }
-         */
         
-        while((fromServer = in.readLine()) != null) {
+        /*while((fromServer = in.readLine()) != null) {
             System.out.println(fromServer);
-        }
+        }*/
     }
 
     /**

@@ -47,6 +47,8 @@ public class ClientRunnable implements Runnable {
             try {
                 client.getBoard().step();
                 out.println(client.getBoard());
+                out.println((char)12); // mark end of board
+                Thread.sleep(100); // FIXME
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
