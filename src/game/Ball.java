@@ -132,6 +132,8 @@ public class Ball implements GamePiece{
         this.setVelocity(newVelocities.v1);      
         checkRep();
     }
+    
+/******** ACCESSOR METHODS ********/
 
 
     /***

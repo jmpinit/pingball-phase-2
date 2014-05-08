@@ -20,7 +20,7 @@ import physics.Vect;
  * 4 walls that can each become transparent if joined to other boards or concrete if isolated.
  * a ball queue of balls waiting to be placed in their appropriate location on the board.
  * 
- * Board is not gauranteed to be threadsafe, but join and disjoin ????
+ * Board is not guaranteed to be threadsafe, but join and disjoin ????
  * @author pkalluri
  */
 public class Board {
@@ -38,7 +38,9 @@ public class Board {
     private final Map<Gadget, Set<Gadget>> gadgetsToEffects;//mapping of each gadget on the board to any *other* gadgets that react when the original gadget is triggered
     //Note: It is the trigger-effect relationships between gadgets that are immutable and are maintained by this map. The gadgets themselves may be mutable.
     private final double stepSize; //step size, in seconds
-
+    private Gadget [][] gadgetBoard; //Has gadgets in their given (x,y) coordinates
+    
+    
     //MUTABLE ATTRIBUTES:
     private final Set<Ball> balls; //all balls currently on this board
     private final BlockingQueue<Ball> ballQueue;//all balls queued to be placed on this board
@@ -78,23 +80,20 @@ public class Board {
 
         //CONSTRUCTED AS ALWAYS
         this.ballQueue = new LinkedBlockingQueue<Ball>();
+        this.gadgetBoard = new Gadget[SIDELENGTH][SIDELENGTH];
+        this.createGadgetBoard();
         //walls:
-        this.topWall = new Wall( new Vect(0,0),new Vect(SIDELENGTH,0)  );
-        this.bottomWall = new Wall( new Vect(0,SIDELENGTH),new Vect(SIDELENGTH,SIDELENGTH)  );
-        this.leftWall = new Wall( new Vect(0,0),new Vect(0,SIDELENGTH)  );
-        this.rightWall = new Wall( new Vect(SIDELENGTH,0),new Vect(SIDELENGTH,SIDELENGTH)  );
-        this.walls = new HashSet<Wall>();
-        walls.add(topWall);
-        walls.add(bottomWall);
-        walls.add(leftWall);
-        walls.add(rightWall);
+        this.constructWalls();
         //boards:
         this.topBoard = null;
         this.bottomBoard = null;
         this.leftBoard = null;
         this.rightBoard = null;
     }
+    
 
+
+/******** ACCESSOR FUNCTIONS ********/
 
     /***
      * Returns name of board.
@@ -110,15 +109,25 @@ public class Board {
      */
     @Override
     public String toString() {
-        char[][] arrayRep = new char[SIDELENGTH+1+1][SIDELENGTH+1+1]; //square array represenation of 20x20 board + walls
+        char[][] arrayRep = new char[SIDELENGTH+1+1][SIDELENGTH+1+1]; //square array representation of 20x20 board + walls
 
+        /**
         //fill with spaces
         for (int i = 0; i < arrayRep.length; i ++) {
             for (int j = 0; j < arrayRep.length; j ++) {
                 arrayRep[i][j] = ' ';
             }
         }
-
+         **/
+        
+        //Fill inner board
+        for (int i = 0; i < SIDELENGTH; i ++) {
+            for (int j = 0; j < SIDELENGTH; j ++) {
+                arrayRep[i+1][j+1] = this.stringifyGadgetAt(i, j);
+                System.out.println(arrayRep[i+1][j+1]);
+            }
+        }
+        
         //overwrite with walls
         for (int i = 0; i < arrayRep.length; i ++) {
             arrayRep[0][i] = '.'; //top wall
@@ -164,14 +173,15 @@ public class Board {
                 nextIndexToCopyFromName++;
             }
         }
-
-        //overwrite with gadget locations
+        
+        /**overwrite with gadget locations
         for (GamePiece gadget : getGadgets() ) {
             for (Vect tile : gadget.getTiles()) {
                 arrayRep[(int) tile.y() + 1][(int) (tile.x() + 1)] = gadget.getSymbol();
             }
         }
-
+         **/
+        
         //overwrite with ball locations
         for (Ball ball : balls ) {
             for (Vect tile : ball.getTiles()) {
@@ -190,6 +200,18 @@ public class Board {
         return stringRep;
     }
 
+    /***
+     * Gets a set of this board's gadgets.
+     * @return this board's gadgets
+     */
+    private Set<Gadget> getGadgets() {
+    	return gadgetsToEffects.keySet();
+    }
+    
+    
+/******** END ACCESSOR FUNCTIONS ********/
+
+    
     /***
      * Progresses the board by one time step,
      * adding any queued balls,
@@ -350,14 +372,10 @@ public class Board {
         //Note: drainTo is only guaranteed to work if balls is not being edited elsewhere
     }
 
-    /***
-     * Gets a set of this board's gadgets.
-     * @return this board's gadgets
-     */
-    private Set<Gadget> getGadgets() {
-        return gadgetsToEffects.keySet();
-    }
 
+
+/******** OUTER WALL FUNCTIONS ********/    
+    
     /***
      * Joins left wall with given board,
      * and updates the String representation of this board to reflect the join,
@@ -493,6 +511,10 @@ public class Board {
     }
 
 
+/********  END OUTER WALL FUNCTIONS ********/    
+
+    
+    
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -520,7 +542,66 @@ public class Board {
         Board other = (Board) obj;
         return (this+"").equals(other+"");
     }
+    
+/******** HELPER FUNCTIONS ********/
+    
+    private void constructWalls() {
+        this.topWall = new Wall( new Vect(0,0),new Vect(SIDELENGTH,0)  );
+        this.bottomWall = new Wall( new Vect(0,SIDELENGTH),new Vect(SIDELENGTH,SIDELENGTH)  );
+        this.leftWall = new Wall( new Vect(0,0),new Vect(0,SIDELENGTH)  );
+        this.rightWall = new Wall( new Vect(SIDELENGTH,0),new Vect(SIDELENGTH,SIDELENGTH)  );
+        this.walls = new HashSet<Wall>();
+        walls.add(topWall);
+        walls.add(bottomWall);
+        walls.add(leftWall);
+        walls.add(rightWall);
+    }
+    
+    private void createGadgetBoard() {
+    	for (GamePiece gadget : getGadgets() ) {
+    		for (Vect tile : gadget.getTiles()) {
+    			gadgetBoard[(int) tile.y()][(int) tile.x()] = (Gadget) gadget;
 
+    		}
+    	}
+    }
+    
+    /**
+     * Returns a symbol representation of gadget at specified coordinates
+     * @param x, x-coordinate to look for gadget in
+     * @param y, y-coordinate to look for gadget in
+     * @return gadget at coordinates (x,y) or null otherwise
+     */
+    public char getGadgetSymbolAt(int x, int y) {
+    	if (x >= 0 && x < gadgetBoard.length && y >= 0 && y < gadgetBoard.length) {
+    		if (gadgetBoard[y][x] != null) {
+    			System.out.println("In here");
+    			System.out.println(gadgetBoard[y][x].getName());
+    			//NOTE: Coordinates are switched since they're switched when inputted
+    			return gadgetBoard[y][x].getSymbol();
+    		}
+    	}
+    	return ' ';
+    }
+
+    /**
+     * Returns string representation of whatever element exists at given coordinates
+     * NOTE: Does not look for balls or outer walls.
+     * @param x, x-coordinate to look for element in
+     * @param y, y-coordinate to look for element in
+     * @return string representation of coordinates (x,y).
+     */
+    private char stringifyGadgetAt(int x, int y) {
+    	if (x >= 0 && x < gadgetBoard.length && y >= 0 && y < gadgetBoard.length) {
+    		Gadget g = gadgetBoard[x][y];
+    		if (g != null) {
+    			return g.getSymbol();
+    		}
+    	}
+    	return ' ';
+    }
+
+/******** END HELPER FUNCTIONS ********/
 
 
 

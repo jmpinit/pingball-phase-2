@@ -146,8 +146,7 @@ public class BoardTests {
     @Test public void WallObliqueCollisionTest() {
         balls.add(ball2);
         ball2.setVelocity(new Vect(-1.1, -0.8));
-        board = new Board("board", 0.0, 0.0, 0.0,
-                actions, 0.05, balls);
+        board = new Board("board", 0.0, 0.0, 0.0, actions, 0.05, balls);
         for (int i = 0; i < 100; i++) {
             try {
                 board.step();

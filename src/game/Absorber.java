@@ -109,7 +109,7 @@ public class Absorber implements Gadget {
     }
 
     /***
-     * Get current origin
+     * Get current position
      * @return current position
      */
     @Override
@@ -221,7 +221,8 @@ public class Absorber implements Gadget {
     }
 
     /**
-     * Check the rep invariant.
+     * Checks the rep invariant.
+     * Rep invariant - absorber is within board and is not larger than board.
      */
     private void checkRep() {
         assert (width <= BOARDSIZE);
@@ -242,6 +243,11 @@ public class Absorber implements Gadget {
         return result;
     }
 
+    /**
+     * Checks for equality between two objects
+     * @param obj, object to compare with for equality
+     * @return whether inputted and current object are equal
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
