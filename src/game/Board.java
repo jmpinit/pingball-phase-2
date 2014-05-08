@@ -124,7 +124,6 @@ public class Board {
         for (int i = 0; i < SIDELENGTH; i ++) {
             for (int j = 0; j < SIDELENGTH; j ++) {
                 arrayRep[i+1][j+1] = this.stringifyGadgetAt(i, j);
-                System.out.println(arrayRep[i+1][j+1]);
             }
         }
         
@@ -575,8 +574,6 @@ public class Board {
     public char getGadgetSymbolAt(int x, int y) {
     	if (x >= 0 && x < gadgetBoard.length && y >= 0 && y < gadgetBoard.length) {
     		if (gadgetBoard[y][x] != null) {
-    			System.out.println("In here");
-    			System.out.println(gadgetBoard[y][x].getName());
     			//NOTE: Coordinates are switched since they're switched when inputted
     			return gadgetBoard[y][x].getSymbol();
     		}
@@ -595,6 +592,10 @@ public class Board {
     	if (x >= 0 && x < gadgetBoard.length && y >= 0 && y < gadgetBoard.length) {
     		Gadget g = gadgetBoard[x][y];
     		if (g != null) {
+    			if (y==2 && x ==11 )
+    			{
+    				System.out.println(g.getSymbol());
+    			}
     			return g.getSymbol();
     		}
     	}

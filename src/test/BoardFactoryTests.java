@@ -47,7 +47,7 @@ public class BoardFactoryTests {
     @Before public void setUp() {
     }
 
-    @Test public void SampleBoard1ConstructorTest() {
+      public void SampleBoard1ConstructorTest() {
     	String content = null;
         try {
             content = BoardFactory.readFile("boards/sampleBoard1.pb", StandardCharsets.UTF_8);
@@ -93,7 +93,7 @@ public class BoardFactoryTests {
         Flipper flipL1 = new Flipper("left", "FlipL1", 8, 2, 0);
         Flipper flipR1 = new Flipper("right", "FlipR", 11, 2, 0);
         Flipper flipL2 = new Flipper("left", "FlipL", 8, 7, 0);
-        Flipper flipR2 = new Flipper("right", "FlipR", 12, 7, 0);
+        Flipper flipR2 = new Flipper("right", "FlipR", 11, 7, 0);
         
         Absorber abs = new Absorber("abs", 0, 19, 20, 1);
         
