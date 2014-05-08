@@ -12,12 +12,12 @@ import java.util.concurrent.BlockingQueue;
  */
 public class ClientRunnable implements Runnable {
     private final Client client;
-    private final BlockingQueue<Client> disconnects;
+    private final BlockingQueue<Client> pendingDisconnects;
     private final PrintWriter out;
 
-    public ClientRunnable(Client client, BlockingQueue<Client> disconnects) {
+    public ClientRunnable(Client client, BlockingQueue<Client> pendingDisconnects) {
         this.client = client;
-        this.disconnects = disconnects;
+        this.pendingDisconnects = pendingDisconnects;
         PrintWriter out = null;
         
         // setup communication with the client
@@ -54,7 +54,7 @@ public class ClientRunnable implements Runnable {
             if (out.checkError()) {
                 if (client.isOnline()) {
                     try {
-                        disconnects.put(client);
+                        pendingDisconnects.put(client);
                     } catch (InterruptedException e1) {
                         e1.printStackTrace();
                     }
