@@ -9,7 +9,7 @@ import game.Ball;
 import game.Board;
 import game.CircularBumper;
 import game.Flipper;
-import game.GamePiece;
+import game.Gadget;
 import game.SquareBumper;
 import game.TriangularBumper;
 
@@ -79,7 +79,7 @@ public class BoardTests {
     TriangularBumper trib2;
     Absorber abs;
     Flipper leftf;
-    Map<GamePiece, Set<GamePiece>> actions;
+    Map<Gadget, Set<Gadget>> actions;
     Set<Ball> balls;
     Board board;
 
@@ -98,7 +98,7 @@ public class BoardTests {
         abs = new Absorber("abs", 6,5,3,2);
         leftf = new Flipper("left", "leftl", 7, 6, 0);
         balls = new HashSet<Ball>();
-        actions = new HashMap<GamePiece, Set<GamePiece>>();
+        actions = new HashMap<Gadget, Set<Gadget>>();
     }
 
     @Test public void WallDirectCollisionTest() {
@@ -162,7 +162,7 @@ public class BoardTests {
     }    
 
     @Test public void SquareBumperDirectCollisionTest() {
-        actions.put(sqb, new HashSet<GamePiece>());
+        actions.put(sqb, new HashSet<Gadget>());
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
@@ -180,7 +180,7 @@ public class BoardTests {
     }
 
     @Test public void SquareBumperObliqueCollisionTest() {
-        actions.put(sqb, new HashSet<GamePiece>());
+        actions.put(sqb, new HashSet<Gadget>());
         balls.add(ball2);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
@@ -198,7 +198,7 @@ public class BoardTests {
     }
 
     @Test public void CircleBumperDirectCollisionTest() {
-        actions.put(ccb, new HashSet<GamePiece>());
+        actions.put(ccb, new HashSet<Gadget>());
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
@@ -216,7 +216,7 @@ public class BoardTests {
     }
 
     @Test public void CircularBumperObliqueCollisionTest() {
-        actions.put(ccb, new HashSet<GamePiece>());
+        actions.put(ccb, new HashSet<Gadget>());
         balls.add(ball2);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
@@ -234,7 +234,7 @@ public class BoardTests {
     }    
 
     @Test public void TriangularBumperLegCollisionTest() {
-        actions.put(trib1, new HashSet<GamePiece>());
+        actions.put(trib1, new HashSet<Gadget>());
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
@@ -252,7 +252,7 @@ public class BoardTests {
     }    
 
     @Test public void TriangularBumperHypotenuseCollisionTest() {
-        actions.put(trib2, new HashSet<GamePiece>());
+        actions.put(trib2, new HashSet<Gadget>());
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
@@ -270,7 +270,7 @@ public class BoardTests {
     }    
 
     @Test public void AbsorberCollisionNoTriggerTest() {
-        actions.put(abs, new HashSet<GamePiece>());
+        actions.put(abs, new HashSet<Gadget>());
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
                 actions, 0.05, balls);
@@ -288,7 +288,7 @@ public class BoardTests {
     }    
 
     @Test public void AbsorberCollisionSelfTriggerTest() {
-        actions.put(abs, new HashSet<GamePiece>());
+        actions.put(abs, new HashSet<Gadget>());
         actions.get(abs).add(abs);
         balls.add(ball1);
         board = new Board("board", 0.0, 0.0, 0.0,
@@ -308,9 +308,9 @@ public class BoardTests {
 
     @Test public void AbsorberCollisionTriggerByOtherGadgetTest() {
         SquareBumper sqb2 = new SquareBumper("sqb2", 10, 15);
-        actions.put(sqb2, new HashSet<GamePiece>());
+        actions.put(sqb2, new HashSet<Gadget>());
 
-        actions.put(abs, new HashSet<GamePiece>());
+        actions.put(abs, new HashSet<Gadget>());
         actions.get(sqb2).add(abs);
         balls.add(new Ball("ball2", new Vect(3.0, 15.5), new Vect(1.0, 0.0)));
         balls.add(ball1);
@@ -342,7 +342,7 @@ public class BoardTests {
     }        
 
     @Test public void FlipperCollisionTest() {
-        actions.put(leftf, new HashSet<GamePiece>());
+        actions.put(leftf, new HashSet<Gadget>());
         balls.add(ball3);
 
         board = new Board("board", 0.0, 0.0, 0.0,
