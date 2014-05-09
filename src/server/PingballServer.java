@@ -237,7 +237,7 @@ public class PingballServer {
                     // read in the board
                     StringBuilder content = new StringBuilder();
                     String line = in.readLine();
-                    while (!line.equals("STOP")) {
+                    while (!(line==null) && !line.equals("STOP")) {
                         content.append(line + "\n");
                         line = in.readLine();
                     }

@@ -1,4 +1,4 @@
-board name=ExampleB gravity = 10.0
+board name=sampleBoard2_2 gravity=20.0 friction1=0.020 friction2=0.020
 
 # define a ball
 ball name=BallA x=1.8 y=4.5 xVelocity=10.4 yVelocity=10.3 
