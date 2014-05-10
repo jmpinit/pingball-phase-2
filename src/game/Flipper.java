@@ -291,7 +291,6 @@ public class Flipper implements Gadget {
      */
     @Override
     public void doAction() {
-        System.out.println(getName() + "CALLED TO ACTION!");
         currentlyRotating = true;
     }
 
@@ -331,8 +330,6 @@ public class Flipper implements Gadget {
             this.flipperLine = new LineSegment(pivotPosition, otherEnd);  
             
         }
-        System.out.println(getName() + currentAngle);
-
     }
     
     
