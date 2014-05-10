@@ -6,20 +6,19 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
-import java.util.Queue;
 import java.util.Random;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import server.NetworkClient;
 import boardfile.BoardFactory;
@@ -32,6 +31,12 @@ public class PingballGUI extends JFrame {
     
     public static final int BOARD_WIDTH = 22;
     public static final int BOARD_HEIGHT = 22;
+    
+    /*
+     * GUI Elements
+     */
+    
+    private JMenuBar menuBar;
     
     private Canvas canvas;
     private Color[] lookup;
@@ -49,10 +54,10 @@ public class PingballGUI extends JFrame {
      * @param file constructor to create File
      * @throws IOException if connection not successful.
      */
-    public PingballGUI(String host, int port, String filename) throws IOException {
-        Socket socket = null;
+    public PingballGUI() {
+        /*Socket socket = null;
         PrintWriter out = null;
-        BufferedReader in = null;
+        BufferedReader in = null;*/
         
         /*
          * Setup networking
@@ -60,7 +65,7 @@ public class PingballGUI extends JFrame {
 
         String name = "unknown";
         
-        try {
+        /*try {
             socket = new Socket(host, port);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -80,7 +85,7 @@ public class PingballGUI extends JFrame {
             out.println("STOP");
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
         
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -95,7 +100,7 @@ public class PingballGUI extends JFrame {
         
         makeGUI(name);
         
-        String line;
+        /*String line;
         StringBuilder boardBuilder = new StringBuilder();
         while((line = in.readLine()) != null) {
             if(line.length() > 0) {
@@ -106,7 +111,7 @@ public class PingballGUI extends JFrame {
                     boardBuilder.append(line+"\n");
                 }
             }
-        }
+        }*/
     }
 
     /**
@@ -129,8 +134,47 @@ public class PingballGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         
-        canvas = new Canvas(200, 200);
-        add(canvas, BorderLayout.CENTER);
+        JPanel content = new JPanel();
+        content.setLayout(new BorderLayout());
+        
+        menuBar = new JMenuBar();
+        JMenu menuFile = new JMenu("Game");
+        menuFile.setMnemonic(KeyEvent.VK_F);
+        menuFile.getAccessibleContext().setAccessibleDescription("The only menu in this program that has menu items");
+        menuBar.add(menuFile);
+        
+        JMenuItem itemSelectBoard = new JMenuItem("Select Board");
+        itemSelectBoard.setMnemonic(KeyEvent.VK_B);
+        menuFile.add(itemSelectBoard);
+        
+        JMenuItem itemRestart = new JMenuItem("Restart");
+        itemRestart.setMnemonic(KeyEvent.VK_R);
+        menuFile.add(itemRestart);
+        
+        JMenuItem itemExit = new JMenuItem("Exit");
+        itemExit.setMnemonic(KeyEvent.VK_ESCAPE);
+        menuFile.add(itemExit);
+        
+        setJMenuBar(menuBar);
+        
+        canvas = new Canvas(300, 300);
+        
+        JPanel gameControls = new JPanel();
+        gameControls.setLayout(new BoxLayout(gameControls, BoxLayout.LINE_AXIS));
+        gameControls.add(new JButton("Pause"));
+        
+        JPanel netControls = new JPanel();
+        netControls.setLayout(new BoxLayout(netControls, BoxLayout.LINE_AXIS));
+        netControls.add(new JLabel("Hostname:"));
+        netControls.add(new JTextField("test"));
+        netControls.add(new JLabel("Port:"));
+        netControls.add(new JTextField("123"));
+        netControls.add(new JButton("Connect"));
+        
+        content.add(gameControls, BorderLayout.NORTH);
+        content.add(canvas, BorderLayout.CENTER);
+        content.add(netControls, BorderLayout.SOUTH);
+        add(content, BorderLayout.CENTER);
         
         pack();
         setVisible(true);        
@@ -150,7 +194,7 @@ public class PingballGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        boolean onlinePlay = false;
+        /*boolean onlinePlay = false;
         String host = "";
         int port = DEFAULT_PORT;
         String filename = null;
@@ -185,9 +229,11 @@ public class PingballGUI extends JFrame {
             System.err.println(iae.getMessage());
             System.err.println("usage: PingballClient [--host HOST] [--port PORT] --file FILE");
             return;
-        }
+        }*/
+        
+        new PingballGUI();
 
-        try {
+        /*try {
             // TODO constructors should construct and then exit (put 4=-14
             if(onlinePlay) {
                 new PingballGUI(host, port, filename);
@@ -196,6 +242,6 @@ public class PingballGUI extends JFrame {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 }
