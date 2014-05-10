@@ -20,7 +20,7 @@ import physics.Vect;
  */
 public class Wall implements Gadget {
     private final String name;
-    private final Vect endA;
+    private final Vect endA; // TODO purpose?
     private final Vect endB;
     boolean transparency;
     private final static double BOARDSIZE = 20; //size of board is 20Lx20L
