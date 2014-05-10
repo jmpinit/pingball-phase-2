@@ -16,7 +16,6 @@ import server.NetworkProtocol;
 public abstract class Sprite {
     protected String name;
     
-    public abstract int getID();
     public abstract void render(Graphics2D g2);
     
     private static Random generator = new Random(1337);
@@ -34,12 +33,18 @@ public abstract class Sprite {
         );
     }
     
+    @SuppressWarnings("unchecked") // certain the returned array contains classes extending Sprite
+    public static Class<? extends Sprite>[] getSprites() {
+        return new Class[] { Ball.class, Absorber.class, CircularBumper.class,
+                Flipper.class, Portal.class, SquareBumper.class, TriangularBumper.class, Wall.class };
+    }
+    
     /*
      * Game Sprites
      */
     
-    static class Ball extends Sprite {
-        private static int id = NetworkProtocol.getUID();
+    public static class Ball extends Sprite {
+        public static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
         private final static double RADIUS = 8.0;
@@ -58,12 +63,10 @@ public abstract class Sprite {
             
             g2.setTransform(saved);
         }
-        
-        public int getID() { return id; }
     }
 
-    static class Absorber extends Sprite {
-        private static int id = NetworkProtocol.getUID();
+    public static class Absorber extends Sprite {
+        public static int ID = NetworkProtocol.getUID();
         
         private final static Color color = Color.RED;
         
@@ -81,12 +84,10 @@ public abstract class Sprite {
             
             g2.setTransform(saved);
         }
-
-        public int getID() { return id; }
     }
     
-    static class CircularBumper extends Sprite {
-        private static int id = NetworkProtocol.getUID();
+    public static class CircularBumper extends Sprite {
+        public static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
         private final static double RADIUS = 8.0;
@@ -104,12 +105,10 @@ public abstract class Sprite {
             
             g2.setTransform(saved);
         }
-
-        public int getID() { return id; }
     }
     
-    static class Flipper extends Sprite {
-        private static int id = NetworkProtocol.getUID();
+    public static class Flipper extends Sprite {
+        public static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
         private final static double LENGTH = 8.0;
@@ -129,12 +128,10 @@ public abstract class Sprite {
             
             g2.setTransform(saved);
         }
-        
-        public int getID() { return id; }
     }
     
-    static class Portal extends Sprite {
-        private static int id = NetworkProtocol.getUID();
+    public static class Portal extends Sprite {
+        public static int ID = NetworkProtocol.getUID();
         
         private final static Color fillColor = getUniqueColor(127);
         private final static Color strokeColor = getUniqueColor(127);
@@ -155,12 +152,10 @@ public abstract class Sprite {
             
             g2.setTransform(saved);
         }
-
-        public int getID() { return id; }
     }
     
-    static class SquareBumper extends Sprite {
-        private static int id = NetworkProtocol.getUID();
+    public static class SquareBumper extends Sprite {
+        public static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
         private final static int SIZE = 8;
@@ -179,12 +174,10 @@ public abstract class Sprite {
             
             g2.setTransform(saved);
         }
-
-        public int getID() { return id; }
     }
     
-    static class TriangularBumper extends Sprite {
-        private static int id = NetworkProtocol.getUID();
+    public static class TriangularBumper extends Sprite {
+        public static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
         private final static int SIZE = 8;
@@ -207,12 +200,10 @@ public abstract class Sprite {
             
             g2.setTransform(saved);
         }
-
-        public int getID() { return id; }
     }
     
-    static class Wall extends Sprite {
-        private static int id = NetworkProtocol.getUID();
+    public static class Wall extends Sprite {
+        public static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
         private final static int SIZE = 8;
@@ -231,7 +222,5 @@ public abstract class Sprite {
             
             g2.setTransform(saved);
         }
-
-        public int getID() { return id; }
     }
 }
