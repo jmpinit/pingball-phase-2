@@ -3,9 +3,14 @@ package game;
 import java.util.HashSet;
 import java.util.Set;
 
+import client.Sprite;
 import physics.Circle;
 import physics.Geometry.VectPair;
 import physics.Vect;
+import server.NetworkProtocol;
+import server.NetworkProtocol.NetworkState;
+import server.NetworkProtocol.NetworkState.Field;
+import server.NetworkProtocol.NetworkState.FieldName;
 
 
 /***
@@ -20,7 +25,7 @@ import physics.Vect;
  * @author pkalluri
  *
  */
-public class Ball implements GamePiece{
+public class Ball implements GamePiece, NetworkProtocol.NetworkSerializable {
     private String name;
     private static final double RADIUS = .25; //radius of ball
     private static final double BOARDSIZE = 20; //size of board is 20L
@@ -29,6 +34,7 @@ public class Ball implements GamePiece{
     private boolean active;  //whether or not this ball is currently active
     
     private static final char SYMBOL = '*';
+    private static final int ID = Sprite.Ball.ID;
 
     public Ball(String name, Vect position, Vect velocity) {
         this.name = name;
@@ -233,10 +239,13 @@ public class Ball implements GamePiece{
         assert (this.position.y() >= 0 && this.position.y() <= BOARDSIZE);
     }
 
-    
-    
-    
-    
-    
-    
+    @Override
+    public NetworkState getState() {
+        Field[] fields = new Field[] {
+                new Field(FieldName.X, (long)position.x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)position.y())
+        };
+        
+        return new NetworkState(ID, fields);
+    }
 }

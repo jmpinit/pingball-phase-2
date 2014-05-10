@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import client.Sprite;
+import server.NetworkProtocol;
+import server.NetworkProtocol.NetworkState;
+import server.NetworkProtocol.NetworkState.Field;
+import server.NetworkProtocol.NetworkState.FieldName;
 import physics.Circle;
 import physics.LineSegment;
 import physics.Vect;
@@ -37,7 +42,7 @@ import physics.Vect;
  * 
  *
  */
-public class Absorber implements Gadget {
+public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
     private final String name;
     private final int width;
     private final int height;
@@ -50,6 +55,7 @@ public class Absorber implements Gadget {
     private final List<LineSegment> boundaries; //based on position and dimensions
 
     private static final char SYMBOL = '=';
+    private static final int ID = Sprite.Absorber.ID;
 
     /**
      * Creates a new absorber with inputted parameters
@@ -273,8 +279,16 @@ public class Absorber implements Gadget {
             return false;
         return true;
     }
-
-
-
-
+    
+    @Override
+    public NetworkState getState() {
+        Field[] fields = new Field[] {
+                new Field(FieldName.X, (long)position.x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)position.y()),
+                new Field(FieldName.WIDTH, width),
+                new Field(FieldName.HEIGHT, height)
+        };
+        
+        return new NetworkState(ID, fields);
+    }
 }
