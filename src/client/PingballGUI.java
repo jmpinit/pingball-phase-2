@@ -35,6 +35,12 @@ public class PingballGUI extends JFrame {
     
     private Canvas canvas;
     private Color[] lookup;
+    {
+        lookup = new Color[127];
+        Random generator = new Random(1337);
+        for(int i=0; i < lookup.length; i++)
+            lookup[i] = new Color(127+generator.nextInt(128), 127+generator.nextInt(128), 127+generator.nextInt(128));
+    }
 
     /**
      * Constructor to be called for online play.
@@ -125,11 +131,6 @@ public class PingballGUI extends JFrame {
         
         canvas = new Canvas(200, 200);
         add(canvas, BorderLayout.CENTER);
-        
-        lookup = new Color[127];
-        Random generator = new Random(1337);
-        for(int i=0; i < lookup.length; i++)
-            lookup[i] = new Color(127+generator.nextInt(128), 127+generator.nextInt(128), 127+generator.nextInt(128));
         
         pack();
         setVisible(true);        
