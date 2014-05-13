@@ -12,26 +12,26 @@ import server.NetworkProtocol.NetworkState.FieldName;
 
 
 /**
- * A circular gadget of diameter 1L
- * that is triggered whenever the ball hits it.
- * 
- * Circle bumpers have a coefficient of reflection of 1.0
+ * A CircularBumper is a circular gadget of default diameter that does no actions other than reflecting balls during collisions.
  * 
  * @author: jzwang
  */
 public class CircularBumper implements Gadget {
     private final String name;
     private final Vect position;
-
-    private final static double BOARDSIZE = 20; //size of board is 20Lx20L
-    private final Circle boundary; //based on position and dimensions
-    private final static double RADIUS = 0.5; //radius of circlebumper is .5L
+    private final static double RADIUS = 0.5;
     private static final char SYMBOL = '0';
 
+    private final Circle boundary; //based on position and dimensions
 
-    /**
-     * Creates circle bumpers on the board from file information
-     * @param file board file
+
+
+
+    /***
+     * Consturcts circle bumper
+     * @param name name of this gadget
+     * @param x x-coordinate of upper left corner of bounding box
+     * @param y y-coordinate of upper left corner of bounding box
      */
     public CircularBumper(String name, double x, double y) {
         this.name = name;
@@ -40,28 +40,11 @@ public class CircularBumper implements Gadget {
 
     }
 
-    /**
-     * @return string name representing this gadget
-     */
+
     @Override
     public String getName() {
         checkRep();
         return this.name;
-    }
-
-
-    /**
-     * @return set of tiles this gadget takes up on the board
-     */
-    @Override
-    public Set<Vect> getTiles() {
-        checkRep();
-        Set<Vect> tiles = new HashSet<Vect>();
-
-        Vect tile = position;
-        tiles.add(tile);
-
-        return tiles;
     }
 
     /**
@@ -73,44 +56,14 @@ public class CircularBumper implements Gadget {
         return new Vect(position.x()+RADIUS,position.y()+RADIUS);
     }
 
-    /**
-     * @return char symbol that represents this gadget on the board string
-     */
-    @Override
-    public char getSymbol() {
-        checkRep();
-        return SYMBOL;
-    }
 
-    /**
-     * @return Vect position of gadget on board
-     */
     @Override
-    public Vect getPosition() {
+    public double getTimeTillCollision(Ball ball) {
         checkRep();
-        return position;
-    }
-
-    /***
-     * Calculates time until collision with this ball.
-     * @param ball
-     * @return a double representing the time, in seconds, to 
-     * collision between the ball and the gadget
-     */
-    @Override
-    public double timeTillCollision(Ball ball) {
-        checkRep();
-        final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
+        Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
         return Geometry.timeUntilCircleCollision(boundary, ballShape, ball.getVelocity());
     }
 
-    /**
-     * Simulates a collision with a circular bumper by updating the velocity of the
-     * ball by the coefficient of reflection, 1.0.
-     * 
-     * @param ball ball on board
-     * 
-     */
     @Override
     public void progressAndCollide(double amountOfTime, Ball ball) {
         checkRep();
@@ -129,15 +82,7 @@ public class CircularBumper implements Gadget {
         checkRep();
     }
 
-    /***
-     * Progresses this gadget by the given amountOfTime (in seconds),
-     * assuming the given physical constants.
-     * 
-     * @param amountOfTime amount of time to progress
-     * @param gravity constant value of gravity
-     * @param mu constant value of the friction with respect to time
-     * @param mu2 constant value of the friction with respect to distance
-     */
+
     @Override
     public void progress(double amountOfTime, double gravity, double mu, double mu2) {
         //do nothing
@@ -148,8 +93,8 @@ public class CircularBumper implements Gadget {
      * Check the rep invariant.
      */
     private void checkRep() {
-        assert (this.position.x() >= 0 && this.position.x() <= BOARDSIZE);
-        assert (this.position.y() >= 0 && this.position.y() <= BOARDSIZE);
+        assert (this.position.x() >= 0 && this.position.x() <= Board.SIDELENGTH);
+        assert (this.position.y() >= 0 && this.position.y() <= Board.SIDELENGTH);
 
     }
 
@@ -193,6 +138,23 @@ public class CircularBumper implements Gadget {
         };
         
         return new NetworkState(2, fields);
+    }
+    
+    @Override
+    public Set<Vect> getTiles() {
+        checkRep();
+        Set<Vect> tiles = new HashSet<Vect>();
+
+        Vect tile = position;
+        tiles.add(tile);
+
+        return tiles;
+    }
+    
+    @Override
+    public char getSymbol() {
+        checkRep();
+        return SYMBOL;
     }
 
 

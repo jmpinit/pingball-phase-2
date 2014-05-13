@@ -31,7 +31,7 @@ import server.NetworkProtocol.NetworkState;
  */
 public class Board {
     //CONSTANTS
-    private static final int SIDELENGTH = 20;
+    public static final int SIDELENGTH = 20;
     public static final double DEFAULTGRAVITY = 25.0;
     public static final double DEFAULTMU1 = 0.025;
     public static final double DEFAULTMU2 = 0.025;
@@ -224,7 +224,7 @@ public class Board {
                 if (ball.isActive()){
                     //Look for collisions with other balls
                     for (Ball otherBall : balls) {
-                        double timeTillCollision = otherBall.timeTillCollision(ball);
+                        double timeTillCollision = otherBall.getTimeTillCollision(ball);
                         if (otherBall.isActive() &&
                                 ball != otherBall &&
                                 timeTillCollision< timeToFastForwardThrough) {
@@ -236,7 +236,7 @@ public class Board {
                     }
                     //Look for collisions with gadgets
                     for (GamePiece gadget : getGadgets() ) { //check all gadgets
-                        double timeTillCollision = gadget.timeTillCollision(ball);
+                        double timeTillCollision = gadget.getTimeTillCollision(ball);
                         if (timeTillCollision<timeToFastForwardThrough) {
                             //Next update will be this collision
                             foundCollision = true;
@@ -247,7 +247,7 @@ public class Board {
                     }
                     //Look for collisions with walls
                     for (Wall wall : walls.values() ) { //check all walls
-                        double timeTillCollision = wall.timeTillCollision(ball);
+                        double timeTillCollision = wall.getTimeTillCollision(ball);
                         if (timeTillCollision<timeToFastForwardThrough) {
                             //Next update will be this collision
                             foundCollision = true;

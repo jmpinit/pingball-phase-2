@@ -22,18 +22,24 @@ public interface GamePiece extends NetworkSerializable{
      */
     public String getName();
     
+//    /***
+//     * Get current position
+//     * @return current position
+//     */
+//    public Vect getPosition();
     
     /***
-     * Get current position
-     * @return current position
-     */
-    public Vect getPosition();
-    
-    /***
-     * Returns state of this GamePiece.
+     * Get state of this GamePiece.
      * @return
      */
     public NetworkState getState();
+    
+    /***
+     * Calculates time until collision with given ball, ignoring any physical constants
+     * @param ball the ball with which this will collide in the returned amount of time
+     * @return the time until collision between this and the ball, in seconds,
+     */
+    public double getTimeTillCollision(Ball ball); 
     
     /***
      * Progresses this gadget by the given amount of time, assuming the given physical constants
@@ -43,14 +49,7 @@ public interface GamePiece extends NetworkSerializable{
      * @param mu constant representing friction with respect to time, in 1/second
      * @param mu2 constant representing friction with respect to distance, in 1/L
      */
-    public void progress(double amountOfTime, double gravity, double mu, double mu2);
-    
-    /***
-     * Calculates time until collision with given ball, ignoring any physical constants
-     * @param ball the ball with which this will collide in the returned amount of time
-     * @return the time until collision between this and the ball, in seconds,
-     */
-    public double timeTillCollision(Ball ball);  
+    public void progress(double amountOfTime, double gravity, double mu, double mu2); 
 
     /***
      * Progresses this gadget by the given amount of time, ignoring any physical constants,
@@ -61,7 +60,7 @@ public interface GamePiece extends NetworkSerializable{
      */
     public void progressAndCollide(double amountOfTime, Ball ball);
     
-    //The following methods were used in printing a string rep, and no longer matter
+    /////////////////////METHODS USED IN PHASE 1 VISUALIZATION/////////////////////////////
     /***
      * Get set of tiles that this game piece currently occupies
      * @return the set of tiles that this game piece currently occupies

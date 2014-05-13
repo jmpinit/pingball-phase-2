@@ -11,22 +11,17 @@ import server.NetworkProtocol.NetworkState.Field;
 import server.NetworkProtocol.NetworkState.FieldName;
 
 /**
- * A wall is a gadget that
- * does no response 'action' when told to act,
- * and reflects balls off of it without itself ever moving. 
+ * A Wall is a gadget that does no action except for reflecting balls during collisions IFF the Wall is currently not transparent.
  * 
- * It can either be concrete, in which balls cannot pass through it,
- * or transparent, in which balls can pass through it.
+ * That is: a Wall can either be concrete, in which case balls cannot pass through it,
+ * or transparent, in which case balls can pass through it.
  * 
  * @author pkalluri
  *
  */
 public class Wall implements Gadget {
     private final String name;
-    private final Vect endA; // TODO purpose?
-    private final Vect endB;
     boolean transparency;
-    private final static double BOARDSIZE = 20; //size of board is 20Lx20L
 
     private final LineSegment wall; //based on end points
     
@@ -35,8 +30,6 @@ public class Wall implements Gadget {
     
     public Wall(Vect oneEnd, Vect otherEnd) {
         this.name = "wall"; //all walls are named "wall"
-        this.endA = oneEnd;
-        this.endB = otherEnd;
         this.wall = new LineSegment(oneEnd.x(),oneEnd.y(),otherEnd.x(),otherEnd.y());
         this.transparency = false; //wall is initially concrete
     }
@@ -58,11 +51,11 @@ public class Wall implements Gadget {
     public Set<Vect> getTiles() {
         checkRep();
         Set<Vect> tiles = new HashSet<Vect>();
-        for (int i=0; i<endB.x()-endA.x(); i++) {
-            for (int j=0; j<endB.y()-endA.y();j++) {
+        for (int i=0; i<wall.p2().x()-wall.p1().x(); i++) {
+            for (int j=0; j<wall.p2().y()-wall.p1().y();j++) {
                 Vect tile = new Vect(
-                        Math.min(endA.x(),endB.x()) +i,
-                        Math.min(endA.y(),endB.y()) +j
+                        Math.min(wall.p1().x(),wall.p2().x()) +i,
+                        Math.min(wall.p1().y(),wall.p2().y()) +j
                         );
                 tiles.add(tile);
             }
@@ -85,8 +78,7 @@ public class Wall implements Gadget {
      * Get current origin
      * @return current position
      */
-    @Override
-    public Vect getPosition() {
+    private Vect getPosition() {
         checkRep();
         return this.wall.p1();
     }
@@ -108,7 +100,7 @@ public class Wall implements Gadget {
      * collision between the ball and the gadget
      */
     @Override
-    public double timeTillCollision(Ball ball) {
+    public double getTimeTillCollision(Ball ball) {
         if (transparency) {
             return Double.POSITIVE_INFINITY;
         }else{
@@ -163,8 +155,8 @@ public class Wall implements Gadget {
     }
     
     private void checkRep() {
-        assert (this.endA.x() >= 0 && this.endA.x() <=BOARDSIZE);
-        assert (this.endB.x() >= 0 && this.endB.x() <=BOARDSIZE);
+        assert (this.wall.p1().x() >= 0 && this.wall.p1().x() <=Board.SIDELENGTH);
+        assert (this.wall.p2().x() >= 0 && this.wall.p2().x() <=Board.SIDELENGTH);
     }
 
     @Override

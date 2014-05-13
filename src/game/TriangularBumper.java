@@ -15,13 +15,8 @@ import server.NetworkProtocol.NetworkState.Field;
 import server.NetworkProtocol.NetworkState.FieldName;
 
 /**
- * A triangular gadget in the shape of a
- * right triangle with sides 1L and hypotenuse length sqrt(2).
- * The three corners of the triangle are represented by
- * circles of radius 0. A triangle bumper can be oriented
- * in 4 possible orientations (0, 90, 180, and 270 degrees).
- * 
- * Triggered by the ball hitting it. Has a coefficient of reflection of 1.0
+ * A TriangularBumper is a right-triangle-shaped gadget of default size that does no actions other than reflecting balls during collisions.
+ * It comes in 4 possible orientations, with the right angle in each of the 4 corners of its bounding box.
  * 
  * @author jzwang
  * 
@@ -30,9 +25,9 @@ public class TriangularBumper implements Gadget {
     private final String name;
     private final Vect position;
     private final double angle;
-
-    private final static double BOARDSIZE = 20; //size of board is 20Lx20L
-    private final List<LineSegment> boundaries; //based on position and dimensions
+    
+    //based on position and dimensions
+    private final List<LineSegment> boundaries; 
     private final List<Circle> corners;
 
     private static final char SYMBOL1 = '\\';
@@ -82,9 +77,6 @@ public class TriangularBumper implements Gadget {
     }
 
 
-    /**
-     * @return string name of gadget
-     */
     @Override
     public String getName() {
         checkRep();
@@ -92,9 +84,7 @@ public class TriangularBumper implements Gadget {
     }
 
 
-    /**
-     * @return Set<Vect> of board tiles taken up by gadget
-     */
+
     @Override
     public Set<Vect> getTiles() {
         checkRep();
@@ -104,10 +94,7 @@ public class TriangularBumper implements Gadget {
         return set;
     }
 
-    /**
-     * 
-     * @return A char symbol representing the bumper on the board
-     */
+
     @Override
     public char getSymbol() {
         checkRep();
@@ -127,26 +114,10 @@ public class TriangularBumper implements Gadget {
 
     }
 
-    /**
-     * @return Vect position of top left corner of gadget
-     */
-    @Override
-    public Vect getPosition() {
-        checkRep();
-        return position;
-    }
 
-    /**
-     *
-     * @param ball ball on board
-     * 
-     * @return a double representing the time, in seconds, that
-     * it would take a ball traveling at a velocity to collide with 
-     * the closest boundary of the bumper
-     * 
-     */
+
     @Override
-    public double timeTillCollision(Ball ball) {
+    public double getTimeTillCollision(Ball ball) {
         checkRep();
         double minTime=Double.POSITIVE_INFINITY;
         final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
@@ -167,6 +138,7 @@ public class TriangularBumper implements Gadget {
         return minTime;
     }
 
+    
     @Override
     public void progressAndCollide(double amountOfTime, Ball ball) {
         checkRep();
@@ -212,15 +184,6 @@ public class TriangularBumper implements Gadget {
         checkRep();
     }
 
-    /***
-     * Progresses this gadget by the given amountOfTime (in seconds),
-     * assuming the given physical constants.
-     * 
-     * @param amountOfTime amount of time to progress
-     * @param gravity constant value of gravity
-     * @param mu constant value of the friction with respect to time
-     * @param mu2 constant value of the friction with respect to distance
-     */
     @Override
     public void progress(double amountOfTime, double gravity, double mu, double mu2) {
         //Do nothing.
@@ -232,8 +195,8 @@ public class TriangularBumper implements Gadget {
      */
     private void checkRep() {
         assert (this.angle == 0 || this.angle == 90 ||this.angle == 180 ||this.angle == 270); //angles of 0, 90, 180, 270 degrees
-        assert (this.position.x() >= 0 && this.position.x() <= BOARDSIZE);
-        assert (this.position.y() >= 0 && this.position.y() <= BOARDSIZE);
+        assert (this.position.x() >= 0 && this.position.x() <= Board.SIDELENGTH);
+        assert (this.position.y() >= 0 && this.position.y() <= Board.SIDELENGTH);
     }
 
 

@@ -16,21 +16,16 @@ import server.NetworkProtocol.NetworkState.FieldName;
 
 
 /**
- * A square bumper is a 1L x 1L square shaped gadget
- * that is triggered whenever the ball hits it.
- * It has four corners that are represented by
- * circles of radius 0.
- * 
- * Square bumpers have coefficient of reflection of 1.0
+ * A SquareBumper is a square gadget of default size that does no actions other than reflecting balls during collisions.
  * 
  * @author jzwang
  */
 public class SquareBumper implements Gadget {
-    //line segments represent the bumper boundaries
     private final String name;
     private final Vect position;
-    private final static double BOARDSIZE = 20; //size of board is 20Lx20L
-    private final List<LineSegment> boundaries; //based on position and dimensions
+    
+    //based on position and dimensions
+    private final List<LineSegment> boundaries; 
     private final List<Circle> corners;
 
     private static final char SYMBOL = '#';
@@ -39,6 +34,8 @@ public class SquareBumper implements Gadget {
     public SquareBumper(String name, double x, double y) {
         this.name = name;
         this.position = new Vect(x,y);
+        
+        //boundaries:
         LineSegment top = new LineSegment(x,y,x+1,y);
         LineSegment left = new LineSegment(x,y,x,y+1);
         LineSegment right = new LineSegment(x+1,y,x+1,y+1);
@@ -55,22 +52,18 @@ public class SquareBumper implements Gadget {
      * Check the rep invariant.
      */
     private void checkRep() {
-        assert (this.position.x() >= 0 && this.position.x() <= BOARDSIZE);
-        assert (this.position.y() >= 0 && this.position.y() <= BOARDSIZE);
+        assert (this.position.x() >= 0 && this.position.x() <= Board.SIDELENGTH);
+        assert (this.position.y() >= 0 && this.position.y() <= Board.SIDELENGTH);
     }
 
-    /**
-     * @return string name representing name of bumper
-     */
+
     @Override
     public String getName() {
         checkRep();
         return this.name;
     }
 
-    /**
-     * @return set of tiles taken up by bumper
-     */
+
     @Override
     public Set<Vect> getTiles() {
         checkRep();
@@ -80,33 +73,19 @@ public class SquareBumper implements Gadget {
         return set;
     }
 
-    /**
-     * @return char symbol that represents this gadget on a board string
-     */
+
     @Override
     public char getSymbol() {
         checkRep();
         return SYMBOL;
     }
 
-    /**
-     * @return Vect position of gadget on board
-     */
-    @Override
-    public Vect getPosition() {
-        checkRep();
-        return position;
-    }
 
 
-    /***
-     * Calculates time until collision with this ball.
-     * @param ball
-     * @return a double representing the time, in seconds, to 
-     * collision between the ball and the gadget
-     */
+
+
     @Override
-    public double timeTillCollision(Ball ball) {
+    public double getTimeTillCollision(Ball ball) {
         checkRep();
         double minTime=Double.POSITIVE_INFINITY;
         final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
@@ -126,15 +105,7 @@ public class SquareBumper implements Gadget {
         return minTime;
     }
 
-    /***
-     * Progresses this gadget by the given amountOfTime (in seconds),
-     * simplifying to no physical constants/accelerations,
-     * and collides given ball with this gadget,
-     * by updating ball's velocity and this gadget's velocity accordingly.
-     * 
-     * @param amountOfTime amount of time to progress
-     * @param ball ball to collide with
-     */
+
     @Override
     public void progressAndCollide(double amountOfTime, Ball ball) {
         checkRep();
@@ -183,15 +154,7 @@ public class SquareBumper implements Gadget {
         //do nothing
     }
 
-    /***
-     * Progresses this gadget by the given amountOfTime (in seconds),
-     * assuming the given physical constants. Square bumpers have no progress.
-     * 
-     * @param amountOfTime amount of time to progress
-     * @param gravity constant value of gravity
-     * @param mu constant value of the friction with respect to time
-     * @param mu2 constant value of the friction with respect to distance
-     */
+
     @Override
     public void progress(double amountOfTime, double gravity, double mu,
             double mu2) {

@@ -9,13 +9,14 @@ import server.NetworkProtocol.NetworkState.FieldName;
 
 
 /***
- * A portal is a circular hole with diameter 1L
+ * A portal is a circular hole with default radius,
  * which teleports a ball to another portal gadget, possibly on a different board
  * 
  * @author pkalluri
  *
  */
 public class Portal implements Gadget  {
+    private static final double RADIUS = .5;
 
     /***
      * Constructs portal with given name at given coordinates.
@@ -32,65 +33,37 @@ public class Portal implements Gadget  {
     private void checkRep(){
     }
 
-    /**
-     * @return string name representing name of portal
-     */
+
     @Override
     public String getName(){
         return "";
     }
 
-    /**
-     * @return set of tiles taken up by portal
-     */
+
     @Override
     public Set<Vect> getTiles(){ 
         return null;
     }
 
-    /**
-     * @return char symbol that represents this gadget on a board string
-     */
+
     @Override
     public char getSymbol(){
         return 'a';
     }
 
-    /**
-     * @return Vect position of gadget on board
-     */
-    @Override
-    public Vect getPosition(){
-        return null;
-    }
 
-
-    /***
-     * Calculates time until collision with this ball.
-     * @param ball
-     * @return a double representing the time, in seconds, to 
-     * collision between the ball and the gadget
-     */
     @Override
-    public double timeTillCollision(Ball ball){
+    public double getTimeTillCollision(Ball ball){
         return 0.0;
     }
 
-    /***
-     * Progresses this gadget by the given amountOfTime (in seconds),
-     * simplifying to no physical constants/accelerations,
-     * and collides given ball with this gadget,
-     * by updating ball's velocity and this gadget's velocity accordingly.
-     * 
-     * @param amountOfTime amount of time to progress
-     * @param ball ball to collide with
-     */
+
     @Override
     public void progressAndCollide(double amountOfTime, Ball ball){
     }
 
     /**
-     * Portals have no action.
+     * Portal tells sister portal to release the captured ball on its board at the beginning of the next time step.
      */
     @Override
     public void doAction(){
@@ -98,15 +71,7 @@ public class Portal implements Gadget  {
         //do nothing
     }
 
-    /***
-     * Progresses this gadget by the given amountOfTime (in seconds),
-     * assuming the given physical constants. Portals have no progress.
-     * 
-     * @param amountOfTime amount of time to progress
-     * @param gravity constant value of gravity
-     * @param mu constant value of the friction with respect to time
-     * @param mu2 constant value of the friction with respect to distance
-     */
+
     @Override
     public void progress(double amountOfTime, double gravity, double mu,
             double mu2) {

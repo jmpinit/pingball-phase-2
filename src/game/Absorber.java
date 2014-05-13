@@ -18,122 +18,60 @@ import physics.LineSegment;
 import physics.Vect;
 
 /**
- * A rectangle kL x mL where k and m are positive integers <= 20.
- * 
- * Trigger: generated whenever the ball hits it
- * Action: shoots out a stored ball 
- * Coefficient of reflection: not applicable; the ball is captured
- * An absorber simulates the ball-return mechanism in a pingball game. 
- * When a ball hits an absorber, the absorber stops the ball and holds it
- * in the bottom right-hand corner of the absorber. 
- * 
- * The ball's center is .25L from the bottom of the absorber and .25L from the right side of the absorber.
- * 
- * If the absorber is holding a ball, then the action of an absorber, 
- * when it is triggered, is to shoot the ball straight upwards in the 
- * direction of the top of the playing area with initial 
- * velocity 50L/sec. If the absorber is not holding the ball, 
- * or if the previously ejected ball has not yet left the absorber, then 
- * the absorber takes no action when it receives a trigger signal.
- * 
- * When the ball hits a self-triggering absorber, 
- * it should be moved to the bottom right-hand corner of the absorber, 
- * and then be shot upward as described above. 
- * 
+ * An Absorber is a rectangular Gadget that simulates the ball-return mechanism in a pingball game. 
+ * When a ball hits an absorber, the absorber stops the ball and holds it in the bottom right-hand corner of the absorber.
+ * An absorber's action is to release 1 ball, if it has 1, straight upwards at a default velocity.
  *
  */
 public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
     private final String name;
+    private final Vect boundingBoxPosition;
     private final int width;
     private final int height;
-    private final Vect position;
-    private Queue<Ball> storedBalls;
+    private final Queue<Ball> storedBalls;
+    private final Vect storePosition;
 
-    private final static double STOREDBALLVELOCITY = -50; //stored ball velocity is 50L/s upwards when shot out
-
-    private final static double BOARDSIZE = 20; //size of board is 20Lx20L
     private final List<LineSegment> boundaries; //based on position and dimensions
+    
+    private final static double STOREDBALLVELOCITY = -50; //stored ball velocity is 50L/s upwards when shot out
 
     private static final char SYMBOL = '=';
     private static final int ID = Sprite.Absorber.ID;
 
     /**
-     * Creates a new absorber with inputted parameters
-     * @param name, of particular gadget
-     * @param x, x-coordinate of top left absorber
-     * @param y, y-coordinate of top left absorber
+     * Constructs a new absorber with given parameters
+     * @param name name of particular gadget
+     * @param x x-coordinate of top left corner or absorber
+     * @param y y-coordinate of top left corner of absorber
      * @param width dimension of gadget - how far right it extends
      * @param height dimension of gadget - how far down it extends
      */
     public Absorber(String name, int x, int y, int width, int height) {
         this.name = name;
-        this.position = new Vect(x,y);
+        this.boundingBoxPosition = new Vect(x,y);
         this.width = width;
         this.height = height;
+        this.storedBalls = new  LinkedList<Ball>(); //initially has no stored ball
+        this.storePosition = new Vect(boundingBoxPosition.x()+this.width-.25,boundingBoxPosition.y()+this.height-.25);
+
+        //construct bounding lines
         LineSegment top = new LineSegment(x,y,x+width,y);
         LineSegment left = new LineSegment(x,y,x,y+height);
         LineSegment right = new LineSegment(x+width,y,x+width,y+height);
         LineSegment bottom = new LineSegment(x,y+height,x+width,y+height);
         this.boundaries = new ArrayList<LineSegment>(Arrays.asList(left,right,top,bottom));
-        this.storedBalls = new  LinkedList<Ball>(); //initially has no stored ball
     }
 
-    /***
-     * @return a String name representing name of gadget
-     */
+
     @Override
     public String getName() {
         checkRep();
         return this.name;
     }
 
-    /***
-     * Get set of tiles that this gadgets occupies
-     * @return Set<Vect>
-     */
+
     @Override
-    public Set<Vect> getTiles() {
-        checkRep();
-        Set<Vect> set = new HashSet<Vect>();
-        for (int i=0; i<width; i++) {
-            for (int j=0; j<height;j++) {
-                Vect tile = new Vect(this.position.x()+i,this.position.y()+j);
-                set.add(tile);
-            }
-        }
-        checkRep();
-        return set;
-    }
-
-    /***
-     * Returns a char symbol to represent this gadget.
-     * @return a char symbol to represent this gadget.
-     */
-    @Override
-    public char getSymbol() {
-        return SYMBOL;
-    }
-
-    /***
-     * Get current position
-     * @return current position
-     */
-    @Override
-    public Vect getPosition() {
-        checkRep();
-        return position;
-    }
-
-
-
-    /***
-     * Calculates time until collision with this ball.
-     * @param ball
-     * @return a double representing the time, in seconds, to 
-     * collision between the ball and the gadget
-     */
-    @Override
-    public double timeTillCollision(Ball ball) {
+    public double getTimeTillCollision(Ball ball) {
         checkRep();
         if (this.contains(ball)) {
             return Double.POSITIVE_INFINITY;
@@ -164,48 +102,30 @@ public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
      * @return
      */
     private boolean contains(Ball ball) {
-        boolean contains =
-            ball.getPosition().x() > this.position.x()
-            && ball.getPosition().x() < this.position.x() + this.width
-            && ball.getPosition().y() > this.position.y() 
-            && ball.getPosition().y() < this.position.y() + this.height;
         checkRep();
+        boolean contains =
+            ball.getPosition().x() > this.boundingBoxPosition.x()
+            && ball.getPosition().x() < this.boundingBoxPosition.x() + this.width
+            && ball.getPosition().y() > this.boundingBoxPosition.y() 
+            && ball.getPosition().y() < this.boundingBoxPosition.y() + this.height;
         return contains;
     }
 
-    /***
-     * Progresses this gadget by the given amountOfTime (in seconds),
-     * assuming the given physical constants.
-     * 
-     * @param amountOfTime amount of time to progress
-     * @param gravity constant value of gravity
-     * @param mu constant value of the friction with respect to time
-     * @param mu2 constant value of the friction with respect to distance
-     */
+
     @Override
     public void progress(double amountOfTime, double gravity, double mu, double mu2) {
-        //Do nothing.
         checkRep();
+        //Do nothing.
     }
 
 
-    /***
-     * Progresses this gadget by the given amountOfTime (in seconds),
-     * simplifying to no physical constants/accelerations,
-     * and collides given ball with this gadget,
-     * by updating ball's velocity and this gadget's velocity accordingly.
-     * 
-     * @param amountOfTime amount of time to progress
-     * @param ball ball to collide with
-     */
     @Override
     public void progressAndCollide(double amountOfTime, Ball ball) {
-        //Jump forward to collision (progressing to position of collision is unnecessary)
+        //Jump forward to collision (progressing ball to position of collision is unnecessary)
 
         //Collide
         checkRep();
-        //ball is stored .25Lx.25L away from the bottom right corner of absorber
-        ball.setPosition(new Vect(position.x()+this.width-.25,position.y()+this.height-.25)); 
+        ball.setPosition(storePosition); //store ball
         ball.setActive(false);
         ball.setVelocity(new Vect(0,0));
         storedBalls.add(ball);
@@ -231,10 +151,10 @@ public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
      * Rep invariant - absorber is within board and is not larger than board.
      */
     private void checkRep() {
-        assert (width <= BOARDSIZE);
-        assert (height <= BOARDSIZE);
-        assert (this.position.x() >= 0 && this.position.x() <= BOARDSIZE);
-        assert (this.position.y() >= 0 && this.position.y() <= BOARDSIZE);
+        assert (width <= Board.SIDELENGTH);
+        assert (height <= Board.SIDELENGTH);
+        assert (this.boundingBoxPosition.x() >= 0 && this.boundingBoxPosition.x() <= Board.SIDELENGTH);
+        assert (this.boundingBoxPosition.y() >= 0 && this.boundingBoxPosition.y() <= Board.SIDELENGTH);
     }
 
     @Override
@@ -244,16 +164,12 @@ public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
         result = prime * result + height;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result
-            + ((position == null) ? 0 : position.hashCode());
+            + ((boundingBoxPosition == null) ? 0 : boundingBoxPosition.hashCode());
         result = prime * result + width;
         return result;
     }
 
-    /**
-     * Checks for equality between two objects
-     * @param obj, object to compare with for equality
-     * @return whether inputted and current object are equal
-     */
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -270,10 +186,10 @@ public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
                 return false;
         } else if (!name.equals(other.name))
             return false;
-        if (position == null) {
-            if (other.position != null)
+        if (boundingBoxPosition == null) {
+            if (other.boundingBoxPosition != null)
                 return false;
-        } else if (!position.equals(other.position))
+        } else if (!boundingBoxPosition.equals(other.boundingBoxPosition))
             return false;
         if (width != other.width)
             return false;
@@ -283,12 +199,34 @@ public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
     @Override
     public NetworkState getState() {
         Field[] fields = new Field[] {
-                new Field(FieldName.X, (long)position.x()), // TODO more precision (multiply by constant)
-                new Field(FieldName.Y, (long)position.y()),
+                new Field(FieldName.X, (long)boundingBoxPosition.x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)boundingBoxPosition.y()),
                 new Field(FieldName.WIDTH, width),
                 new Field(FieldName.HEIGHT, height)
         };
         
         return new NetworkState(ID, fields);
     }
+
+    @Override
+    public Set<Vect> getTiles() {
+        checkRep();
+        Set<Vect> set = new HashSet<Vect>();
+        for (int i=0; i<width; i++) {
+            for (int j=0; j<height;j++) {
+                Vect tile = new Vect(this.boundingBoxPosition.x()+i,this.boundingBoxPosition.y()+j);
+                set.add(tile);
+            }
+        }
+        checkRep();
+        return set;
+    }
+
+
+    @Override
+    public char getSymbol() {
+        return SYMBOL;
+    }
+
+   
 }

@@ -11,6 +11,14 @@ import server.NetworkProtocol.NetworkState.Field;
 import server.NetworkProtocol.NetworkState.FieldName;
 
 
+/***
+ * A Flipper is a rectangular gadget which
+ * reflects balls during collisions
+ * and is capable of swinging back and forth, tracing a 90 degree arc.
+ * A Flipper's action is to complete 1 new 90 degree arc.
+ * @author pkalluri
+ *
+ */
 public class Flipper implements Gadget {
     //Details of all flippers
     /***
@@ -96,24 +104,21 @@ public class Flipper implements Gadget {
     
 
     /***
-     * Converts angle in degrees to angle in radians.
+     * Converts angle in degrees clockwise from South
+     * to angle in radians counterclockwise from East.
      * @param angleInDegrees
      */
     private double degCWFromSouthToRadCCWFromEast(double angleInDegrees) {
-        return (360 - angleInDegrees -90) * Math.PI/180;
+        return (360 - angleInDegrees - 90) * Math.PI/180;
     }
     
-    /**
-     * @return String name of gadget
-     */
+
     @Override
     public String getName() {
         return this.name;
     }
 
-    /**
-     * @return Set<Vect> of board tiles taken up by gadget
-     */
+
     @Override
     public Set<Vect> getTiles() {
         Set<Vect> tiles = new HashSet<Vect>();
@@ -193,9 +198,7 @@ public class Flipper implements Gadget {
     }
 
     
-    /**
-     * @return char symbol that represents this gadget on a board
-     */
+
     @Override
     public char getSymbol() {
         if (currentlyRotating) {
@@ -209,18 +212,11 @@ public class Flipper implements Gadget {
         }       
     }
 
-    /**
-     * @return Vect pivot point of flipper
-     */
-    @Override
-    public Vect getPosition() {
-        return upperLeftCornerOfBoundingBox;
-    }
 
 
     /***
-     * Get rotational speed in degrees/sec CCW.
-     * @return
+     * Get rotational velocity, in degrees/sec CCW.
+     * @return otational velocity, in degrees/sec CCW.
      */
     private double getRotationalVelocity() {
         if (!currentlyRotating) {
@@ -238,7 +234,7 @@ public class Flipper implements Gadget {
 
 
     @Override
-    public double timeTillCollision(Ball ball) {
+    public double getTimeTillCollision(Ball ball) {
         final Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
         //calculates collision time to possibly rotating flipper
         if (currentlyRotating) {
@@ -253,17 +249,8 @@ public class Flipper implements Gadget {
         }
     }
 
-    /**
-     * Simulates a collision with a flipper by updating the velocity of the
-     * ball by the coefficient of reflection, 0.95.
-     * 
-     * Also takes into account any linear velocity of flipper motion when colliding 
-     * with a ball and updating ball velocity.
-     * 
-     * @param timeBeforeCollision the time, in milliseconds, before collision between
-     * the ball and the flipper
-     * @param ball ball on board
-     */
+
+
     @Override
     public void progressAndCollide(double amountOfTime, Ball ball) {
         ball.progressIgnoringPhysicalConstants(amountOfTime);
@@ -288,24 +275,15 @@ public class Flipper implements Gadget {
     }
 
     /**
-     * Rotate the gadget 90*(Math.PI/180) degrees at a rate of 1080 degrees per second.
-     * The left gadget rotates counter-clockwise, and the right gadget 
-     * rotates clockwise.
+     * If not already flipping, tells the flipper to begin flipping at the next time step,
+     * i.e. tracing a 90 degree arc.
      */
     @Override
     public void doAction() {
         currentlyRotating = true;
     }
 
-    /**
-     * Progresses this gadget by the given amountOfTime (in milliseconds),
-     * assuming the given physical constants.
-     * 
-     * @param amountOfTime amount of time to progress
-     * @param gravity constant value of gravity
-     * @param mu constant value of the friction with respect to time
-     * @param mu2 constant value of the friction with respect to distance
-     */
+    
     @Override
     public void progress(double amountOfTime, double gravity, double mu, double mu2) {
         //if flipper is mid-rotation
@@ -336,18 +314,38 @@ public class Flipper implements Gadget {
     }
     
     
+    /***
+     * Check if angle is equivalent to the direction West.
+     * @param angleInDeg angle in degrees clockwise from South
+     * @return true iff angle is equivalent to the direction West.
+     */
     private boolean isWest(double angleInDeg) {
         return angleInDeg == 90;
     }
     
+    /***
+     * Check if angle is equivalent to the direction North.
+     * @param angleInDeg angle in degrees clockwise from South
+     * @return true iff angle is equivalent to the direction North.
+     */
     private boolean isNorth(double angleInDeg) {
         return angleInDeg == 180;
     }
     
+    /***
+     * Check if angle is equivalent to the direction South.
+     * @param angleInDeg angle in degrees clockwise from South
+     * @return true iff angle is equivalent to the direction South.
+     */
     private boolean isSouth(double angleInDeg) {
         return angleInDeg == 0 || angleInDeg == 360;
     }
     
+    /***
+     * Check if angle is equivalent to the direction East.
+     * @param angleInDeg angle in degrees clockwise from South
+     * @return true iff angle is equivalent to the direction East.
+     */
     private boolean isEast(double angleInDeg) {
         return angleInDeg == -90 || angleInDeg == 270;
     }

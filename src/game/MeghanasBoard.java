@@ -242,7 +242,7 @@ public class MeghanasBoard {
                 if (ball.isActive()) {
                     //Look for collisions with other balls
                     for (Ball otherBall : balls) {
-                        double timeTillCollision = otherBall.timeTillCollision(ball);
+                        double timeTillCollision = otherBall.getTimeTillCollision(ball);
                         if (otherBall.isActive() &&
                                 ball != otherBall &&
                                 timeTillCollision< timeToFastForwardThrough) {
@@ -254,7 +254,7 @@ public class MeghanasBoard {
                     }
                     //Look for collisions with gadgets
                     for (GamePiece gadget : getGadgets() ) { //check all gadgets
-                        double timeTillCollision = gadget.timeTillCollision(ball);
+                        double timeTillCollision = gadget.getTimeTillCollision(ball);
                         if (timeTillCollision<timeToFastForwardThrough) {
                             //Next update will be this collision
                             foundCollision = true;
@@ -265,7 +265,7 @@ public class MeghanasBoard {
                     }
                     //Look for collisions with walls
                     for (Wall wall : walls ) { //check all walls
-                        double timeTillCollision = wall.timeTillCollision(ball);
+                        double timeTillCollision = wall.getTimeTillCollision(ball);
                         if (timeTillCollision<timeToFastForwardThrough) {
                             //Next update will be this collision
                             foundCollision = true;
