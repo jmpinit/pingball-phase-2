@@ -43,14 +43,9 @@ public class Board {
     //MUTABLE ATTRIBUTES:
     private final Set<Ball> balls; //all balls currently on this board
     private final BlockingQueue<Ball> ballQueue;//all balls queued to be placed on this board
-    //  4 walls of this board, which can be transparent or concrete
-    private Wall topWall;
-    private Wall bottomWall;
-    private Wall leftWall;
-    private Wall rightWall;
-    private Set<Wall> walls;
-    //  4 possible attached boards
-    private Map<Direction,Board> connectedBoards;
+    private Map<Direction, Wall> walls;     //  4 walls of this board, which can be transparent or concrete
+    private Map<Direction,Board> connectedBoards;     //  4 possible attached boards
+
 
     
     /***
@@ -77,15 +72,11 @@ public class Board {
         //CONSTRUCTED AS ALWAYS
         this.ballQueue = new LinkedBlockingQueue<Ball>();
             //walls:
-        this.topWall = new Wall( new Vect(0,0),new Vect(SIDELENGTH,0)  );
-        this.bottomWall = new Wall( new Vect(0,SIDELENGTH),new Vect(SIDELENGTH,SIDELENGTH)  );
-        this.leftWall = new Wall( new Vect(0,0),new Vect(0,SIDELENGTH)  );
-        this.rightWall = new Wall( new Vect(SIDELENGTH,0),new Vect(SIDELENGTH,SIDELENGTH)  );
-        this.walls = new HashSet<Wall>();
-        walls.add(topWall);
-        walls.add(bottomWall);
-        walls.add(leftWall);
-        walls.add(rightWall);
+        this.walls = new HashMap<Direction,Wall> ();
+        this.walls.put(Direction.UP, new Wall( new Vect(0,0),new Vect(SIDELENGTH,0)  )  );
+        this.walls.put(Direction.DOWN, new Wall( new Vect(0,SIDELENGTH),new Vect(SIDELENGTH,SIDELENGTH)  )  );
+        this.walls.put(Direction.LEFT, new Wall( new Vect(0,0),new Vect(0,SIDELENGTH)  )    );
+        this.walls.put(Direction.RIGHT, new Wall( new Vect(SIDELENGTH,0),new Vect(SIDELENGTH,SIDELENGTH)  ) );
             //boards:
         this.connectedBoards = new HashMap<Direction,Board>();
         this.connectedBoards.put(Direction.UP, null); //the board in the up direction
@@ -238,7 +229,7 @@ public class Board {
                         }
                     }
                     //Look for collisions with walls
-                    for (Wall wall : walls ) { //check all walls
+                    for (Wall wall : walls.values() ) { //check all walls
                         double timeTillCollision = wall.timeTillCollision(ball);
                         if (timeTillCollision<timeToFastForwardThrough) {
                             //Next update will be this collision
@@ -369,7 +360,7 @@ public class Board {
     		connectedBoards.get(Direction.LEFT).disjoinRight();
     	}
         connectedBoards.put(Direction.LEFT, otherBoard);
-        leftWall.setTransparency(true);
+        walls.get(Direction.LEFT).setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
     
@@ -385,7 +376,7 @@ public class Board {
     		connectedBoards.get(Direction.RIGHT).disjoinLeft();
     	}
         connectedBoards.put(Direction.RIGHT, otherBoard);
-        rightWall.setTransparency(true);
+        walls.get(Direction.RIGHT).setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
     
@@ -401,7 +392,7 @@ public class Board {
     		connectedBoards.get(Direction.UP).disjoinBottom();
     	}
         connectedBoards.put(Direction.UP, otherBoard);
-        topWall.setTransparency(true);
+        walls.get(Direction.UP).setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
     
@@ -417,7 +408,7 @@ public class Board {
     		connectedBoards.get(Direction.DOWN).disjoinTop();
     	}
         connectedBoards.put(Direction.DOWN, otherBoard);
-        bottomWall.setTransparency(true);
+        walls.get(Direction.DOWN).setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
     
@@ -447,7 +438,7 @@ public class Board {
      */
     public void disjoinLeft(){
         connectedBoards.put(Direction.LEFT, null);
-        leftWall.setTransparency(false);
+        walls.get(Direction.LEFT).setTransparency(false);
     }
     
     
@@ -456,7 +447,7 @@ public class Board {
      */
     public void disjoinRight(){
         connectedBoards.put(Direction.RIGHT, null);
-        rightWall.setTransparency(false);
+        walls.get(Direction.RIGHT).setTransparency(false);
     }
     
     /***
@@ -464,7 +455,7 @@ public class Board {
      */
     public void disjoinTop(){
         connectedBoards.put(Direction.UP, null);
-        topWall.setTransparency(false);
+        walls.get(Direction.UP).setTransparency(false);
     }
 
     /***
@@ -472,7 +463,7 @@ public class Board {
      */
     public void disjoinBottom(){
         connectedBoards.put(Direction.DOWN, null);
-        bottomWall.setTransparency(false);
+        walls.get(Direction.DOWN).setTransparency(false);
     }
     
     public Board getTopBoard(){
