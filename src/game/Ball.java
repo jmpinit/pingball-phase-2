@@ -7,7 +7,6 @@ import client.Sprite;
 import physics.Circle;
 import physics.Geometry.VectPair;
 import physics.Vect;
-import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkState;
 import server.NetworkProtocol.NetworkState.Field;
 import server.NetworkProtocol.NetworkState.FieldName;
@@ -25,7 +24,7 @@ import server.NetworkProtocol.NetworkState.FieldName;
  * @author pkalluri
  *
  */
-public class Ball implements GamePiece, NetworkProtocol.NetworkSerializable {
+public class Ball implements GamePiece {
     private String name;
     private static final double RADIUS = .25; //radius of ball
     private static final double BOARDSIZE = 20; //size of board is 20L

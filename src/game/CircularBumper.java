@@ -6,6 +6,9 @@ import java.util.Set;
 import physics.Circle;
 import physics.Geometry;
 import physics.Vect;
+import server.NetworkProtocol.NetworkState;
+import server.NetworkProtocol.NetworkState.Field;
+import server.NetworkProtocol.NetworkState.FieldName;
 
 
 /**
@@ -180,6 +183,16 @@ public class CircularBumper implements Gadget {
         } else if (!position.equals(other.position))
             return false;
         return true;
+    }
+
+    @Override
+    public NetworkState getState() {
+        Field[] fields = new Field[] {
+                new Field(FieldName.X, (long)position.x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)position.y())
+        };
+        
+        return new NetworkState(2, fields);
     }
 
 

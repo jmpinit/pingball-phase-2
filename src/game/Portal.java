@@ -1,7 +1,11 @@
 package game;
 
 import java.util.Set;
+
 import physics.Vect;
+import server.NetworkProtocol.NetworkState;
+import server.NetworkProtocol.NetworkState.Field;
+import server.NetworkProtocol.NetworkState.FieldName;
 
 
 /***
@@ -118,6 +122,16 @@ public class Portal implements Gadget  {
     @Override
     public boolean equals(Object obj) {
         return true;
+    }
+
+    @Override
+    public NetworkState getState() {
+        Field[] fields = new Field[] {
+                new Field(FieldName.X, (long)getPosition().x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)getPosition().y())
+        };
+        
+        return new NetworkState(4, fields);
     }
 
 

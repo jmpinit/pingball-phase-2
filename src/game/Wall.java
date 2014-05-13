@@ -6,6 +6,9 @@ import java.util.Set;
 import physics.Circle;
 import physics.LineSegment;
 import physics.Vect;
+import server.NetworkProtocol.NetworkState;
+import server.NetworkProtocol.NetworkState.Field;
+import server.NetworkProtocol.NetworkState.FieldName;
 
 /**
  * A wall is a gadget that
@@ -162,6 +165,16 @@ public class Wall implements Gadget {
     private void checkRep() {
         assert (this.endA.x() >= 0 && this.endA.x() <=BOARDSIZE);
         assert (this.endB.x() >= 0 && this.endB.x() <=BOARDSIZE);
+    }
+
+    @Override
+    public NetworkState getState() {
+        Field[] fields = new Field[] {
+                new Field(FieldName.X, (long)getPosition().x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)getPosition().y())
+        };
+        
+        return new NetworkState(20, fields);
     }
 
 }

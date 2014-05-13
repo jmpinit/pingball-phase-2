@@ -3,6 +3,8 @@ package game;
 import java.util.Set;
 
 import physics.Vect;
+import server.NetworkProtocol.NetworkSerializable;
+import server.NetworkProtocol.NetworkState;
 
 
 /***
@@ -13,18 +15,13 @@ import physics.Vect;
  * @author pkalluri
  */
 
-public interface GamePiece {    
+public interface GamePiece extends NetworkSerializable{    
     /***
      * Get name.
      * @return a String representation of the name of this
      */
     public String getName();
     
-    /***
-     * Get a char symbol to represent this game piece in its current state
-     * @return a char symbol to represent this gadget in its current state
-     */
-    public char getSymbol();
     
     /***
      * Get current position
@@ -33,10 +30,10 @@ public interface GamePiece {
     public Vect getPosition();
     
     /***
-     * Get set of tiles that this game piece currently occupies
-     * @return the set of tiles that this game piece currently occupies
+     * Returns state of this GamePiece.
+     * @return
      */
-    public Set<Vect> getTiles();
+    public NetworkState getState();
     
     /***
      * Progresses this gadget by the given amount of time, assuming the given physical constants
@@ -63,5 +60,18 @@ public interface GamePiece {
      * @param ball ball to collide with
      */
     public void progressAndCollide(double amountOfTime, Ball ball);
+    
+    //The following methods were used in printing a string rep, and no longer matter
+    /***
+     * Get set of tiles that this game piece currently occupies
+     * @return the set of tiles that this game piece currently occupies
+     */
+    public Set<Vect> getTiles();
+    
+    /***
+     * Get a char symbol to represent this game piece in its current state
+     * @return a char symbol to represent this gadget in its current state
+     */
+    public char getSymbol();
 
 }

@@ -10,6 +10,9 @@ import physics.Circle;
 import physics.Geometry;
 import physics.LineSegment;
 import physics.Vect;
+import server.NetworkProtocol.NetworkState;
+import server.NetworkProtocol.NetworkState.Field;
+import server.NetworkProtocol.NetworkState.FieldName;
 
 /**
  * A triangular gadget in the shape of a
@@ -110,16 +113,16 @@ public class TriangularBumper implements Gadget {
         checkRep();
         //gadget angles of 0, 90, 180, 270 degrees
         if (this.angle == 0) {
-            return '/';
+            return SYMBOL2;
         }
         if (this.angle == 180) {
-            return '/';
+            return SYMBOL2;
         }
         if (this.angle == 90) {
-            return '\\';
+            return SYMBOL1;
         }
         else {// (this.angle == 270)
-            return '\\';
+            return SYMBOL1;
         }
 
     }
@@ -270,6 +273,17 @@ public class TriangularBumper implements Gadget {
         } else if (!name.equals(other.name))
             return false;
         return true;
+    }
+
+
+    @Override
+    public NetworkState getState() {
+        Field[] fields = new Field[] {
+                new Field(FieldName.X, (long)position.x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)position.y())
+        };
+        
+        return new NetworkState(15, fields);
     }
 
 

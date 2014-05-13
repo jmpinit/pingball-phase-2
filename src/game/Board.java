@@ -2,6 +2,8 @@ package game;
 
 
 
+import java.awt.List;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -10,6 +12,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import physics.Vect;
+import server.NetworkProtocol;
+import server.NetworkProtocol.NetworkEvent;
+import server.NetworkProtocol.NetworkState;
 
 
 /***
@@ -43,8 +48,9 @@ public class Board {
     //MUTABLE ATTRIBUTES:
     private final Set<Ball> balls; //all balls currently on this board
     private final BlockingQueue<Ball> ballQueue;//all balls queued to be placed on this board
-    private Map<Direction, Wall> walls;     //  4 walls of this board, which can be transparent or concrete
-    private Map<Direction,Board> connectedBoards;     //  4 possible attached boards
+    private final Map<Direction, Wall> walls;     //  4 walls of this board, which can be transparent or concrete
+    private final Map<Direction,Board> connectedBoards;     //  4 possible attached boards
+    private final Map<GamePiece, NetworkState> gamePieceStates;
 
 
     
@@ -60,15 +66,6 @@ public class Board {
      * @param balls a set of balls that start on the board
      */
     public Board(String name, Double gravity, Double mu, Double mu2, Map<Gadget, Set<Gadget>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls) {
-        //CONSTRUCTED FROM GIVEN PARAMETERS
-        this.name = name;
-        this.gravity = gravity;
-        this.mu = mu;
-        this.mu2 = mu2;
-        this.gadgetsToEffects = gadgetsToEffects;
-        this.stepSize = stepSizeInSeconds;
-        this.balls = startingBalls;
-        
         //CONSTRUCTED AS ALWAYS
         this.ballQueue = new LinkedBlockingQueue<Ball>();
             //walls:
@@ -83,6 +80,26 @@ public class Board {
         this.connectedBoards.put(Direction.DOWN, null); //in the down direction
         this.connectedBoards.put(Direction.LEFT, null); //in the left direction
         this.connectedBoards.put(Direction.RIGHT, null); //in the right direction
+        
+        //CONSTRUCTED FROM GIVEN PARAMETERS
+        this.name = name;
+        this.gravity = gravity;
+        this.mu = mu;
+        this.mu2 = mu2;
+        this.gadgetsToEffects = gadgetsToEffects;
+        this.stepSize = stepSizeInSeconds;
+        this.balls = startingBalls;
+        this.gamePieceStates = new HashMap<GamePiece, NetworkState>();
+        for (Gadget gadget : gadgetsToEffects.keySet()) { //add gadgets to GamePieces
+            this.gamePieceStates.put(gadget, gadget.getState());
+        }
+        for (Ball ball : balls) { //add balls to GamePieces
+            this.gamePieceStates.put(ball, ball.getState());
+        }
+        for (Wall wall : walls.values()) { //add gadgets to GamePieces
+            this.gamePieceStates.put(wall, wall.getState());
+        }
+        
     }
     
     
@@ -192,7 +209,7 @@ public class Board {
      * 
      * @throws InterruptedException 
      */
-    public void step() throws InterruptedException{
+    public ArrayList<NetworkEvent> step() throws InterruptedException{
         addQueuedBalls();
         double timeTillEndOfStep = stepSize; //Currently at beginning of time step
         
@@ -278,6 +295,30 @@ public class Board {
             
             timeTillEndOfStep -= timeToFastForwardThrough;
         }//repeat until at end of time step
+        
+        //Note and return any changes that have occurred
+        ArrayList<NetworkEvent> events = new ArrayList<NetworkEvent>();
+        for (Map.Entry<GamePiece, NetworkState> entry: gamePieceStates.entrySet()) {
+            GamePiece gamePiece = entry.getKey();
+            NetworkState recordedNetworkState = entry.getValue();
+            for (int i = 0; i<recordedNetworkState.getFields().length; i++) { //for each field of this GamePiece
+                NetworkProtocol.NetworkState.Field before = recordedNetworkState.getFields()[i];
+                NetworkProtocol.NetworkState.Field now = gamePiece.getState().getFields()[i];
+                
+                if (before.getValue()!=now.getValue()) {
+                    recordedNetworkState.getFields()[i] = now; //update
+                    
+                    events.add(new NetworkEventImplementation<Object>(
+                                    recordedNetworkState.getID(), 
+                                    now.getID().id(), 
+                                    now.getValue()
+                                    )
+                              );
+                }
+
+            }//done examining this GamePiece
+        }//done examining all GamePieces
+        return events;
     }    
 
 

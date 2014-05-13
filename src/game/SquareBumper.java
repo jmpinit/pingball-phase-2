@@ -10,6 +10,9 @@ import physics.Circle;
 import physics.Geometry;
 import physics.LineSegment;
 import physics.Vect;
+import server.NetworkProtocol.NetworkState;
+import server.NetworkProtocol.NetworkState.Field;
+import server.NetworkProtocol.NetworkState.FieldName;
 
 
 /**
@@ -232,6 +235,16 @@ public class SquareBumper implements Gadget {
         } else if (!position.equals(other.position))
             return false;
         return true;
+    }
+
+    @Override
+    public NetworkState getState() {
+        Field[] fields = new Field[] {
+                new Field(FieldName.X, (long)position.x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)position.y())
+        };
+        
+        return new NetworkState(5, fields);
     }
 
 
