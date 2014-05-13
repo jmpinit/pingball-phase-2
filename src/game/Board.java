@@ -2,7 +2,6 @@ package game;
 
 
 
-import java.awt.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,7 +25,6 @@ import server.NetworkProtocol.NetworkState;
  * 4 walls that can each become transparent if joined to other boards or concrete if isolated.
  * a ball queue of balls waiting to be placed in their appropriate location on the board.
  * 
- * Board is not gauranteed to be threadsafe, but join and disjoin ????
  * @author pkalluri
  */
 public class Board {
@@ -50,7 +48,7 @@ public class Board {
     private final BlockingQueue<Ball> ballQueue;//all balls queued to be placed on this board
     private final Map<Direction, Wall> walls;     //  4 walls of this board, which can be transparent or concrete
     private final Map<Direction,Board> connectedBoards;     //  4 possible attached boards
-    private final Map<GamePiece, NetworkState> gamePieceStates;
+    private final Map<GamePiece, NetworkState> gamePieceStates; //the recorded state of all GamePieces
 
 
     
@@ -96,7 +94,7 @@ public class Board {
         for (Ball ball : balls) { //add balls to GamePieces
             this.gamePieceStates.put(ball, ball.getState());
         }
-        for (Wall wall : walls.values()) { //add gadgets to GamePieces
+        for (Wall wall : walls.values()) { //add walls to GamePieces
             this.gamePieceStates.put(wall, wall.getState());
         }
         
@@ -302,16 +300,16 @@ public class Board {
             GamePiece gamePiece = entry.getKey();
             NetworkState recordedNetworkState = entry.getValue();
             for (int i = 0; i<recordedNetworkState.getFields().length; i++) { //for each field of this GamePiece
-                NetworkProtocol.NetworkState.Field before = recordedNetworkState.getFields()[i];
-                NetworkProtocol.NetworkState.Field now = gamePiece.getState().getFields()[i];
+                NetworkProtocol.NetworkState.Field stateBefore = recordedNetworkState.getFields()[i];
+                NetworkProtocol.NetworkState.Field stateNow = gamePiece.getState().getFields()[i];
                 
-                if (before.getValue()!=now.getValue()) {
-                    recordedNetworkState.getFields()[i] = now; //update
+                if (stateBefore.getValue()!=stateNow.getValue()) {
+                    recordedNetworkState.getFields()[i] = stateNow; //update
                     
                     events.add(new NetworkEventImplementation<Object>(
                                     recordedNetworkState.getID(), 
-                                    now.getID().id(), 
-                                    now.getValue()
+                                    stateNow.getID().id(), 
+                                    stateNow.getValue()
                                     )
                               );
                 }
@@ -507,21 +505,6 @@ public class Board {
         walls.get(Direction.DOWN).setTransparency(false);
     }
     
-    public Board getTopBoard(){
-    	return connectedBoards.get(Direction.UP);
-    }
-
-    public Board getBottomBoard(){
-        return connectedBoards.get(Direction.DOWN);
-    }
-    
-    public Board getLeftBoard(){
-        return connectedBoards.get(Direction.RIGHT);
-    }
-    
-    public Board getRightBoard(){
-        return connectedBoards.get(Direction.LEFT);
-    }
 
     /***
      * Get a mapping of each direction to the Board that currently occupies that direction.
@@ -558,6 +541,38 @@ public class Board {
 		Board other = (Board) obj;
 		return (this+"").equals(other+"");
 	}
+	
+	/***
+	 * Get top board
+	 * @return top board
+	 */
+    public Board getTopBoard(){
+        return connectedBoards.get(Direction.UP);
+    }
+    
+    /***
+     * Get bottom board
+     * @return bottom board
+     */
+    public Board getBottomBoard(){
+        return connectedBoards.get(Direction.DOWN);
+    }
+    
+    /***
+     * Get left board
+     * @return left board
+     */
+    public Board getLeftBoard(){
+        return connectedBoards.get(Direction.LEFT);
+    }
+    
+    /***
+     * Get right board
+     * @return right board
+     */
+    public Board getRightBoard(){
+        return connectedBoards.get(Direction.RIGHT);
+    }
     
     
     
