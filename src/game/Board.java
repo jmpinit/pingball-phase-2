@@ -2,6 +2,7 @@ package game;
 
 
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -49,10 +50,7 @@ public class Board {
     private Wall rightWall;
     private Set<Wall> walls;
     //  4 possible attached boards
-    private Board topBoard;
-    private Board bottomBoard;
-    private Board leftBoard;
-    private Board rightBoard;
+    private Map<Direction,Board> connectedBoards;
 
     
     /***
@@ -89,10 +87,11 @@ public class Board {
         walls.add(leftWall);
         walls.add(rightWall);
             //boards:
-        this.topBoard = null;
-        this.bottomBoard = null;
-        this.leftBoard = null;
-        this.rightBoard = null;
+        this.connectedBoards = new HashMap<Direction,Board>();
+        this.connectedBoards.put(Direction.UP, null); //the board in the up direction
+        this.connectedBoards.put(Direction.DOWN, null); //in the down direction
+        this.connectedBoards.put(Direction.LEFT, null); //in the left direction
+        this.connectedBoards.put(Direction.RIGHT, null); //in the right direction
     }
     
     
@@ -128,8 +127,8 @@ public class Board {
         }
         
         //overwrite with any currently joined boards' names
-        if (topBoard != null) {
-            String nameToWrite = topBoard.getName();
+        if (connectedBoards.get(Direction.UP) != null) {
+            String nameToWrite = connectedBoards.get(Direction.UP).getName();
             int nextIndexToCopyFromName = 0;
             while (nextIndexToCopyFromName<nameToWrite.length() && nextIndexToCopyFromName<arrayRep.length-2) {
                 int positionToCopyTo = nextIndexToCopyFromName+1;//leave one space for one '.' before starting the copying
@@ -137,8 +136,8 @@ public class Board {
                 nextIndexToCopyFromName++;
             }
         }
-        if (bottomBoard != null) {
-            String nameToWrite = bottomBoard.getName();
+        if (connectedBoards.get(Direction.DOWN) != null) {
+            String nameToWrite = connectedBoards.get(Direction.DOWN).getName();
             int nextIndexToCopyFromName = 0;
             while (nextIndexToCopyFromName<nameToWrite.length() && nextIndexToCopyFromName<arrayRep.length-2) {
                 int positionToCopyTo = nextIndexToCopyFromName+1;//leave one space for one '.' before starting the copying
@@ -146,8 +145,8 @@ public class Board {
                 nextIndexToCopyFromName++;
             }
         }
-        if (leftBoard != null) {
-            String nameToWrite = leftBoard.getName();
+        if (connectedBoards.get(Direction.LEFT) != null) {
+            String nameToWrite = connectedBoards.get(Direction.LEFT).getName();
             int nextIndexToCopyFromName = 0;
             while (nextIndexToCopyFromName<nameToWrite.length() && nextIndexToCopyFromName<arrayRep.length-2) {
                 int positionToCopyTo = nextIndexToCopyFromName+1;//leave one space for one '.' before starting the copying
@@ -155,8 +154,8 @@ public class Board {
                 nextIndexToCopyFromName++;
             }
         }
-        if (rightBoard != null) {
-            String nameToWrite = rightBoard.getName();
+        if (connectedBoards.get(Direction.RIGHT) != null) {
+            String nameToWrite = connectedBoards.get(Direction.RIGHT).getName();
             int nextIndexToCopyFromName = 0;
             while (nextIndexToCopyFromName<nameToWrite.length() && nextIndexToCopyFromName<arrayRep.length-2) {
                 int positionToCopyTo = nextIndexToCopyFromName+1;//leave one space for one '.' before starting the copying
@@ -259,8 +258,8 @@ public class Board {
                 if (ball.isActive() && ball!=collidingBall && ball!=collidingGamePiece) {
                     ball.progress(timeToFastForwardThrough, gravity, mu, mu2);
                     //handle balls that have gone off this board
-                    SideBoard sideboard = getBoardContaining(ball);
-                    if (sideboard != SideBoard.NONE) {
+                    Direction sideboard = getBoardContaining(ball);
+                    if (sideboard != Direction.NONE) {
                         ballsToDeleteFromThisBoard.add(ball); //prep it to be deleted from this board
                         queueBallOnCorrectBoard(ball); //queue it on the correct board
                     }
@@ -296,21 +295,21 @@ public class Board {
      * @param ball
      * @return Board that contains this ball, either this or one of the 4 attached boards
      */
-    private SideBoard getBoardContaining(Ball ball) {
+    private Direction getBoardContaining(Ball ball) {
     	
-        if (ball.getPosition().x() < 0 && leftBoard != null) { //to left of this board
-            return SideBoard.LEFT;
+        if (ball.getPosition().x() < 0 && connectedBoards.get(Direction.LEFT) != null) { //to left of this board
+            return Direction.LEFT;
         }
-        if (ball.getPosition().x() > SIDELENGTH && rightBoard != null) { //to right of this board
-            return SideBoard.RIGHT;
+        if (ball.getPosition().x() > SIDELENGTH && connectedBoards.get(Direction.RIGHT) != null) { //to right of this board
+            return Direction.RIGHT;
         }
-        if (ball.getPosition().y() < 0 && topBoard != null) { //above this board
-            return SideBoard.TOP;
+        if (ball.getPosition().y() < 0 && connectedBoards.get(Direction.UP) != null) { //above this board
+            return Direction.UP;
         }
-        if (ball.getPosition().y() > SIDELENGTH && bottomBoard != null) { //below this board
-            return SideBoard.BOTTOM;
+        if (ball.getPosition().y() > SIDELENGTH && connectedBoards.get(Direction.DOWN) != null) { //below this board
+            return Direction.DOWN;
         }
-        return SideBoard.NONE; //on this board
+        return Direction.NONE; //on this board
     }
 
 
@@ -318,23 +317,24 @@ public class Board {
      * Adds ball to board's ball queue.
      */
     private void queueBallOnCorrectBoard(Ball ball) throws InterruptedException {
-        SideBoard sideboard = getBoardContaining(ball);
+        
+        Direction sideboard = getBoardContaining(ball);
         Board thisBallsBoard = null;
-        if (sideboard == SideBoard.TOP) {
+        if (sideboard == Direction.UP) {
             ball.setPosition(new Vect (ball.getPosition().x(), ball.getPosition().y()+SIDELENGTH)   );
-            thisBallsBoard = topBoard;
+            thisBallsBoard = connectedBoards.get(Direction.UP);
         }
-        if (sideboard == SideBoard.BOTTOM) {
+        if (sideboard == Direction.DOWN) {
             ball.setPosition(   new Vect(ball.getPosition().x(), ball.getPosition().y()-SIDELENGTH)    );
-            thisBallsBoard = bottomBoard;
+            thisBallsBoard = connectedBoards.get(Direction.DOWN);
         }
-        if (sideboard == SideBoard.LEFT) {
+        if (sideboard == Direction.LEFT) {
             ball.setPosition(   new Vect(ball.getPosition().x()+SIDELENGTH, ball.getPosition().y())    );
-            thisBallsBoard = leftBoard;
+            thisBallsBoard = connectedBoards.get(Direction.LEFT);
         }
-        if (sideboard == SideBoard.RIGHT) {
+        if (sideboard == Direction.RIGHT) {
             ball.setPosition(   new Vect(ball.getPosition().x()-SIDELENGTH, ball.getPosition().y())    );
-            thisBallsBoard = rightBoard;
+            thisBallsBoard = connectedBoards.get(Direction.RIGHT);
         }
         thisBallsBoard.ballQueue.put(ball);
     }
@@ -364,10 +364,11 @@ public class Board {
      * @param otherBoard the board which is being joined
      */
     public void joinLeftWallTo(Board otherBoard){
-    	if (leftBoard != null) { 
-    		leftBoard.disjoinRight();
+        
+    	if (connectedBoards.get(Direction.LEFT) != null) { 
+    		connectedBoards.get(Direction.LEFT).disjoinRight();
     	}
-        leftBoard = otherBoard;
+        connectedBoards.put(Direction.LEFT, otherBoard);
         leftWall.setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
@@ -380,10 +381,10 @@ public class Board {
      * @param otherBoard the board which is being joined
      */
     public void joinRightWallTo(Board otherBoard){
-    	if (rightBoard != null) { 
-    		rightBoard.disjoinLeft();
+    	if (connectedBoards.get(Direction.RIGHT) != null) { 
+    		connectedBoards.get(Direction.RIGHT).disjoinLeft();
     	}
-        rightBoard = otherBoard;
+        connectedBoards.put(Direction.RIGHT, otherBoard);
         rightWall.setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
@@ -396,10 +397,10 @@ public class Board {
      * @param otherBoard the board which is being joined
      */
     public void joinTopWallTo(Board otherBoard){
-    	if (topBoard != null) { 
-    		topBoard.disjoinBottom();
+    	if (connectedBoards.get(Direction.UP) != null) { 
+    		connectedBoards.get(Direction.UP).disjoinBottom();
     	}
-        topBoard = otherBoard;
+        connectedBoards.put(Direction.UP, otherBoard);
         topWall.setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
@@ -412,10 +413,10 @@ public class Board {
      * @param otherBoard the board which is being joined
      */
     public void joinBottomWallTo(Board otherBoard){
-    	if (bottomBoard != null) { 
-    		bottomBoard.disjoinTop();
+    	if (connectedBoards.get(Direction.DOWN) != null) { 
+    		connectedBoards.get(Direction.DOWN).disjoinTop();
     	}
-        bottomBoard = otherBoard;
+        connectedBoards.put(Direction.DOWN, otherBoard);
         bottomWall.setTransparency(true);
         //DOES NOT DO ANYTHING THAT REQUIRES A LOCK ON THE OTHER BOARD
     }
@@ -427,16 +428,16 @@ public class Board {
      * @param board board to disjoin from this
      */
     public void disjoin(Board board) {
-        if (board == topBoard) {
+        if (board == connectedBoards.get(Direction.UP)) {
             disjoinTop();
         }
-        if (board == bottomBoard) {
+        if (board == connectedBoards.get(Direction.DOWN)) {
             disjoinBottom();
         }
-        if (board == leftBoard) {
+        if (board == connectedBoards.get(Direction.LEFT)) {
             disjoinLeft();
         }
-        if (board == rightBoard) {
+        if (board == connectedBoards.get(Direction.RIGHT)) {
             disjoinRight();
         }
     }
@@ -445,7 +446,7 @@ public class Board {
      * Disjoins all connections to (and knowledge of) the current left board, if any
      */
     public void disjoinLeft(){
-        leftBoard = null;
+        connectedBoards.put(Direction.LEFT, null);
         leftWall.setTransparency(false);
     }
     
@@ -454,7 +455,7 @@ public class Board {
      * Disjoins all connections to (and knowledge of) the current right board, if any
      */
     public void disjoinRight(){
-        rightBoard = null;
+        connectedBoards.put(Direction.RIGHT, null);
         rightWall.setTransparency(false);
     }
     
@@ -462,7 +463,7 @@ public class Board {
      * Disjoins all connections to (and knowledge of) the current top board, if any
      */
     public void disjoinTop(){
-        topBoard = null;
+        connectedBoards.put(Direction.UP, null);
         topWall.setTransparency(false);
     }
 
@@ -470,26 +471,33 @@ public class Board {
      * Disjoins all connections to (and knowledge of) the current bottom board, if any
      */
     public void disjoinBottom(){
-        bottomBoard = null;
+        connectedBoards.put(Direction.DOWN, null);
         bottomWall.setTransparency(false);
     }
     
     public Board getTopBoard(){
-    	return topBoard;
+    	return connectedBoards.get(Direction.UP);
     }
 
     public Board getBottomBoard(){
-    	return bottomBoard;
-    }
-    
-    public Board getRightBoard(){
-    	return rightBoard;
+        return connectedBoards.get(Direction.DOWN);
     }
     
     public Board getLeftBoard(){
-    	return leftBoard;
+        return connectedBoards.get(Direction.RIGHT);
+    }
+    
+    public Board getRightBoard(){
+        return connectedBoards.get(Direction.LEFT);
     }
 
+    /***
+     * Get a mapping of each direction to the Board that currently occupies that direction.
+     * @return a mapping of each direction to the Board that currently occupies that direction.
+     */
+    public Map<Direction, Board> getConnectedBoards() {
+        return connectedBoards;
+    }
 
 	@Override
 	public int hashCode() {

@@ -284,8 +284,8 @@ public class MeghanasBoard {
                 if (ball.isActive() && ball!=collidingBall && ball!=collidingGamePiece) {
                     ball.progress(timeToFastForwardThrough, gravity, mu, mu2);
                     //handle balls that have gone off this board
-                    SideBoard sideboard = getBoardContaining(ball);
-                    if (sideboard != SideBoard.NONE) {
+                    Direction sideboard = getBoardContaining(ball);
+                    if (sideboard != Direction.NONE) {
                         ballsToDeleteFromThisBoard.add(ball); //prep it to be deleted from this board
                         queueBallOnCorrectBoard(ball); //queue it on the correct board
                     }
@@ -324,21 +324,21 @@ public class MeghanasBoard {
      * @param ball
      * @return Board that contains this ball, either this or one of the 4 attached boards
      */
-    private SideBoard getBoardContaining(Ball ball) {
+    private Direction getBoardContaining(Ball ball) {
 
         if (ball.getPosition().x() < 0 && leftBoard != null) { //to left of this board
-            return SideBoard.LEFT;
+            return Direction.LEFT;
         }
         if (ball.getPosition().x() > SIDELENGTH && rightBoard != null) { //to right of this board
-            return SideBoard.RIGHT;
+            return Direction.RIGHT;
         }
         if (ball.getPosition().y() < 0 && topBoard != null) { //above this board
-            return SideBoard.TOP;
+            return Direction.UP;
         }
         if (ball.getPosition().y() > SIDELENGTH && bottomBoard != null) { //below this board
-            return SideBoard.BOTTOM;
+            return Direction.DOWN;
         }
-        return SideBoard.NONE; //on this board
+        return Direction.NONE; //on this board
     }
 
 
@@ -346,21 +346,21 @@ public class MeghanasBoard {
      * Adds ball to board's ball queue.
      */
     private void queueBallOnCorrectBoard(Ball ball) throws InterruptedException {
-        SideBoard sideboard = getBoardContaining(ball);
+        Direction sideboard = getBoardContaining(ball);
         MeghanasBoard thisBallsBoard = null;
-        if (sideboard == SideBoard.TOP) {
+        if (sideboard == Direction.UP) {
             ball.setPosition(new Vect (ball.getPosition().x(), ball.getPosition().y()+SIDELENGTH)   );
             thisBallsBoard = topBoard;
         }
-        if (sideboard == SideBoard.BOTTOM) {
+        if (sideboard == Direction.DOWN) {
             ball.setPosition(   new Vect(ball.getPosition().x(), ball.getPosition().y()-SIDELENGTH)    );
             thisBallsBoard = bottomBoard;
         }
-        if (sideboard == SideBoard.LEFT) {
+        if (sideboard == Direction.LEFT) {
             ball.setPosition(   new Vect(ball.getPosition().x()+SIDELENGTH, ball.getPosition().y())    );
             thisBallsBoard = leftBoard;
         }
-        if (sideboard == SideBoard.RIGHT) {
+        if (sideboard == Direction.RIGHT) {
             ball.setPosition(   new Vect(ball.getPosition().x()-SIDELENGTH, ball.getPosition().y())    );
             thisBallsBoard = rightBoard;
         }
