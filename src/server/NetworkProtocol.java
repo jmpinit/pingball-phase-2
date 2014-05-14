@@ -11,8 +11,12 @@ public class NetworkProtocol {
         return uid++;
     }
     
+    /***
+     * A NetworkState is condensed representation of an object's current state.
+     * @author pkalluri
+     *
+     */
     public static class NetworkState {
-        private int id;
         private Field[] fields;
         
         public enum FieldName {
@@ -26,30 +30,28 @@ public class NetworkProtocol {
                 this.id = id;
             }
             
-            public int id() {
+            public int UID() {
                 return id;
             }
         }
         
-        public NetworkState(int id, Field[] fields) {
-            this.id = id;
+        public NetworkState(Field[] fields) {
             this.fields = fields;
         }
         
-        public int getID() { return id; }
         public Field[] getFields() { return fields; }
         
         public static class Field {
-            private FieldName id;
+            private FieldName fieldName;
             private long value;
             
-            public Field(FieldName id, long value) {
-                this.id = id;
+            public Field(FieldName fieldName, long value) {
+                this.fieldName = fieldName;
                 this.value = value;
             }
             
-            public FieldName getID() {
-                return id;
+            public FieldName getFiedName() {
+                return fieldName;
             }
             
             public long getValue() {
@@ -58,13 +60,57 @@ public class NetworkProtocol {
         }
     }
 
+    /***
+     * A Network Serializable is an object that maintains all the necessary architecture
+     * to facilitate NetworkEvents easily being made about it.
+     * 
+     * @author pkalluri
+     *
+     */
     public interface NetworkSerializable {
+        
         public NetworkState getState();
+        
+        public int getInstanceUID();
+        
+        public int getStaticUID();
     }
 
-    public interface NetworkEvent<T> {
-        public int getObjectUID();
-        public int getFieldUID();
-        public T getValue();
+    /***
+     * A Network Event is an update containing info on a type of object, specific object,
+     * specific field, and that field's new value,
+     * all condensed via unique IDs.
+     *  
+     * @author pkalluri
+     *
+     */
+    public static class NetworkEvent {
+        int typeUID;
+        int instanceUID;
+        int fieldUID;
+        long value;
+        
+        public NetworkEvent(int typeUID, int instanceUID, int fieldUID, long value) {
+            this.typeUID = typeUID;
+            this.instanceUID = instanceUID;
+            this.fieldUID = fieldUID;
+            this.value = value;
+        }
+        
+        public int getTypeUID() {
+            return typeUID;
+        }
+        public int getInstanceUID() {
+            return instanceUID;
+        }
+
+        public int getFieldUID() {
+            return fieldUID;
+        }
+
+        public long getValue() {
+            return value;
+        }
+
     }
 }
