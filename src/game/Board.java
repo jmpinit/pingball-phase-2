@@ -43,6 +43,7 @@ public class Board {
     private final Map<Gadget, Set<Gadget>> gadgetsToEffects;//mapping of each gadget on the board to any *other* gadgets that react when the original gadget is triggered
     //Note: It is the trigger-effect relationships between gadgets that are immutable and are maintained by this map. The gadgets themselves may be mutable.
     private final double stepSize; //step size, in seconds
+    private final Map<String, Set<Portal>> referencedBoards;
 
     //MUTABLE ATTRIBUTES:
     private final Set<Ball> balls; //all balls currently on this board
@@ -52,6 +53,11 @@ public class Board {
     private final Map<Direction,Board> connectedBoards;     //  4 possible attached boards
     private final Map<GamePiece, NetworkState> gamePieceStates; //the recorded state of all GamePieces
 
+
+    /*** Temp constructor***/
+    public Board(String name, Double gravity, Double mu, Double mu2, Map<Gadget, Set<Gadget>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls) {
+        this(name,  gravity,  mu,  mu2,  gadgetsToEffects,  stepSizeInSeconds,  startingBalls, new HashMap<String,Set<Portal>>());
+    }
 
     
     /***
@@ -65,7 +71,7 @@ public class Board {
      * @param stepSize length of this board's step size in seconds
      * @param balls a set of balls that start on the board
      */
-    public Board(String name, Double gravity, Double mu, Double mu2, Map<Gadget, Set<Gadget>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls) {
+    public Board(String name, Double gravity, Double mu, Double mu2, Map<Gadget, Set<Gadget>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls, Map<String,Set<Portal>> referencedBoards) {
         //CONSTRUCTED AS ALWAYS
         this.ballQueue = new LinkedBlockingQueue<Ball>();
         this.ballsToRemoveQueue = new LinkedBlockingQueue<Ball>();
@@ -100,6 +106,8 @@ public class Board {
         for (Wall wall : walls.values()) { //add walls to GamePieces
             this.gamePieceStates.put(wall, wall.getState());
         }
+        this.referencedBoards = referencedBoards; 
+
         
     }
     
@@ -110,6 +118,54 @@ public class Board {
      */
     public String getName() {
         return name;
+    }
+    
+    /***
+     * Make this board aware of the existence of this new board.
+     * @param newBoard
+     */
+    public void tellAbout(Board newBoard) {
+       if (     referencedBoards.keySet().contains(  newBoard.getName()  )){
+           for (Portal portal : referencedBoards.get(newBoard.getName())) {
+               String targetPortalName = portal.getTargetPortalName();
+               Portal foundTargetPortal = newBoard.getPortal(targetPortalName);
+               if (foundTargetPortal != null) { //it contains the target portal
+                   portal.setTargetBoard(newBoard);
+                   portal.setTargetPortal(foundTargetPortal);
+               }
+               
+           }
+       }
+    }
+    
+    /***
+     * Check if this contains a Portal with given name.
+     * @param targetPortalName name of sought portal
+     * @return true iff this contains a Portal with given name.
+     */
+    private Portal getPortal(String targetPortalName) {
+        for (Set<Portal> portalSet : referencedBoards.values()) {
+            for (Portal portal : portalSet) {
+                if (portal.getName().equals(targetPortalName)) {
+                    return portal;
+                }
+            }//done with this portal set
+        }//done with all portal sets
+        return null;
+    }
+
+
+    /***
+     * Make this board aware of the disconnection of this board.
+     * @param disconnectedBoard
+     */
+    public void tellAboutDisconnection(Board disconnectedBoard) {
+        if (     referencedBoards.keySet().contains(  disconnectedBoard.getName()  )){
+            for (Portal portal : referencedBoards.get(disconnectedBoard.getName())) {
+                portal.setTargetBoard(null);
+                portal.setTargetPortal(null);
+            }
+        }
     }
 
     /***

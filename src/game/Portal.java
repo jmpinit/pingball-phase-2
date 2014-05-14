@@ -29,8 +29,9 @@ public class Portal implements Gadget  {
     private final static double RADIUS = 0.5;
     private final Circle boundary; //based on position and dimensions
     private final Board sourceBoard;
-    private final Board targetBoard;
-    private final Portal targetPortal;
+    private  Board targetBoard;
+    private  Portal targetPortal;
+    private final String targetPortalName;
 
     
     private static final char SYMBOL = 'O';
@@ -41,14 +42,15 @@ public class Portal implements Gadget  {
      * @param x x-coord of upper left corner of bounding box.
      * @param y y-coord of upper left corner of bounding box.
      */
-    public Portal(String name, double x, double y, Board sourceBoard, Board targetBoard, Portal targetPortal) {
+    public Portal(String name, double x, double y, Board sourceBoard, String targetPortalName) {
         this.instanceUID = NetworkProtocol.getUID();
         this.name = name;
         this.position = new Vect(x,y);
         this.boundary = new Circle(x+RADIUS,y+RADIUS,RADIUS);
         this.sourceBoard = sourceBoard;
-        this.targetBoard = targetBoard;
-        this.targetPortal = targetPortal;
+        this.targetBoard = null;
+        this.targetPortal = null;
+        this.targetPortalName = targetPortalName;
     }
 
     /**
@@ -197,6 +199,30 @@ public class Portal implements Gadget  {
     @Override
     public int getStaticUID() {
         return STATICUID;
+    }
+
+    /***
+     * Get target portal's name.
+     * @return target portal's name
+     */
+    public String getTargetPortalName() {
+        return targetPortalName;
+    }
+
+    /***
+     * Sets the target Board to the given Board.
+     * @param newBoard the given Board
+     */
+    public void setTargetBoard(Board newBoard) {
+        this.targetBoard = newBoard;
+    }
+
+    /***
+     * Sets the target Portal to the given Portal.
+     * @param targetPortal the given Portal
+     */
+    public void setTargetPortal(Portal targetPortal) {
+        this.targetPortal = targetPortal;
     }
 
 }
