@@ -3,9 +3,11 @@ package game;
 import java.util.HashSet;
 import java.util.Set;
 
+import client.Sprite;
 import physics.Circle;
 import physics.Geometry;
 import physics.Vect;
+import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkState;
 import server.NetworkProtocol.NetworkState.Field;
 import server.NetworkProtocol.NetworkState.FieldName;
@@ -17,9 +19,12 @@ import server.NetworkProtocol.NetworkState.FieldName;
  * @author: jzwang
  */
 public class CircularBumper implements Gadget {
+    public static final int STATICUID = Sprite.CircularBumper.ID;
+    private final int instanceUID;
     private final String name;
-    private final Vect position;
-    private final static double RADIUS = 0.5;
+    private final Vect boundingBoxPosition;
+    public final static double RADIUS = 0.5;
+    
     private static final char SYMBOL = '0';
 
     private final Circle boundary; //based on position and dimensions
@@ -35,8 +40,9 @@ public class CircularBumper implements Gadget {
      */
     public CircularBumper(String name, double x, double y) {
         this.name = name;
-        this.position = new Vect(x,y);
+        this.boundingBoxPosition = new Vect(x,y);
         this.boundary = new Circle(x+RADIUS,y+RADIUS,RADIUS);
+        this.instanceUID = NetworkProtocol.getUID();
 
     }
 
@@ -47,13 +53,18 @@ public class CircularBumper implements Gadget {
         return this.name;
     }
 
+    @Override
+    public int getInstanceUID() {
+        return instanceUID;
+    }
+    
     /**
      * 
      * @return Vect representing center of circular bumper
      */
     private Vect getCenter() {
         checkRep();
-        return new Vect(position.x()+RADIUS,position.y()+RADIUS);
+        return new Vect(boundingBoxPosition.x()+RADIUS,boundingBoxPosition.y()+RADIUS);
     }
 
 
@@ -93,8 +104,8 @@ public class CircularBumper implements Gadget {
      * Check the rep invariant.
      */
     private void checkRep() {
-        assert (this.position.x() >= 0 && this.position.x() <= Board.SIDELENGTH);
-        assert (this.position.y() >= 0 && this.position.y() <= Board.SIDELENGTH);
+        assert (this.boundingBoxPosition.x() >= 0 && this.boundingBoxPosition.x() <= Board.SIDELENGTH);
+        assert (this.boundingBoxPosition.y() >= 0 && this.boundingBoxPosition.y() <= Board.SIDELENGTH);
 
     }
 
@@ -104,7 +115,7 @@ public class CircularBumper implements Gadget {
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result
-            + ((position == null) ? 0 : position.hashCode());
+            + ((boundingBoxPosition == null) ? 0 : boundingBoxPosition.hashCode());
         return result;
     }
 
@@ -122,10 +133,10 @@ public class CircularBumper implements Gadget {
                 return false;
         } else if (!name.equals(other.name))
             return false;
-        if (position == null) {
-            if (other.position != null)
+        if (boundingBoxPosition == null) {
+            if (other.boundingBoxPosition != null)
                 return false;
-        } else if (!position.equals(other.position))
+        } else if (!boundingBoxPosition.equals(other.boundingBoxPosition))
             return false;
         return true;
     }
@@ -133,11 +144,11 @@ public class CircularBumper implements Gadget {
     @Override
     public NetworkState getState() {
         Field[] fields = new Field[] {
-                new Field(FieldName.X, (long)position.x()), // TODO more precision (multiply by constant)
-                new Field(FieldName.Y, (long)position.y())
+                new Field(FieldName.X, (long)boundingBoxPosition.x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)boundingBoxPosition.y())
         };
         
-        return new NetworkState(2, fields);
+        return new NetworkState(fields);
     }
     
     @Override
@@ -145,7 +156,7 @@ public class CircularBumper implements Gadget {
         checkRep();
         Set<Vect> tiles = new HashSet<Vect>();
 
-        Vect tile = position;
+        Vect tile = boundingBoxPosition;
         tiles.add(tile);
 
         return tiles;
@@ -157,6 +168,9 @@ public class CircularBumper implements Gadget {
         return SYMBOL;
     }
 
-
+    @Override
+    public int getStaticUID() {
+        return STATICUID;
+    }
 
 }

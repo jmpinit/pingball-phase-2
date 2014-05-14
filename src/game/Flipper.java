@@ -3,9 +3,11 @@ package game;
 import java.util.HashSet;
 import java.util.Set;
 
+import client.Sprite;
 import physics.Circle;
 import physics.LineSegment;
 import physics.Vect;
+import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkState;
 import server.NetworkProtocol.NetworkState.Field;
 import server.NetworkProtocol.NetworkState.FieldName;
@@ -24,7 +26,7 @@ public class Flipper implements Gadget {
     /***
      * Length, in L
      */
-    private static final int LENGTH = 2;
+    public static final int LENGTH = 2;
     /***
      * Rotational speed, in degrees/second
      */
@@ -32,9 +34,10 @@ public class Flipper implements Gadget {
     private final double RIGHTANGLE = 90;
     private static final char VERTICALSYMBOL = '|';
     private static final char HORIZONTALSYMBOL = '-';
-
+    public static final int STATICUID = Sprite.Flipper.ID;
     
     //Details of this flipper
+    private final int instanceUID;
     private final String name;
     private final Vect upperLeftCornerOfBoundingBox;
     private final Vect pivotPosition; 
@@ -57,6 +60,7 @@ public class Flipper implements Gadget {
 
 
     public Flipper(String leftOrRight, String name, double x, double y, double orientation) {
+        this.instanceUID = NetworkProtocol.getUID();
         this.name = name;
         this.upperLeftCornerOfBoundingBox = new Vect(x,y);
         
@@ -118,6 +122,10 @@ public class Flipper implements Gadget {
         return this.name;
     }
 
+    @Override
+    public int getInstanceUID() {
+        return instanceUID;
+    }
 
     @Override
     public Set<Vect> getTiles() {
@@ -355,11 +363,16 @@ public class Flipper implements Gadget {
     public NetworkState getState() {
         Field[] fields = new Field[] {
                 new Field(FieldName.X, (long)upperLeftCornerOfBoundingBox.x()), // TODO more precision (multiply by constant)
-                new Field(FieldName.Y, (long)upperLeftCornerOfBoundingBox.y())
+                new Field(FieldName.Y, (long)upperLeftCornerOfBoundingBox.y()),
+                new Field(FieldName.ANGLE, (long)currentAngle)
         };
         
-        return new NetworkState(3, fields);
+        return new NetworkState(fields);
     }
-
+    
+    @Override
+    public int getStaticUID() {
+        return STATICUID;
+    }
 
 }

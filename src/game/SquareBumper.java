@@ -6,10 +6,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import client.Sprite;
 import physics.Circle;
 import physics.Geometry;
 import physics.LineSegment;
 import physics.Vect;
+import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkState;
 import server.NetworkProtocol.NetworkState.Field;
 import server.NetworkProtocol.NetworkState.FieldName;
@@ -21,8 +23,11 @@ import server.NetworkProtocol.NetworkState.FieldName;
  * @author jzwang
  */
 public class SquareBumper implements Gadget {
+    public static final int STATICUID = Sprite.SquareBumper.ID;
+    private final int instanceUID;
     private final String name;
-    private final Vect position;
+    private final Vect upperLeftCornerOfBoundingBox;
+    public static final int SIDELENGTH = 1;
     
     //based on position and dimensions
     private final List<LineSegment> boundaries; 
@@ -32,18 +37,19 @@ public class SquareBumper implements Gadget {
 
 
     public SquareBumper(String name, double x, double y) {
+        this.instanceUID = NetworkProtocol.getUID();
         this.name = name;
-        this.position = new Vect(x,y);
+        this.upperLeftCornerOfBoundingBox = new Vect(x,y);
         
         //boundaries:
-        LineSegment top = new LineSegment(x,y,x+1,y);
-        LineSegment left = new LineSegment(x,y,x,y+1);
-        LineSegment right = new LineSegment(x+1,y,x+1,y+1);
-        LineSegment bottom = new LineSegment(x,y+1,x+1,y+1);
-        Circle topRight = new Circle(x+1,y,0);
+        LineSegment top = new LineSegment(x,y,x+SIDELENGTH,y);
+        LineSegment left = new LineSegment(x,y,x,y+SIDELENGTH);
+        LineSegment right = new LineSegment(x+SIDELENGTH,y,x+SIDELENGTH,y+SIDELENGTH);
+        LineSegment bottom = new LineSegment(x,y+SIDELENGTH,x+SIDELENGTH,y+SIDELENGTH);
+        Circle topRight = new Circle(x+SIDELENGTH,y,0);
         Circle topLeft = new Circle(x,y,0);
-        Circle bottomRight = new Circle(x+1,y+1,0);
-        Circle bottomLeft = new Circle(x,y+1,0);
+        Circle bottomRight = new Circle(x+SIDELENGTH,y+SIDELENGTH,0);
+        Circle bottomLeft = new Circle(x,y+SIDELENGTH,0);
         this.boundaries = new ArrayList<LineSegment>(Arrays.asList(left,top,right,bottom));
         this.corners = new ArrayList<Circle>(Arrays.asList(topLeft,topRight,bottomRight,bottomLeft));
     }
@@ -52,8 +58,8 @@ public class SquareBumper implements Gadget {
      * Check the rep invariant.
      */
     private void checkRep() {
-        assert (this.position.x() >= 0 && this.position.x() <= Board.SIDELENGTH);
-        assert (this.position.y() >= 0 && this.position.y() <= Board.SIDELENGTH);
+        assert (this.upperLeftCornerOfBoundingBox.x() >= 0 && this.upperLeftCornerOfBoundingBox.x() <= Board.SIDELENGTH);
+        assert (this.upperLeftCornerOfBoundingBox.y() >= 0 && this.upperLeftCornerOfBoundingBox.y() <= Board.SIDELENGTH);
     }
 
 
@@ -63,11 +69,15 @@ public class SquareBumper implements Gadget {
         return this.name;
     }
 
+    @Override
+    public int getInstanceUID() {
+        return instanceUID;
+    }
 
     @Override
     public Set<Vect> getTiles() {
         checkRep();
-        Vect tile = position;
+        Vect tile = upperLeftCornerOfBoundingBox;
         Set<Vect> set = new HashSet<Vect>();
         set.add(tile);
         return set;
@@ -169,7 +179,7 @@ public class SquareBumper implements Gadget {
         result = prime * result + ((corners == null) ? 0 : corners.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result
-            + ((position == null) ? 0 : position.hashCode());
+            + ((upperLeftCornerOfBoundingBox == null) ? 0 : upperLeftCornerOfBoundingBox.hashCode());
         return result;
     }
 
@@ -192,10 +202,10 @@ public class SquareBumper implements Gadget {
                 return false;
         } else if (!name.equals(other.name))
             return false;
-        if (position == null) {
-            if (other.position != null)
+        if (upperLeftCornerOfBoundingBox == null) {
+            if (other.upperLeftCornerOfBoundingBox != null)
                 return false;
-        } else if (!position.equals(other.position))
+        } else if (!upperLeftCornerOfBoundingBox.equals(other.upperLeftCornerOfBoundingBox))
             return false;
         return true;
     }
@@ -203,14 +213,17 @@ public class SquareBumper implements Gadget {
     @Override
     public NetworkState getState() {
         Field[] fields = new Field[] {
-                new Field(FieldName.X, (long)position.x()), // TODO more precision (multiply by constant)
-                new Field(FieldName.Y, (long)position.y())
+                new Field(FieldName.X, (long)upperLeftCornerOfBoundingBox.x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)upperLeftCornerOfBoundingBox.y())
         };
         
-        return new NetworkState(5, fields);
+        return new NetworkState(fields);
     }
 
 
-
+    @Override
+    public int getStaticUID() {
+        return STATICUID;
+    }
 
 }

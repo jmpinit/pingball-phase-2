@@ -6,10 +6,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import client.Sprite;
 import physics.Circle;
 import physics.Geometry;
 import physics.LineSegment;
 import physics.Vect;
+import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkState;
 import server.NetworkProtocol.NetworkState.Field;
 import server.NetworkProtocol.NetworkState.FieldName;
@@ -22,9 +24,12 @@ import server.NetworkProtocol.NetworkState.FieldName;
  * 
  */
 public class TriangularBumper implements Gadget {
+    public static final int STATICUID = Sprite.TriangularBumper.ID;
+    private final int instanceUID;
     private final String name;
-    private final Vect position;
+    private final Vect upperLeftCornerOfBoundingBox;
     private final double angle;
+    private final double orientation;
     
     //based on position and dimensions
     private final List<LineSegment> boundaries; 
@@ -39,9 +44,11 @@ public class TriangularBumper implements Gadget {
      * @param file board file
      */
     public TriangularBumper(String name,double x, double y, double orientation) {
+        this.instanceUID = NetworkProtocol.getUID();
         this.name = name;
-        this.position = new Vect(x,y);
+        this.upperLeftCornerOfBoundingBox = new Vect(x,y);
         this.angle = orientation;
+        this.orientation = orientation;
 
         //create boundaries
         LineSegment vertical = (orientation == 0||orientation == 270) ? new LineSegment(x,y,x,y+1) : new LineSegment(x+1,y,x+1,y+1);
@@ -83,12 +90,16 @@ public class TriangularBumper implements Gadget {
         return this.name;
     }
 
+    @Override
+    public int getInstanceUID() {
+        return instanceUID;
+    }
 
 
     @Override
     public Set<Vect> getTiles() {
         checkRep();
-        Vect tile = position;
+        Vect tile = upperLeftCornerOfBoundingBox;
         Set<Vect> set = new HashSet<Vect>();
         set.add(tile);
         return set;
@@ -195,8 +206,8 @@ public class TriangularBumper implements Gadget {
      */
     private void checkRep() {
         assert (this.angle == 0 || this.angle == 90 ||this.angle == 180 ||this.angle == 270); //angles of 0, 90, 180, 270 degrees
-        assert (this.position.x() >= 0 && this.position.x() <= Board.SIDELENGTH);
-        assert (this.position.y() >= 0 && this.position.y() <= Board.SIDELENGTH);
+        assert (this.upperLeftCornerOfBoundingBox.x() >= 0 && this.upperLeftCornerOfBoundingBox.x() <= Board.SIDELENGTH);
+        assert (this.upperLeftCornerOfBoundingBox.y() >= 0 && this.upperLeftCornerOfBoundingBox.y() <= Board.SIDELENGTH);
     }
 
 
@@ -242,15 +253,19 @@ public class TriangularBumper implements Gadget {
     @Override
     public NetworkState getState() {
         Field[] fields = new Field[] {
-                new Field(FieldName.X, (long)position.x()), // TODO more precision (multiply by constant)
-                new Field(FieldName.Y, (long)position.y())
+                new Field(FieldName.X, (long)upperLeftCornerOfBoundingBox.x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)upperLeftCornerOfBoundingBox.y()),
+                new Field(FieldName.ORIENTATION, (long)orientation)
         };
         
-        return new NetworkState(15, fields);
+        return new NetworkState(fields);
     }
 
 
-
+    @Override
+    public int getStaticUID() {
+        return STATICUID;
+    }
 
 
 }

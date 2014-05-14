@@ -24,6 +24,8 @@ import physics.Vect;
  *
  */
 public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
+    private static final int STATICUID = Sprite.Absorber.ID;
+    private final int instanceUID;
     private final String name;
     private final Vect boundingBoxPosition;
     private final int width;
@@ -36,7 +38,7 @@ public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
     private final static double STOREDBALLVELOCITY = -50; //stored ball velocity is 50L/s upwards when shot out
 
     private static final char SYMBOL = '=';
-    private static final int ID = Sprite.Absorber.ID;
+
 
     /**
      * Constructs a new absorber with given parameters
@@ -60,7 +62,11 @@ public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
         LineSegment right = new LineSegment(x+width,y,x+width,y+height);
         LineSegment bottom = new LineSegment(x,y+height,x+width,y+height);
         this.boundaries = new ArrayList<LineSegment>(Arrays.asList(left,right,top,bottom));
+        
+        instanceUID = NetworkProtocol.getUID();
     }
+    
+    
 
 
     @Override
@@ -205,7 +211,7 @@ public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
                 new Field(FieldName.HEIGHT, height)
         };
         
-        return new NetworkState(ID, fields);
+        return new NetworkState(fields);
     }
 
     @Override
@@ -226,6 +232,21 @@ public class Absorber implements Gadget, NetworkProtocol.NetworkSerializable {
     @Override
     public char getSymbol() {
         return SYMBOL;
+    }
+
+
+
+    @Override
+    public int getInstanceUID() {
+        return instanceUID;
+    }
+
+
+
+
+    @Override
+    public int getStaticUID() {
+        return STATICUID;
     }
 
    

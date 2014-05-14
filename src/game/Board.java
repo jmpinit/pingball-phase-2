@@ -5,6 +5,7 @@ package game;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -46,6 +47,7 @@ public class Board {
     //MUTABLE ATTRIBUTES:
     private final Set<Ball> balls; //all balls currently on this board
     private final BlockingQueue<Ball> ballQueue;//all balls queued to be placed on this board
+    private final BlockingQueue<Ball> ballsToRemoveQueue; //all balls queued to be removed from this board
     private final Map<Direction, Wall> walls;     //  4 walls of this board, which can be transparent or concrete
     private final Map<Direction,Board> connectedBoards;     //  4 possible attached boards
     private final Map<GamePiece, NetworkState> gamePieceStates; //the recorded state of all GamePieces
@@ -66,6 +68,7 @@ public class Board {
     public Board(String name, Double gravity, Double mu, Double mu2, Map<Gadget, Set<Gadget>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls) {
         //CONSTRUCTED AS ALWAYS
         this.ballQueue = new LinkedBlockingQueue<Ball>();
+        this.ballsToRemoveQueue = new LinkedBlockingQueue<Ball>();
             //walls:
         this.walls = new HashMap<Direction,Wall> ();
         this.walls.put(Direction.UP, new Wall( new Vect(0,0),new Vect(SIDELENGTH,0)  )  );
@@ -259,19 +262,19 @@ public class Board {
             
             //FASTFORWARD EVERYTHING THAT IS NOT COLLIDING, USING PHYSICAL CONSTANTS
             //  progress active balls that are not colliding
-            Set<Ball> ballsToDeleteFromThisBoard = new HashSet<Ball>();
             for (Ball ball : balls) { 
                 if (ball.isActive() && ball!=collidingBall && ball!=collidingGamePiece) {
                     ball.progress(timeToFastForwardThrough, gravity, mu, mu2);
                     //handle balls that have gone off this board
                     Direction sideboard = getBoardContaining(ball);
                     if (sideboard != Direction.NONE) {
-                        ballsToDeleteFromThisBoard.add(ball); //prep it to be deleted from this board
+                        queueToRemove(ball);; //prep it to be deleted from this board
                         queueBallOnCorrectBoard(ball); //queue it on the correct board
                     }
                 }
             }
-            balls.removeAll(ballsToDeleteFromThisBoard);
+            removeQueuedBalls();
+            
             //  progress gadgets that are not colliding
             for (GamePiece gadget : getGadgets() ) { 
                 if (gadget!=collidingGamePiece) {
@@ -300,16 +303,17 @@ public class Board {
             GamePiece gamePiece = entry.getKey();
             NetworkState recordedNetworkState = entry.getValue();
             for (int i = 0; i<recordedNetworkState.getFields().length; i++) { //for each field of this GamePiece
-                NetworkProtocol.NetworkState.Field stateBefore = recordedNetworkState.getFields()[i];
-                NetworkProtocol.NetworkState.Field stateNow = gamePiece.getState().getFields()[i];
+                NetworkProtocol.NetworkState.Field fieldBefore = recordedNetworkState.getFields()[i];
+                NetworkProtocol.NetworkState.Field fieldNow = gamePiece.getState().getFields()[i];
                 
-                if (stateBefore.getValue()!=stateNow.getValue()) {
-                    recordedNetworkState.getFields()[i] = stateNow; //update
+                if (fieldBefore.getValue()!=fieldNow.getValue()) {
+                    recordedNetworkState.getFields()[i] = fieldNow; //update
                     
-                    events.add(new NetworkEventImplementation<Object>(
-                                    recordedNetworkState.getID(), 
-                                    stateNow.getID().id(), 
-                                    stateNow.getValue()
+                    events.add(new NetworkEvent(
+                                    gamePiece.getStaticUID(),
+                                    gamePiece.getInstanceUID(), 
+                                    fieldNow.getFiedName().UID(), 
+                                    fieldNow.getValue()
                                     )
                               );
                 }
@@ -319,6 +323,15 @@ public class Board {
         return events;
     }    
 
+    /***
+     * Removes all balls queued to be removed.
+     */
+    private void removeQueuedBalls() {
+        List<Ball> ballsToRemove = new ArrayList<Ball>();
+        ballsToRemoveQueue.drainTo(ballsToRemove);
+        
+        balls.removeAll(ballsToRemove);
+    }
 
     /***
      * Get board containing this ball's origin, either this board or one of the 4 attached boards.
@@ -344,7 +357,8 @@ public class Board {
 
 
     /***
-     * Adds ball to board's ball queue.
+     * Adds ball to its new board's ball queue.
+     * @throws InterruptedException if interrupted
      */
     private void queueBallOnCorrectBoard(Ball ball) throws InterruptedException {
         
@@ -370,13 +384,31 @@ public class Board {
     }
     
     /***
+     * Queues ball to be added.
+     * @throws InterruptedException if interrupted
+     */
+    public void queueToAdd(Ball ball) throws InterruptedException {
+        ballQueue.put(ball);
+    }
+    
+    /***
      * Places all queued balls in their correct location on this board.
      * Cannot be called while board's attribute balls is being edited.
      */
     private void addQueuedBalls() {
         ballQueue.drainTo(balls);
         //Note: drainTo is only guaranteed to work if balls is not being edited elsewhere
-}
+    }
+    
+    /***
+     * Queues ball to be removed.
+     * @throws InterruptedException if interrupted
+     */
+    public void queueToRemove(Ball ball) throws InterruptedException {
+        ballsToRemoveQueue.put(ball);
+    }
+    
+
     
     /***
      * Gets a set of this board's gadgets.

@@ -22,11 +22,17 @@ public interface GamePiece extends NetworkSerializable{
      */
     public String getName();
     
-//    /***
-//     * Get current position
-//     * @return current position
-//     */
-//    public Vect getPosition();
+    /***
+     * Get an ID unique to this class of GamePiece.
+     * @return
+     */
+    public int getStaticUID();
+    
+    /***
+     * Get an ID unique to this particular GamePiece.
+     * @return
+     */
+    public int getInstanceUID();
     
     /***
      * Get state of this GamePiece.

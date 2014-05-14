@@ -22,7 +22,9 @@ public class NetworkProtocol {
         public enum FieldName {
             X(getUID()), Y(getUID()),
             WIDTH(getUID()), HEIGHT(getUID()),
-            ANGLE(getUID());
+            ANGLE(getUID()),
+            ORIENTATION(getUID());
+            
             
             private int id;
             

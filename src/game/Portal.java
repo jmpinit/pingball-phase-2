@@ -1,8 +1,14 @@
 package game;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
+import client.Sprite;
+import physics.Circle;
+import physics.Geometry;
 import physics.Vect;
+import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkState;
 import server.NetworkProtocol.NetworkState.Field;
 import server.NetworkProtocol.NetworkState.FieldName;
@@ -16,15 +22,33 @@ import server.NetworkProtocol.NetworkState.FieldName;
  *
  */
 public class Portal implements Gadget  {
-    private static final double RADIUS = .5;
+    public static final int STATICUID = Sprite.Portal.ID;
+    private final int instanceUID;
+    private final String name;
+    private final Vect position;
+    private final static double RADIUS = 0.5;
+    private final Circle boundary; //based on position and dimensions
+    private final Board sourceBoard;
+    private final Board targetBoard;
+    private final Portal targetPortal;
+
+    
+    private static final char SYMBOL = 'O';
 
     /***
      * Constructs portal with given name at given coordinates.
-     * @param name
-     * @param x
-     * @param y
+     * @param name name of portal
+     * @param x x-coord of upper left corner of bounding box.
+     * @param y y-coord of upper left corner of bounding box.
      */
-    public Portal(String name, double x, double y) {
+    public Portal(String name, double x, double y, Board sourceBoard, Board targetBoard, Portal targetPortal) {
+        this.instanceUID = NetworkProtocol.getUID();
+        this.name = name;
+        this.position = new Vect(x,y);
+        this.boundary = new Circle(x+RADIUS,y+RADIUS,RADIUS);
+        this.sourceBoard = sourceBoard;
+        this.targetBoard = targetBoard;
+        this.targetPortal = targetPortal;
     }
 
     /**
@@ -36,34 +60,67 @@ public class Portal implements Gadget  {
 
     @Override
     public String getName(){
-        return "";
+        checkRep();
+        return name;
     }
 
-
+    @Override
+    public int getInstanceUID() {
+        return instanceUID;
+    }
+    
     @Override
     public Set<Vect> getTiles(){ 
-        return null;
+        checkRep();
+        return new HashSet<Vect>(Arrays.asList(position));
     }
 
 
     @Override
     public char getSymbol(){
-        return 'a';
+        checkRep();
+        return SYMBOL;
     }
 
 
     @Override
     public double getTimeTillCollision(Ball ball){
-        return 0.0;
+        checkRep();
+        if (targetPortal != null) {
+            Circle ballShape = new Circle(ball.getPosition(), ball.getRadius());
+            return Geometry.timeUntilCircleCollision(boundary, ballShape, ball.getVelocity());
+        }
+        else {
+            return Double.POSITIVE_INFINITY;
+        }
     }
 
 
     @Override
     public void progressAndCollide(double amountOfTime, Ball ball){
+        checkRep();
+        ball.setPosition(targetPortal.getCenter());
+        //velocity stays the same
+        try {
+            sourceBoard.queueToRemove(ball);
+            targetBoard.queueToAdd(ball);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
+
     /**
-     * Portal tells sister portal to release the captured ball on its board at the beginning of the next time step.
+     * 
+     * @return Vect representing center of Portal
+     */
+    private Vect getCenter() {
+        checkRep();
+        return new Vect(position.x()+RADIUS,position.y()+RADIUS);
+    }
+    
+    /**
+     * Portal's action is to do nothing.
      */
     @Override
     public void doAction(){
@@ -79,28 +136,68 @@ public class Portal implements Gadget  {
         //do nothing
     }
 
+
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
     @Override
     public int hashCode() {
-        return 0;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result
+                + ((sourceBoard == null) ? 0 : sourceBoard.hashCode());
+        return result;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Portal)) {
+            return false;
+        }
+        Portal other = (Portal) obj;
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (sourceBoard == null) {
+            if (other.sourceBoard != null) {
+                return false;
+            }
+        } else if (!sourceBoard.equals(other.sourceBoard)) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public NetworkState getState() {
         Field[] fields = new Field[] {
-                new Field(FieldName.X, (long)getPosition().x()), // TODO more precision (multiply by constant)
-                new Field(FieldName.Y, (long)getPosition().y())
+                new Field(FieldName.X, (long)position.x()), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)position.y())
         };
         
-        return new NetworkState(4, fields);
+        return new NetworkState(fields);
     }
 
 
-
+    @Override
+    public int getStaticUID() {
+        return STATICUID;
+    }
 
 }
 
