@@ -98,7 +98,7 @@ COMMENT : '#' (~( '\r' | '\n' ))* -> skip ;
  rightfline : RIGHTF namefield xfield yfield ortfield;
  absline : ABS namefield xfield yfield widthfield heightfield;
  fireline : FIRE triggerfield actionfield;
- keyline: KEYL actionfield keyfield;
+ keyline: KEYL keyfield actionfield;
  portalline: PORTAL namefield xfield yfield (othboardfield)? othportfield;
  
  namefield : NAMEL EQ NAME;

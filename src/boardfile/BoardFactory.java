@@ -10,6 +10,7 @@ import game.Portal;
 import game.SquareBumper;
 import game.TriangularBumper;
 
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -60,7 +61,7 @@ public class BoardFactory {
     /***
      * Decodes the file at the given file path into text, using the given encoding.
      * @param path the file path of the file to decode
-     * @param encoding the encodiding with which to decode the file
+     * @param encoding the encoding with which to decode the file
      * @return a text representation of the file
      * @throws IOException
      */
@@ -76,7 +77,8 @@ public class BoardFactory {
     private static class BoardCreatorListener extends BoardBaseListener {
         private Set<Ball> balls = new HashSet<Ball>();
         private Map<Gadget, Set<Gadget>> actions = new HashMap<Gadget, Set<Gadget>>();
-        private Map<String, Gadget> keys = new HashMap<String,Gadget>();
+        private Map<String, HashMap<Gadget, Integer>> keys = new HashMap<String, HashMap<Gadget,Integer>>();
+        Map<String, Set<Portal>> referencedBoards = new HashMap<String,Set<Portal>>();
         private Map<String, Gadget> gadgets = new HashMap<String, Gadget>();
         private Board board;
 
@@ -137,7 +139,7 @@ public class BoardFactory {
                 Double.parseDouble(ctx.topline().friction1field().FLOAT().getText()) : Board.DEFAULTMU1;
             double mu2 = (ctx.topline().friction2field()!=null) ? 
                 Double.parseDouble(ctx.topline().friction2field().FLOAT().getText()) : Board.DEFAULTMU2;
-            this.board = new Board(ctx.topline().namefield().NAME().getText(),gravity, mu1, mu2,actions, 1.0/(double)PingballServer.FRAMERATE, balls);
+            this.board = new Board(ctx.topline().namefield().NAME().getText(),gravity, mu1, mu2,actions, 1.0/(double)PingballServer.FRAMERATE, balls, referencedBoards);
         }    
 
         @Override public void enterBallline(BoardParser.BalllineContext ctx) { 
@@ -155,7 +157,16 @@ public class BoardFactory {
         }
         
         @Override public void enterKeyline(BoardParser.KeylineContext ctx) {
-            keys.put(ctx.keyfield().KEY().getText(), gadgets.get(ctx.actionfield().NAME().getText()));
+            String eventType = ctx.KEYL().getText();
+            HashMap <Gadget,Integer>gadgetToListener = new HashMap<Gadget,Integer>();
+
+            if (eventType.equals("keyup")) {
+                gadgetToListener.put(gadgets.get(ctx.actionfield().NAME().getText()), KeyEvent.KEY_RELEASED);
+            } else {
+                gadgetToListener.put(gadgets.get(ctx.actionfield().NAME().getText()), KeyEvent.KEY_PRESSED);
+            }
+            keys.put(ctx.keyfield().KEY().getText(), gadgetToListener);
+
         }
         
         @Override public void enterPortalline(BoardParser.PortallineContext ctx) {
@@ -166,8 +177,15 @@ public class BoardFactory {
             String othPortal = ctx.othportfield().NAME().getText();
             toAdd = new Portal(name,x,y,this.board,othPortal);
             gadgets.put(name, toAdd);
+            
             if (ctx.othboardfield() != null) {
-                //TODO: Adding portal logic to other boards?
+                String othBoardName = ctx.othboardfield().NAME().getText();
+                Set<Portal> temp = new HashSet<Portal>();
+                if(referencedBoards.containsKey(othBoardName)) {
+                    temp = referencedBoards.get(othBoardName);
+                }
+                temp.add(toAdd);
+                referencedBoards.put(othBoardName, temp);
             } 
         }
 
