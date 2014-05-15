@@ -8,8 +8,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Scanner;
@@ -47,6 +49,9 @@ public class PingballServer {
     private final ServerSocket serverSocket;
     private final ConcurrentMap<String, NetworkClient> clientFromName;
     private final BlockingQueue<String> userInputQueue;
+    private final List<Connection> boardConnections;
+    
+    private static enum Direction { VERTICAL, HORIZONTAL }
     
     /**
      * Constructor initializes everything
@@ -58,6 +63,7 @@ public class PingballServer {
         serverSocket = new ServerSocket(port);
         clientFromName = new ConcurrentHashMap<String, NetworkClient>();
         userInputQueue = new LinkedBlockingQueue<String>();
+        boardConnections = new ArrayList<Connection>();
     }
 
     /**
@@ -111,16 +117,17 @@ public class PingballServer {
                 
                 synchronized (Board.class) {
                     if (firstBoard != null && secondBoard != null) {
+                        Connection connection;
+                        
                         if ("h".equals(args[0])) {
-                            firstBoard.joinRightWallTo(secondBoard);
-                            secondBoard.joinLeftWallTo(firstBoard);
+                            connect(firstBoard, secondBoard, Direction.HORIZONTAL);
+                            connection = new Connection(firstBoard.getName(), secondBoard.getName(), Direction.HORIZONTAL);
                         } else {
-                            firstBoard.getName();
-                            secondBoard.getName();
-                            firstBoard.joinBottomWallTo(secondBoard);
-                            secondBoard.joinTopWallTo(firstBoard);
+                            connect(firstBoard, secondBoard, Direction.VERTICAL);
+                            connection = new Connection(firstBoard.getName(), secondBoard.getName(), Direction.VERTICAL);
                         }
                         
+                        boardConnections.add(connection);
                         System.out.println("Gluing command successful.");
                     } else {
                         System.out.println("Invalid gluing command.");
@@ -151,6 +158,27 @@ public class PingballServer {
         } else {
             s.append("<NONE>");
             return s.toString();
+        }
+    }
+    
+    private class Connection {
+        private String first, second;
+        private Direction direction;
+        
+        public Connection(String first, String second, Direction dir) {
+            this.first = first;
+            this.second = second;
+            this.direction = dir;
+        }
+    }
+    
+    private void connect(Board first, Board second, Direction direction) {
+        if(direction == Direction.VERTICAL) {
+            first.joinBottomWallTo(second);
+            second.joinTopWallTo(first);
+        } else {
+            first.joinRightWallTo(second);
+            second.joinLeftWallTo(first);
         }
     }
 
@@ -217,6 +245,14 @@ public class PingballServer {
                 c.restart();
             }
             
+            // reconnect boards
+            for(Connection c: boardConnections) {
+                Board first = clientWithBoard(c.first).getBoard();
+                Board second = clientWithBoard(c.second).getBoard();
+                connect(first, second, c.direction);
+            }
+            
+            // tell boards about each other
             for(NetworkClient c1: clientFromName.values()) {
                 for(NetworkClient c2: clientFromName.values()) {
                     c1.getBoard().tellAbout(c2.getBoard());
@@ -224,6 +260,15 @@ public class PingballServer {
                 }
             }
         }
+    }
+    
+    private NetworkClient clientWithBoard(String name) {
+        for(NetworkClient c: clientFromName.values()) {
+            if(c.getBoard().getName().equals(name))
+                return c;
+        }
+        
+        return null;
     }
     
     Runnable inputProcessor = new Runnable() {
