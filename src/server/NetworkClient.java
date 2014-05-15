@@ -72,7 +72,7 @@ public class NetworkClient implements Runnable {
                         out.flush();
                     }
                 }
-                Thread.sleep(100); // FIXME
+                Thread.sleep((long)((1.0/30.0)*1000.0)); // FIXME
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (IOException e) {

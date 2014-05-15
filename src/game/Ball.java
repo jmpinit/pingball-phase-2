@@ -222,5 +222,15 @@ public class Ball implements GamePiece {
         return STATICUID;
     }
 
-
+    private boolean sent = false;
+    
+    @Override
+    public boolean hasBeenSent() {
+        return sent;
+    }
+    
+    @Override
+    public void hasBeenSent(boolean v) {
+        sent = v;
+    }
 }

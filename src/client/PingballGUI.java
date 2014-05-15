@@ -214,8 +214,16 @@ public class PingballGUI extends JFrame {
                 long value = buffer.getLong();
     
                 // update
-                canvas.update(spriteID, instanceID, new Field(fieldID, value));
-                
+                try {
+                    canvas.update(spriteID, instanceID, new Field(fieldID, value));
+                } catch(RuntimeException e) {
+                    System.out.println("sprite=" + spriteID);
+                    System.out.println("instance=" + instanceID);
+                    System.out.println("fieldID=" + fieldID);
+                    System.out.println("value=" + value);
+                    e.printStackTrace();
+                }
+                    
                 return true;
             } else {
                 return false;

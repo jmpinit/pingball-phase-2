@@ -104,7 +104,7 @@ public abstract class Sprite {
                     y = field.getValue() / ((double)FIXED_POINT);
                     break;
                 default:
-                    throw new RuntimeException("No such field on Sprite.");
+                    throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
             }
         }
     }
@@ -148,7 +148,7 @@ public abstract class Sprite {
                     height = (int)field.getValue();
                     break;
                 default:
-                    throw new RuntimeException("No such field on Sprite.");
+                    throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
             }
         }
     }
@@ -182,7 +182,7 @@ public abstract class Sprite {
                     y = (int)field.getValue();
                     break;
                 default:
-                    throw new RuntimeException("No such field on Sprite.");
+                    throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
             }
         }
     }
@@ -225,7 +225,7 @@ public abstract class Sprite {
                     angle = field.getValue();
                     break;
                 default:
-                    throw new RuntimeException("No such field on Sprite.");
+                    throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
             }
         }
     }
@@ -265,7 +265,7 @@ public abstract class Sprite {
                     y = (int)field.getValue();
                     break;
                 default:
-                    throw new RuntimeException("No such field on Sprite.");
+                    throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
             }
         }
     }
@@ -300,7 +300,7 @@ public abstract class Sprite {
                     y = (int)field.getValue();
                     break;
                 default:
-                    throw new RuntimeException("No such field on Sprite.");
+                    throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
             }
         }
     }
@@ -342,7 +342,7 @@ public abstract class Sprite {
                     angle = (int)field.getValue();
                     break;
                 default:
-                    throw new RuntimeException("No such field on Sprite.");
+                    throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
             }
         }
     }
@@ -377,7 +377,7 @@ public abstract class Sprite {
                     y = (int)field.getValue();
                     break;
                 default:
-                    throw new RuntimeException("No such field on Sprite.");
+                    throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
             }
         }
     }

@@ -78,5 +78,7 @@ public interface GamePiece extends NetworkSerializable{
      * @return a char symbol to represent this gadget in its current state
      */
     public char getSymbol();
-
+    
+    public boolean hasBeenSent();
+    public void hasBeenSent(boolean v);
 }

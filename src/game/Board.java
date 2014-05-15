@@ -362,7 +362,7 @@ public class Board {
                 NetworkProtocol.NetworkState.Field fieldBefore = recordedNetworkState.getFields()[i];
                 NetworkProtocol.NetworkState.Field fieldNow = gamePiece.getState().getFields()[i];
                 
-                if (fieldBefore.getValue()!=fieldNow.getValue()) {
+                if (fieldBefore.getValue()!=fieldNow.getValue() || !gamePiece.hasBeenSent()) {
                     recordedNetworkState.getFields()[i] = fieldNow; //update
                     
                     events.add(new NetworkEvent(
@@ -372,9 +372,13 @@ public class Board {
                                     fieldNow.getValue()
                                     )
                               );
+                    
+                    //System.out.println(events.get(events.size()-1));
                 }
 
             }//done examining this GamePiece
+            
+            gamePiece.hasBeenSent(true);
         }//done examining all GamePieces
         return events;
     }    
