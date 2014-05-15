@@ -13,11 +13,11 @@ import client.Sprite;
 
 public class GUINetworkTest implements Runnable {
     private final ServerSocket connection;
-    private final PingballGUI gui;
+    //private final PingballGUI gui;
     
     public GUINetworkTest(int port) throws IOException {
         connection = new ServerSocket(10987);
-        gui = new PingballGUI("../boards/sampleBoard1.pb", "localhost", connection.getLocalPort());
+        //gui = new PingballGUI("../boards/sampleBoard1.pb", "localhost", connection.getLocalPort());
     }
     
     public void run() {
