@@ -28,13 +28,13 @@ public class Portal implements Gadget  {
     private final Vect position;
     private final static double RADIUS = 0.5;
     private final Circle boundary; //based on position and dimensions
-    private final Board sourceBoard;
-    private  Board targetBoard;
-    private  Portal targetPortal;
+    private Board sourceBoard;
+    private Board targetBoard;
+    private Portal targetPortal;
     private final String targetPortalName;
 
     
-    private static final char SYMBOL = 'O';
+    public static final char SYMBOL = 'O';
 
     /***
      * Constructs portal with given name at given coordinates.
@@ -42,12 +42,12 @@ public class Portal implements Gadget  {
      * @param x x-coord of upper left corner of bounding box.
      * @param y y-coord of upper left corner of bounding box.
      */
-    public Portal(String name, double x, double y, Board sourceBoard, String targetPortalName) {
+    public Portal(String name, double x, double y, String targetPortalName) {
         this.instanceUID = NetworkProtocol.getUID();
         this.name = name;
         this.position = new Vect(x,y);
         this.boundary = new Circle(x+RADIUS,y+RADIUS,RADIUS);
-        this.sourceBoard = sourceBoard;
+        this.sourceBoard = null;
         this.targetBoard = null;
         this.targetPortal = null;
         this.targetPortalName = targetPortalName;
@@ -223,6 +223,14 @@ public class Portal implements Gadget  {
      */
     public void setTargetPortal(Portal targetPortal) {
         this.targetPortal = targetPortal;
+    }
+    
+    /**
+     * Sets the source board to the given Board
+     * @param newBoard the given Board
+     */
+    public void setSourceBoard(Board newBoard) {
+        this.sourceBoard = newBoard;
     }
 
     private boolean sent = false;

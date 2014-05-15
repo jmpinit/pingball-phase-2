@@ -113,7 +113,14 @@ public class Board {
         }
 
         this.referencedBoards = referencedBoards;
-
+        
+        //Set source board for all Portal objects in this board.
+        for (GamePiece gadget : getGadgets()) {
+            if (gadget.getSymbol() == Portal.SYMBOL) {
+                Portal portal = (Portal) gadget;
+                portal.setSourceBoard(this);
+            }
+        }
     }
 
 
