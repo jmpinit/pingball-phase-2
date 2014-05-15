@@ -63,6 +63,10 @@ public class SpriteRenderer extends JPanel {
         this.repaint();
     }
     
+    public void clear() {
+        sprites.clear();
+    }
+    
     /*
      * Make the drawing buffer entirely white.
      */
