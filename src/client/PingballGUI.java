@@ -278,9 +278,19 @@ public class PingballGUI extends JFrame {
 
                 try {
                     while(true) {
-                        for(byte[] preamble = new byte[NetworkProtocol.PREAMBLE.length];
-                                !Arrays.equals(preamble, NetworkProtocol.PREAMBLE);
-                                in.read(preamble, 0, preamble.length)) { }
+                        byte[] scan = new byte[NetworkProtocol.PREAMBLE.length];
+                        while(true) { // look for preamble
+                            // make space in buffer
+                            for(int i=0; i < scan.length - 1; i++)
+                                scan[i] = scan[i+1];
+                            
+                            // read in from network
+                            in.read(scan, scan.length - 1, 1);
+                            
+                            // stop searching if it's the preamble
+                            if(Arrays.equals(scan, NetworkProtocol.PREAMBLE))
+                                break;
+                        }
                         
                         byte[] message = new byte[NetworkProtocol.MESSAGE_LENGTH];
                         in.read(message, 0, NetworkProtocol.MESSAGE_LENGTH);

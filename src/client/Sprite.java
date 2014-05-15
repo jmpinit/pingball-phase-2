@@ -75,7 +75,7 @@ public abstract class Sprite {
      */
     
     public static class Ball extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 0;
         
         public final static long FIXED_POINT = Long.MAX_VALUE / 32;
         private final static Color color = getUniqueColor(127);
@@ -116,7 +116,7 @@ public abstract class Sprite {
     }
 
     public static class Absorber extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 1;
         
         private final static Color color = Color.RED;
         
@@ -166,7 +166,7 @@ public abstract class Sprite {
     }
     
     public static class CircularBumper extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 2;
         
         private final static Color color = getUniqueColor(127);
         private final static double RADIUS = 0.5;
@@ -206,7 +206,7 @@ public abstract class Sprite {
     }
     
     public static class Flipper extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 3;
         
         private final static Color color = getUniqueColor(127);
         private final static double LENGTH = 2.0;
@@ -255,7 +255,7 @@ public abstract class Sprite {
     }
     
     public static class Portal extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 4;
         
         private final static Color outerColor = getUniqueColor(127);
         private final static Color innerColor = getUniqueColor(127);
@@ -301,7 +301,7 @@ public abstract class Sprite {
     }
     
     public static class SquareBumper extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 5;
         
         private final static Color color = getUniqueColor(127);
         private final static int SIZE = 1;
@@ -342,7 +342,7 @@ public abstract class Sprite {
     }
     
     public static class TriangularBumper extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 6;
         
         private final static Color color = getUniqueColor(127);
         private final static int SIZE = 1;
@@ -390,7 +390,7 @@ public abstract class Sprite {
     }
     
     public static class Wall extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 7;
         
         private final static Color color = getUniqueColor(127);
         private final static int SIZE = 1;

@@ -38,12 +38,12 @@ public class NetworkProtocol {
         }
 
         public static enum FieldName {
-            VISIBLE(NetworkProtocol.getUID()),
-            X(NetworkProtocol.getUID()),
-            Y(NetworkProtocol.getUID()),
-            WIDTH(NetworkProtocol.getUID()),
-            HEIGHT(NetworkProtocol.getUID()),
-            ANGLE(NetworkProtocol.getUID());
+            VISIBLE(0),
+            X(1),
+            Y(2),
+            WIDTH(3),
+            HEIGHT(4),
+            ANGLE(5);
             
             private int uid;
             
@@ -76,7 +76,12 @@ public class NetworkProtocol {
                     this.fieldName = idToFieldName.get(fieldID);
                     this.value = value;
                 } else {
-                    throw new RuntimeException("Invalid fieldID " + fieldID + ".");
+                    String options = "";
+                    for(int id: idToFieldName.keySet())
+                        options += id + "=" + idToFieldName.get(id) + "\n";
+                    System.out.println("Invalid fieldID " + fieldID + ". Options are\n" + options);
+                    while(true) {}
+                    //throw new RuntimeException("Invalid fieldID " + fieldID + ". Options are\n" + options);
                 }
             }
             
