@@ -5,6 +5,7 @@ import game.Board;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -158,7 +159,18 @@ public class PingballGUI extends JFrame {
         
         setJMenuBar(menuBar);
         
-        canvas = new SpriteRenderer(300, 300);
+        final PingballGUI gui = this;
+        KeyAdapter keyListener = new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                gui.keyPressed(e.getKeyChar());
+            }
+
+            public void keyReleased(KeyEvent e) {
+                gui.keyReleased(e.getKeyChar());
+            }
+        };
+        
+        canvas = new SpriteRenderer(keyListener, 300, 300);
         
         final JButton pauseButton = new JButton("Pause");
         pauseButton.setActionCommand("pause");
@@ -216,6 +228,18 @@ public class PingballGUI extends JFrame {
             listener.stop();
         
         connect(filename, fieldHost.getText(), Integer.parseInt(fieldPort.getText()));
+    }
+    
+    private void keyPressed(char key) {
+        synchronized(out) {
+            out.println(NetworkProtocol.MESSAGE_KEYPRESSED + " " + key);
+        }
+    }
+    
+    private void keyReleased(char key) {
+        synchronized(out) {
+            out.println(NetworkProtocol.MESSAGE_KEYRELEASED + " " + key);
+        }
     }
     
     /**

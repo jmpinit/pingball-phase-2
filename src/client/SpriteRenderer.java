@@ -24,22 +24,14 @@ public class SpriteRenderer extends JPanel {
      * @param width width in pixels
      * @param height height in pixels
      */
-    public SpriteRenderer(int width, int height) {
+    public SpriteRenderer(KeyAdapter keyListener, int width, int height) {
         sprites = new ConcurrentHashMap<>();
         this.setPreferredSize(new Dimension(width, height));
         
         setFocusable(true);
         requestFocusInWindow();
         
-        addKeyListener(new KeyAdapter() {
-            public void keyPressed(KeyEvent e) {
-                //changeColor(Color.yellow);
-            }
-
-            public void keyReleased(KeyEvent e) {
-                //changeColor(Color.white);
-            }
-        });
+        addKeyListener(keyListener);
     }
     
     public boolean has(int instanceID) {
