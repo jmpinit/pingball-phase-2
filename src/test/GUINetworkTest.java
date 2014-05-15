@@ -33,29 +33,41 @@ public class GUINetworkTest implements Runnable {
             BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
             //BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             
-            ByteBuffer ballX = ByteBuffer.allocate(NetworkProtocol.MESSAGE_LENGTH);
-            ballX.putInt(Sprite.Ball.ID);            // class uid
-            ballX.putInt(NetworkProtocol.getUID());  // instance uid
-            ballX.putInt(FieldName.X.getUID());      // field uid
-            ballX.putLong(10);                       // value
-            
-            ByteBuffer ballY = ByteBuffer.allocate(NetworkProtocol.MESSAGE_LENGTH);
-            ballY.putInt(Sprite.Ball.ID);            // class uid
-            ballY.putInt(NetworkProtocol.getUID());  // instance uid
-            ballY.putInt(FieldName.X.getUID());      // field uid
-            ballY.putLong(10);                       // value
-            
-            out.write(NetworkProtocol.PREAMBLE);
-            out.write(ballX.array());
-            out.write(NetworkProtocol.PREAMBLE);
-            out.write(ballY.array());
-            out.flush();
+            for(int i=0; i < 100; i++) {
+                create(out, Sprite.Ball.ID, (int)(Math.random()*20), (int)(Math.random()*20));
+                
+                try {
+                    Thread.sleep((long)((1.0/60.0)*1000));
+                } catch(InterruptedException e) { }
+            }
             
             System.out.println("Created ball?");
         } catch(IOException e) {
             e.printStackTrace();
             System.exit(1);
         }
+    }
+    
+    private void create(BufferedOutputStream out, int spriteID, int x, int y) throws IOException {
+        int instanceID = NetworkProtocol.getUID();
+        
+        ByteBuffer ballX = ByteBuffer.allocate(NetworkProtocol.MESSAGE_LENGTH);
+        ballX.putInt(spriteID);            // class uid
+        ballX.putInt(instanceID);  // instance uid
+        ballX.putInt(FieldName.X.getUID());      // field uid
+        ballX.putLong(x);                       // value
+        
+        ByteBuffer ballY = ByteBuffer.allocate(NetworkProtocol.MESSAGE_LENGTH);
+        ballY.putInt(spriteID);            // class uid
+        ballY.putInt(instanceID);  // instance uid
+        ballY.putInt(FieldName.Y.getUID());      // field uid
+        ballY.putLong(y);                       // value
+        
+        out.write(NetworkProtocol.PREAMBLE);
+        out.write(ballX.array());
+        out.write(NetworkProtocol.PREAMBLE);
+        out.write(ballY.array());
+        out.flush();
     }
     
     public static void main(String[] args) {

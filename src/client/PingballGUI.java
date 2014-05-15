@@ -211,7 +211,6 @@ public class PingballGUI extends JFrame {
         }
         
         private boolean parseMessage(byte[] message) {
-            System.out.println("Parsing message.");
             if(message.length == NetworkProtocol.MESSAGE_LENGTH) {
                 ByteBuffer buffer = ByteBuffer.allocate(message.length);                    
                 buffer.put(message);
