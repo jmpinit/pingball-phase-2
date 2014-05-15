@@ -179,14 +179,14 @@ public class BoardFactory {
 
             String connectBoardName = boardName;
             if (ctx.othboardfield() != null) {
-                boardName = ctx.othboardfield().NAME().getText();
+                connectBoardName = ctx.othboardfield().NAME().getText();
             }
             Set<Portal> temp = new HashSet<Portal>();
-            if (referencedBoards.containsKey(boardName)) {
-                temp = referencedBoards.get(boardName);
+            if (referencedBoards.containsKey(connectBoardName)) {
+                temp = referencedBoards.get(connectBoardName);
             }
             temp.add(port);
-            referencedBoards.put(boardName, temp);
+            referencedBoards.put(connectBoardName, temp);
         }
 
         
