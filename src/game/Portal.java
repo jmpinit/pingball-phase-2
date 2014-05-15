@@ -225,5 +225,16 @@ public class Portal implements Gadget  {
         this.targetPortal = targetPortal;
     }
 
+    private boolean sent = false;
+    
+    @Override
+    public boolean hasBeenSent() {
+        return sent;
+    }
+    
+    @Override
+    public void hasBeenSent(boolean v) {
+        sent = v;
+    }
 }
 

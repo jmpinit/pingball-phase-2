@@ -255,7 +255,7 @@ public class TriangularBumper implements Gadget {
         Field[] fields = new Field[] {
                 new Field(FieldName.X, (long)upperLeftCornerOfBoundingBox.x()), // TODO more precision (multiply by constant)
                 new Field(FieldName.Y, (long)upperLeftCornerOfBoundingBox.y()),
-                new Field(FieldName.ORIENTATION, (long)orientation)
+                new Field(FieldName.ANGLE, (long)orientation)
         };
         
         return new NetworkState(fields);
@@ -267,5 +267,15 @@ public class TriangularBumper implements Gadget {
         return STATICUID;
     }
 
-
+    private boolean sent = false;
+    
+    @Override
+    public boolean hasBeenSent() {
+        return sent;
+    }
+    
+    @Override
+    public void hasBeenSent(boolean v) {
+        sent = v;
+    }
 }

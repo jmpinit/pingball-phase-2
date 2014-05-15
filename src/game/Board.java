@@ -16,6 +16,7 @@ import physics.Vect;
 import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkEvent;
 import server.NetworkProtocol.NetworkState;
+import server.NetworkProtocol.NetworkState.FieldName;
 
 
 /***
@@ -100,18 +101,20 @@ public class Board {
         this.stepSize = stepSizeInSeconds;
         this.balls = startingBalls;
         this.gamePieceStates = new HashMap<GamePiece, NetworkState>();
+        
         for (Gadget gadget : gadgetsToEffects.keySet()) { //add gadgets to GamePieces
             this.gamePieceStates.put(gadget, gadget.getState());
         }
+        
         for (Ball ball : balls) { //add balls to GamePieces
             this.gamePieceStates.put(ball, ball.getState());
         }
+        
         for (Wall wall : walls.values()) { //add walls to GamePieces
             this.gamePieceStates.put(wall, wall.getState());
         }
-        this.referencedBoards = referencedBoards; 
-
         
+        this.referencedBoards = referencedBoards;
     }
     
     
@@ -276,7 +279,13 @@ public class Board {
      * @throws InterruptedException 
      */
     public ArrayList<NetworkEvent> step(ArrayList<KeyEvent> keys) throws InterruptedException{
-        addQueuedBalls();
+        ArrayList<NetworkEvent> events = new ArrayList<NetworkEvent>();
+        
+        for(Ball ball: addQueuedBalls()) {
+            events.add(new NetworkEvent(ball.getStaticUID(),
+                    ball.getInstanceUID(), 
+                    FieldName.VISIBLE.getUID(), 1));
+        }
         double timeTillEndOfStep = stepSize; //Currently at beginning of time step
         
         //respond to all key presses
@@ -345,7 +354,10 @@ public class Board {
                     //handle balls that have gone off this board
                     Direction sideboard = getBoardContaining(ball);
                     if (sideboard != Direction.NONE) {
-                        queueToRemove(ball);; //prep it to be deleted from this board
+                        events.add(new NetworkEvent(ball.getStaticUID(),
+                                ball.getInstanceUID(), 
+                                FieldName.VISIBLE.getUID(), 0));
+                        queueToRemove(ball); //prep it to be deleted from this board
                         queueBallOnCorrectBoard(ball); //queue it on the correct board
                     }
                 }
@@ -375,7 +387,6 @@ public class Board {
         }//repeat until at end of time step
         
         //Note and return any changes that have occurred
-        ArrayList<NetworkEvent> events = new ArrayList<NetworkEvent>();
         for (Map.Entry<GamePiece, NetworkState> entry: gamePieceStates.entrySet()) {
             GamePiece gamePiece = entry.getKey();
             NetworkState recordedNetworkState = entry.getValue();
@@ -383,7 +394,7 @@ public class Board {
                 NetworkProtocol.NetworkState.Field fieldBefore = recordedNetworkState.getFields()[i];
                 NetworkProtocol.NetworkState.Field fieldNow = gamePiece.getState().getFields()[i];
                 
-                if (fieldBefore.getValue()!=fieldNow.getValue()) {
+                if (fieldBefore.getValue()!=fieldNow.getValue() || !gamePiece.hasBeenSent()) {
                     recordedNetworkState.getFields()[i] = fieldNow; //update
                     
                     events.add(new NetworkEvent(
@@ -393,9 +404,13 @@ public class Board {
                                     fieldNow.getValue()
                                     )
                               );
+                    
+                    //System.out.println(events.get(events.size()-1));
                 }
 
             }//done examining this GamePiece
+            
+            gamePiece.hasBeenSent(true);
         }//done examining all GamePieces
         return events;
     }    
@@ -472,9 +487,17 @@ public class Board {
      * Places all queued balls in their correct location on this board.
      * Cannot be called while board's attribute balls is being edited.
      */
-    private void addQueuedBalls() {
-        ballQueue.drainTo(balls);
+    private List<Ball> addQueuedBalls() {
         //Note: drainTo is only guaranteed to work if balls is not being edited elsewhere
+        List<Ball> newBalls = new ArrayList<Ball>();
+        ballQueue.drainTo(newBalls);
+        balls.addAll(newBalls);
+        
+        for (Ball ball : balls) { //add balls to GamePieces
+            this.gamePieceStates.put(ball, ball.getState());
+        }
+        
+        return newBalls;
     }
     
     /***
@@ -482,6 +505,7 @@ public class Board {
      * @throws InterruptedException if interrupted
      */
     public void queueToRemove(Ball ball) throws InterruptedException {
+        this.gamePieceStates.remove(ball);
         ballsToRemoveQueue.put(ball);
     }
     
@@ -682,9 +706,4 @@ public class Board {
     public Board getRightBoard(){
         return connectedBoards.get(Direction.RIGHT);
     }
-    
-    
-    
-    
-    
 }

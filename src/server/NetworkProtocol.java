@@ -8,7 +8,7 @@ public class NetworkProtocol {
     private final static int BYTES_LONG = 8;
     
     public final static int MESSAGE_LENGTH = BYTES_INT*3 + BYTES_LONG;
-    public final static byte[] PREAMBLE = new byte[] { Byte.MAX_VALUE, Byte.MAX_VALUE };
+    public final static byte[] PREAMBLE = new byte[] { Byte.MAX_VALUE, Byte.MIN_VALUE, Byte.MAX_VALUE };
             
     private static int uid = 0;
     
@@ -33,14 +33,14 @@ public class NetworkProtocol {
             for(FieldName n: FieldName.values())
                 idToFieldName.put(n.getUID(), n);
         }
-        
-        public enum FieldName {
+
+        public static enum FieldName {
+            VISIBLE(NetworkProtocol.getUID()),
             X(NetworkProtocol.getUID()),
             Y(NetworkProtocol.getUID()),
             WIDTH(NetworkProtocol.getUID()),
             HEIGHT(NetworkProtocol.getUID()),
-            ANGLE(NetworkProtocol.getUID()),
-            ORIENTATION(NetworkProtocol.getUID());
+            ANGLE(NetworkProtocol.getUID());
             
             private int uid;
             
@@ -139,5 +139,9 @@ public class NetworkProtocol {
             return value;
         }
 
+        @Override
+        public String toString() {
+            return "{ type: " + typeUID + ", instance: " + instanceUID + ", field: " + fieldUID + ", value: " + value + "}";
+        }
     }
 }
