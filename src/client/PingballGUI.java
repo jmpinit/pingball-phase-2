@@ -3,6 +3,8 @@ package client;
 import game.Board;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
@@ -40,6 +42,8 @@ public class PingballGUI extends JFrame {
     
     public static final int BOARD_WIDTH = 22;
     public static final int BOARD_HEIGHT = 22;
+    
+    private PrintWriter out;
         
     /*
      * GUI Elements
@@ -56,17 +60,6 @@ public class PingballGUI extends JFrame {
      * @throws IOException if connection not successful.
      */
     public PingballGUI(String filename, String host, int port) {
-        addKeyListener(new KeyAdapter() {
-            public void keyPressed(KeyEvent e) {
-                System.out.println("key pressed");
-                // TODO send input to server
-            }
-
-            public void keyReleased(KeyEvent e) {
-                System.out.println("key released");
-            }
-        });
-        
         makeGUI();
         
         connect(filename, host, port); // FIXME debugging
@@ -117,9 +110,25 @@ public class PingballGUI extends JFrame {
         
         canvas = new SpriteRenderer(300, 300);
         
+        final JButton pauseButton = new JButton("Pause");
+        pauseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getActionCommand().equals("pause")) {
+                    pause();
+                    pauseButton.setActionCommand("play");
+                    pauseButton.setText("play");
+                } else if(e.getActionCommand().equals("play")) {
+                    play();
+                    pauseButton.setActionCommand("pause");
+                    pauseButton.setText("pause");
+                }
+            }
+        });
+        
         JPanel gameControls = new JPanel();
         gameControls.setLayout(new BoxLayout(gameControls, BoxLayout.LINE_AXIS));
-        gameControls.add(new JButton("Pause"));
+        gameControls.add(pauseButton);
         
         JPanel netControls = new JPanel();
         netControls.setLayout(new BoxLayout(netControls, BoxLayout.LINE_AXIS));
@@ -138,14 +147,29 @@ public class PingballGUI extends JFrame {
         setVisible(true);        
     }
     
+    private void pause() {
+        synchronized(out) {
+            out.println(NetworkProtocol.MESSAGE_PAUSE);
+        }
+    }
+    
+    private void play() {
+        synchronized(out) {
+            out.println(NetworkProtocol.MESSAGE_PLAY);
+        }
+    }
+    
     private void connect(String filename, String host, int port) {
         try {
             Socket socket = new Socket(host, port);
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            out = new PrintWriter(socket.getOutputStream(), true);
 
             String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
-            out.println(content);
-            out.println("STOP");
+            
+            synchronized(out) {
+                out.println(content);
+                out.println("STOP");
+            }
             
             final Board board = BoardFactory.parse(content);
             setBoardName(board.getName());
