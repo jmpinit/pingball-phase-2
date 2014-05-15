@@ -10,7 +10,11 @@ import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-
+/**
+ * Just a main function that allows one to see the parse tree and check for errors.
+ * @author meghana
+ *
+ */
 public class Main {
     
     public static void main(String[] args) throws IOException {

@@ -77,7 +77,7 @@ public class BoardFactory {
     private static class BoardCreatorListener extends BoardBaseListener {
         private Set<Ball> balls = new HashSet<Ball>();
         private Map<Gadget, Set<Gadget>> actions = new HashMap<Gadget, Set<Gadget>>();
-        private Map<String, HashMap<Gadget, Integer>> keys = new HashMap<String, HashMap<Gadget,Integer>>();
+        private Map<String, KeyControl> keys = new HashMap<String, KeyControl>();
         Map<String, Set<Portal>> referencedBoards = new HashMap<String,Set<Portal>>();
         private Map<String, Gadget> gadgets = new HashMap<String, Gadget>();
         private Board board;
@@ -155,15 +155,11 @@ public class BoardFactory {
         }
         
         @Override public void enterKeyline(BoardParser.KeylineContext ctx) {
-            String eventType = ctx.KEYL().getText();
-            HashMap <Gadget,Integer>gadgetToListener = new HashMap<Gadget,Integer>();
-
-            if (eventType.equals("keyup")) {
-                gadgetToListener.put(gadgets.get(ctx.actionfield().NAME().getText()), KeyEvent.KEY_RELEASED);
-            } else {
-                gadgetToListener.put(gadgets.get(ctx.actionfield().NAME().getText()), KeyEvent.KEY_PRESSED);
-            }
-            keys.put(ctx.keyfield().KEY().getText(), gadgetToListener);
+            String key = ctx.keyfield().KEY().getText();
+            KeyControl keycntrl = new KeyControl(key, 
+                    gadgets.get(ctx.actionfield().NAME().getText()),
+                    ctx.KEYL().getText().equals("keyup"));
+            keys.put(key, keycntrl);
 
         }
         
