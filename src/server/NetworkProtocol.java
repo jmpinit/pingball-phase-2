@@ -9,7 +9,10 @@ public class NetworkProtocol {
     
     public final static int MESSAGE_LENGTH = BYTES_INT*3 + BYTES_LONG;
     public final static byte[] PREAMBLE = new byte[] { Byte.MAX_VALUE, Byte.MIN_VALUE, Byte.MAX_VALUE };
-            
+    public final static String MESSAGE_PAUSE = "pause";
+    public final static String MESSAGE_PLAY = "play";
+    public final static String MESSAGE_RESTART = "restart";
+    
     private static int uid = 0;
     
     /**

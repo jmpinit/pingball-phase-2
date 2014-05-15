@@ -14,8 +14,10 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import boardfile.BoardFactory;
 
@@ -44,6 +46,7 @@ public class PingballServer {
     
     private final ServerSocket serverSocket;
     private final ConcurrentMap<String, NetworkClient> clientFromName;
+    private final BlockingQueue<String> userInputQueue;
     
     /**
      * Constructor initializes everything
@@ -54,6 +57,7 @@ public class PingballServer {
         // initialize everything
         serverSocket = new ServerSocket(port);
         clientFromName = new ConcurrentHashMap<String, NetworkClient>();
+        userInputQueue = new LinkedBlockingQueue<String>();
     }
 
     /**
@@ -76,6 +80,10 @@ public class PingballServer {
         // start disconnecting clients that request it
         Thread disconClients = new Thread(disconnector);
         disconClients.start();
+        
+        // process user input that affects all boards
+        Thread processUserInput = new Thread(inputProcessor);
+        processUserInput.start();
 
         // server CLI user interface
         Scanner sc = new Scanner (System.in);
@@ -186,6 +194,63 @@ public class PingballServer {
         }
     }
     
+    private void pause() {
+        synchronized(clientFromName) {
+            for(NetworkClient c: clientFromName.values()) {
+                c.pause();
+            }
+        }
+    }
+    
+    private void play() {
+        synchronized(clientFromName) {
+            for(NetworkClient c: clientFromName.values()) {
+                c.play();
+            }
+        }
+    }
+    
+    private void restart() {
+        pause();
+        synchronized(clientFromName) {
+            for(NetworkClient c: clientFromName.values()) {
+                c.restart();
+            }
+            
+            for(NetworkClient c1: clientFromName.values()) {
+                for(NetworkClient c2: clientFromName.values()) {
+                    c1.getBoard().tellAbout(c2.getBoard());
+                    c2.getBoard().tellAbout(c1.getBoard());
+                }
+            }
+        }
+    }
+    
+    Runnable inputProcessor = new Runnable() {
+        @Override
+        public void run() {
+            while(true) {
+                try {
+                    String command = userInputQueue.take();
+    
+                    switch(command) {
+                        case NetworkProtocol.MESSAGE_PAUSE:
+                            pause();
+                            break;
+                        case NetworkProtocol.MESSAGE_PLAY:
+                            play();
+                            break;
+                        case NetworkProtocol.MESSAGE_RESTART:
+                            restart();
+                            break;
+                    }
+                } catch(InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+    
     /**
      * Checks for clients who have flagged themselves as disconnected,
      * removes them from the server, and closes the sides of boards on other clients
@@ -250,7 +315,8 @@ public class PingballServer {
                     // create a Board from the board data
                     Board board = BoardFactory.parse(content.toString());
                     
-                    // tell all other boards about this new one
+                    // tell all boards about this new one (including itself)
+                    board.tellAbout(board);
                     for(NetworkClient client: clientFromName.values()) {
                         client.getBoard().tellAbout(board);
                     }
@@ -258,7 +324,7 @@ public class PingballServer {
                     // add the data for the client
                     if (board.getName() != null) { // if client with that name doesn't already exist
                         synchronized(clientFromName) {
-                            NetworkClient client = new NetworkClient(board, clientSocket, true);
+                            NetworkClient client = new NetworkClient(userInputQueue, board, content.toString(), clientSocket, true);
                             
                             clientFromName.put(board.getName(), client);
                             
