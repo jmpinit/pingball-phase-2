@@ -7,6 +7,7 @@ import game.Board;
 import game.CircularBumper;
 import game.Flipper;
 import game.Gadget;
+import game.Portal;
 import game.SquareBumper;
 import game.TriangularBumper;
 
@@ -28,7 +29,7 @@ import boardfile.BoardFactory;
 
 /**
  * Tests for BoardFactory Class.
- * @author pkalluri, mvuyyuru
+ * @author mvuyyuru
  *
  * Tests for the sample boards that the correct gadgets
  * are created by parsing the file and they possess the right properties.
@@ -50,7 +51,7 @@ public class BoardFactoryTests {
       public void SampleBoard1ConstructorTest() {
     	String content = null;
         try {
-            content = BoardFactory.readFile("boards/sampleBoard1.pb", StandardCharsets.UTF_8);
+            content = BoardFactory.readFile("boards/staffBoards/sampleBoard1.pb", StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -144,7 +145,7 @@ public class BoardFactoryTests {
     @Test public void SampleBoard2ConstructorTest() {
     	String content = null;
         try {
-            content = BoardFactory.readFile("boards/sampleBoard2-1.pb", StandardCharsets.UTF_8);
+            content = BoardFactory.readFile("boards/staffBoards/sampleBoard2-1.pb", StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -230,7 +231,7 @@ public class BoardFactoryTests {
     @Test public void SampleBoard3ConstructorTest() {
     	String content = null;
         try {
-            content = BoardFactory.readFile("boards/sampleBoard3.pb", StandardCharsets.UTF_8);
+            content = BoardFactory.readFile("boards/staffBoards/sampleBoard3.pb", StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -289,7 +290,7 @@ public class BoardFactoryTests {
     @Test public void SampleBoard4ConstructorTest() {
         String content = null;
         try {
-            content = BoardFactory.readFile("boards/sampleBoard4.pb", StandardCharsets.UTF_8);
+            content = BoardFactory.readFile("boards/staffBoards/sampleBoard4.pb", StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -328,7 +329,80 @@ public class BoardFactoryTests {
         assertEquals(board, constructedBoard);
     }
     
+    @Test public void SimplePortalBoardConstructorTest() {
+        String content = null;
+        try {
+            content = BoardFactory.readFile("boards/phase2features/simplePortal.pb", StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Board board = BoardFactory.parse(content);
+        Board constructedBoard = null;
+        
+        Ball ball = new Ball("Ball", new Vect(15, 1.5), new Vect(0.0, 0.5));
+        Set<Ball> balls = new HashSet<Ball>();
+        balls.add(ball);
+
+        Flipper flipl = new Flipper("left", "FlipL", 4, 14, 90);
+        Flipper flipr = new Flipper("right", "FlipR", 6, 11, 0);
+        
+        Portal alpha = new Portal("Alpha",15,16, constructedBoard, "Beta");
+        Portal beta = new Portal("Beta",6,4,constructedBoard,"Alpha");
+        
+        Absorber abs = new Absorber("abs", 0, 19, 20, 1);
+        
+        Map<Gadget, Set<Gadget>> actions = new HashMap<Gadget, Set<Gadget>>();
+        actions.put(flipl, new HashSet<Gadget>());
+        actions.put(flipr, new HashSet<Gadget>());
+        actions.put(abs, new HashSet<Gadget>());
+        actions.get(abs).add(abs);
+        actions.put(alpha, new HashSet<Gadget>());
+        actions.put(beta, new HashSet<Gadget>());
+
+        constructedBoard = new Board("sampleBoard", 20.0, Board.DEFAULTMU1, Board.DEFAULTMU2, actions, 1.0/(double)PingballServer.FRAMERATE, balls);
+        assertEquals(board, constructedBoard);
+
+    }
     
-    
+    @Test public void FlipperBoardConstructorTest() {
+        String content = null;
+        try {
+            content = BoardFactory.readFile("boards/phase2features/KeyFlippers.pb", StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Board board = BoardFactory.parse(content);
+        
+        Ball ball = new Ball("Ball", new Vect(0.5, 0.5), new Vect(2.5, 2.5));
+        Set<Ball> balls = new HashSet<Ball>();
+        balls.add(ball);
+        
+        SquareBumper sq = new SquareBumper("Square", 15, 12);
+        
+        CircularBumper ccA = new CircularBumper("CircleA", 14, 16);
+        CircularBumper ccB = new CircularBumper("CircleB", 14, 8);
+        
+        TriangularBumper triA = new TriangularBumper("TriA", 19, 7, 90);
+
+        Flipper flipL1 = new Flipper("left", "FlipL1", 4, 14, 90);
+        Flipper flipR1 = new Flipper("right", "FlipR", 6, 11, 0);
+        
+        Absorber abs = new Absorber("abs", 0, 19, 20, 1);
+        
+        Map<Gadget, Set<Gadget>> actions = new HashMap<Gadget, Set<Gadget>>();
+        actions.put(sq, new HashSet<Gadget>());  
+        actions.put(ccA, new HashSet<Gadget>());
+        actions.put(ccB, new HashSet<Gadget>());
+        actions.put(triA, new HashSet<Gadget>());
+        actions.put(flipL1, new HashSet<Gadget>());
+        actions.put(flipR1, new HashSet<Gadget>());
+        
+        actions.put(abs, new HashSet<Gadget>());
+        actions.get(abs).add(abs);
+        
+        Board constructedBoard = new Board("ExampleA", 20.0, 0.020,0.020, actions, 1.0/(double)PingballServer.FRAMERATE, balls);
+        assertEquals(board, constructedBoard);
+        
+    }
 
 }
