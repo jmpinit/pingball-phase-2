@@ -346,8 +346,8 @@ public class BoardFactoryTests {
         Flipper flipl = new Flipper("left", "FlipL", 4, 14, 90);
         Flipper flipr = new Flipper("right", "FlipR", 6, 11, 0);
         
-        Portal alpha = new Portal("Alpha",15,16, constructedBoard, "Beta");
-        Portal beta = new Portal("Beta",6,4,constructedBoard,"Alpha");
+        Portal alpha = new Portal("Alpha",15,16, "Beta");
+        Portal beta = new Portal("Beta",6,4,"Alpha");
         
         Absorber abs = new Absorber("abs", 0, 19, 20, 1);
         
