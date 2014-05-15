@@ -368,7 +368,7 @@ public class Board {
                     events.add(new NetworkEvent(
                                     gamePiece.getStaticUID(),
                                     gamePiece.getInstanceUID(), 
-                                    fieldNow.getFiedName().UID(), 
+                                    fieldNow.getFieldName().getUID(), 
                                     fieldNow.getValue()
                                     )
                               );
