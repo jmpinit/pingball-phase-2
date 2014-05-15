@@ -3,9 +3,6 @@ package client;
 import game.Board;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
@@ -16,9 +13,9 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+import java.util.Queue;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -29,7 +26,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 
 import server.NetworkClient;
 import server.NetworkProtocol;
@@ -44,9 +40,7 @@ public class PingballGUI extends JFrame {
     
     public static final int BOARD_WIDTH = 22;
     public static final int BOARD_HEIGHT = 22;
-    
-    private ConcurrentMap<Integer, Sprite> sprites;
-    
+        
     /*
      * GUI Elements
      */
@@ -61,9 +55,7 @@ public class PingballGUI extends JFrame {
      * @param file constructor to create File
      * @throws IOException if connection not successful.
      */
-    public PingballGUI() {
-        String name = "unknown";
-        
+    public PingballGUI(String filename, String host, int port) {
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 System.out.println("key pressed");
@@ -75,9 +67,9 @@ public class PingballGUI extends JFrame {
             }
         });
         
-        makeGUI(name);
+        makeGUI();
         
-        connect("localhost", 10987); // FIXME debugging
+        connect(filename, host, port); // FIXME debugging
     }
 
     /**
@@ -85,18 +77,18 @@ public class PingballGUI extends JFrame {
      * @param file File to be parsed to initialize the board
      * @throws IOException if reading file is unsuccessful
      */
-    public PingballGUI(String filename) throws IOException {
+    /*public PingballGUI(String filename) throws IOException {
         String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
         Board board = BoardFactory.parse(content);
         NetworkClient client = new NetworkClient(board, null, false);
         Thread t = new Thread(client); // disconnects
         t.start();
         
-        makeGUI(board.getName());
-    }
+        makeGUI();
+    }*/
     
-    private void makeGUI(String name) {
-        setTitle(name);
+    private void makeGUI() {
+        setTitle("Pingball");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         
@@ -146,9 +138,19 @@ public class PingballGUI extends JFrame {
         setVisible(true);        
     }
     
-    private void connect(String host, int port) {
+    private void connect(String filename, String host, int port) {
         try {
-            NetworkListener listener = new NetworkListener(host, port);
+            Socket socket = new Socket(host, port);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
+            out.println(content);
+            out.println("STOP");
+            
+            final Board board = BoardFactory.parse(content);
+            setBoardName(board.getName());
+            
+            NetworkListener listener = new NetworkListener(socket);
             Thread networkingThread = new Thread(listener);
             networkingThread.start();
         } catch (UnknownHostException e) {
@@ -162,29 +164,19 @@ public class PingballGUI extends JFrame {
     
     private class NetworkListener implements Runnable {
         private final Socket socket;
-        private final PrintWriter out;
         private final BufferedInputStream in;
         
         private boolean listening;
         
-        public NetworkListener(String host, int port) throws IOException {
-            socket = new Socket(host, port);
-            out = new PrintWriter(socket.getOutputStream(), true);
+        public NetworkListener(Socket socket) throws IOException {
+            this.socket = socket;
             in = new BufferedInputStream(socket.getInputStream());
             
             listening = true;
         }
         
         public void run() {
-            /*try {
-                String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
-                Board board = BoardFactory.parse(content);
-                name = board.getName();
-                out.println(content);
-                out.println("STOP");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
+
             
             while(listening) {        
                 System.out.println("listening");
@@ -240,9 +232,13 @@ public class PingballGUI extends JFrame {
             listening = false;
         }
     }
+    
+    private void setBoardName(String boardName) {
+        setTitle("Pingball: " + boardName);
+    }
 
     public static void main(String[] args) {
-        /*boolean onlinePlay = false;
+        boolean onlinePlay = false;
         String host = "";
         int port = DEFAULT_PORT;
         String filename = null;
@@ -277,9 +273,9 @@ public class PingballGUI extends JFrame {
             System.err.println(iae.getMessage());
             System.err.println("usage: PingballClient [--host HOST] [--port PORT] --file FILE");
             return;
-        }*/
+        }
         
-        new PingballGUI();
+        new PingballGUI(filename, host, port);
 
         /*try {
             // TODO constructors should construct and then exit (put 4=-14

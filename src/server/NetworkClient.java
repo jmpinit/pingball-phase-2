@@ -2,10 +2,16 @@ package server;
 
 import game.Board;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.util.List;
+
+import server.NetworkProtocol.NetworkEvent;
+import server.NetworkProtocol.NetworkState.FieldName;
 
 /**
  * Runs in a separate thread for every client.
@@ -16,7 +22,7 @@ import java.net.Socket;
  *      remove the client from the server, so the 
  */
 public class NetworkClient implements Runnable {
-    private final PrintWriter out;
+    private final BufferedOutputStream out;
     
     private final Board board;
     private final boolean online;
@@ -30,16 +36,17 @@ public class NetworkClient implements Runnable {
         this.disconnect = false;
         
         // setup communication with the client
-        PrintWriter out = null;
+        BufferedOutputStream out = null;
         if(online) {
             try {
-                out = new PrintWriter(socket.getOutputStream(), true);
+                out = new BufferedOutputStream(socket.getOutputStream());
             } catch(IOException e) {
                 e.printStackTrace();
                 // TODO disconnect clients we can't communicate with
             }
         } else {
-            out = new PrintWriter(new OutputStreamWriter(System.out));
+            // TODO
+            //out = new PrintWriter(new OutputStreamWriter(System.out));
         }
         
         this.out = out;
@@ -50,17 +57,24 @@ public class NetworkClient implements Runnable {
         while (true) {            
             try {
                 synchronized(Board.class) {
-                    board.step();
-                    out.println(board);
+                    List<NetworkEvent> events = board.step();
+                    
+                    for(NetworkEvent event: events) {
+                        ByteBuffer message = ByteBuffer.allocate(NetworkProtocol.MESSAGE_LENGTH);
+                        message.putInt(event.getTypeUID());
+                        message.putInt(event.getInstanceUID());
+                        message.putInt(event.getFieldUID());
+                        message.putLong(event.getValue());
+                        
+                        out.write(NetworkProtocol.PREAMBLE);
+                        out.write(message.array());
+                        out.flush();
+                    }
                 }
-                out.println((char)12); // mark end of board
                 Thread.sleep(100); // FIXME
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
             }
-            
-            if(out.checkError() && online)
-                disconnect = true;
         }
     }
     

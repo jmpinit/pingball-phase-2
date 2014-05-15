@@ -266,7 +266,7 @@ public class Board {
      * 
      * @throws InterruptedException 
      */
-    public ArrayList<NetworkEvent> step() throws InterruptedException{
+    public List<NetworkEvent> step() throws InterruptedException{
         addQueuedBalls();
         double timeTillEndOfStep = stepSize; //Currently at beginning of time step
         
