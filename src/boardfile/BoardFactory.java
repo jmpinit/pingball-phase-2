@@ -132,15 +132,6 @@ public class BoardFactory {
             actions.put(flip, new HashSet<Gadget>());
         }
 
-        @Override public void exitBoard(BoardParser.BoardContext ctx) { 
-            double gravity = (ctx.topline().gravityfield()!=null) ? 
-                Double.parseDouble(ctx.topline().gravityfield().FLOAT().getText()) : Board.DEFAULTGRAVITY;
-            double mu1 = (ctx.topline().friction1field()!=null) ? 
-                Double.parseDouble(ctx.topline().friction1field().FLOAT().getText()) : Board.DEFAULTMU1;
-            double mu2 = (ctx.topline().friction2field()!=null) ? 
-                Double.parseDouble(ctx.topline().friction2field().FLOAT().getText()) : Board.DEFAULTMU2;
-            this.board = new Board(ctx.topline().namefield().NAME().getText(),gravity, mu1, mu2,actions, 1.0/(double)PingballServer.FRAMERATE, balls, referencedBoards);
-        }    
 
         @Override public void enterBallline(BoardParser.BalllineContext ctx) { 
             Ball ball = new Ball(ctx.namefield().NAME().getText(), 
@@ -175,8 +166,9 @@ public class BoardFactory {
             int x = Integer.parseInt(ctx.xfield().INT().getText());
             int y = Integer.parseInt(ctx.yfield().INT().getText());
             String othPortal = ctx.othportfield().NAME().getText();
-            toAdd = new Portal(name,x,y,this.board,othPortal);
-            gadgets.put(name, toAdd);
+            Portal port = new Portal(name,x,y,this.board,othPortal);
+            gadgets.put(name, port);
+            actions.put(port, new HashSet<Gadget>());
             
             if (ctx.othboardfield() != null) {
                 String othBoardName = ctx.othboardfield().NAME().getText();
@@ -184,10 +176,20 @@ public class BoardFactory {
                 if(referencedBoards.containsKey(othBoardName)) {
                     temp = referencedBoards.get(othBoardName);
                 }
-                temp.add(toAdd);
+                temp.add(port);
                 referencedBoards.put(othBoardName, temp);
             } 
         }
+        
+        @Override public void exitBoard(BoardParser.BoardContext ctx) { 
+            double gravity = (ctx.topline().gravityfield()!=null) ? 
+                Double.parseDouble(ctx.topline().gravityfield().FLOAT().getText()) : Board.DEFAULTGRAVITY;
+            double mu1 = (ctx.topline().friction1field()!=null) ? 
+                Double.parseDouble(ctx.topline().friction1field().FLOAT().getText()) : Board.DEFAULTMU1;
+            double mu2 = (ctx.topline().friction2field()!=null) ? 
+                Double.parseDouble(ctx.topline().friction2field().FLOAT().getText()) : Board.DEFAULTMU2;
+            this.board = new Board(ctx.topline().namefield().NAME().getText(),gravity, mu1, mu2,actions, 1.0/(double)PingballServer.FRAMERATE, balls, referencedBoards);
+        }    
 
 
         

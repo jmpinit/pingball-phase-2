@@ -836,8 +836,8 @@ public class BoardParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(147); match(KEYL);
-			setState(148); actionfield();
-			setState(149); keyfield();
+			setState(148); keyfield();
+			setState(149); actionfield();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1690,7 +1690,7 @@ public class BoardParser extends Parser {
 		"\33\2\2\u008b\u008c\5\36\20\2\u008c\u008d\5.\30\2\u008d\u008e\5\60\31"+
 		"\2\u008e\u008f\5\64\33\2\u008f\u0090\5\66\34\2\u0090\27\3\2\2\2\u0091"+
 		"\u0092\7\34\2\2\u0092\u0093\58\35\2\u0093\u0094\5:\36\2\u0094\31\3\2\2"+
-		"\2\u0095\u0096\7\35\2\2\u0096\u0097\5:\36\2\u0097\u0098\5<\37\2\u0098"+
+		"\2\u0095\u0096\7\35\2\2\u0096\u0097\5<\37\2\u0097\u0098\5:\36\2\u0098"+
 		"\33\3\2\2\2\u0099\u009a\7\36\2\2\u009a\u009b\5\36\20\2\u009b\u009c\5."+
 		"\30\2\u009c\u009e\5\60\31\2\u009d\u009f\5> \2\u009e\u009d\3\2\2\2\u009e"+
 		"\u009f\3\2\2\2\u009f\u00a0\3\2\2\2\u00a0\u00a1\5@!\2\u00a1\35\3\2\2\2"+
