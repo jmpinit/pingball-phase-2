@@ -1,3 +1,4 @@
+#This board and portalB.pb are a pair. They test sending balls to other boards via portals.
 board name= portalA
 
   # define a ball

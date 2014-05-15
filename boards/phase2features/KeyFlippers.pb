@@ -1,17 +1,18 @@
+# This board tests interacting with the flippers via. the keyboard
 board name=Ex1 gravity=20.0 friction1=0.020 friction2=0.020
 
   # define a ball
   ball name=Ball x=0.5 y=0.5 xVelocity=2.5 yVelocity=2.5
 
   # define a series of square bumpers
-  squareBumper name=Square4 x=15 y=12
+  squareBumper name=Square x=15 y=12
   
   # define a series of circle bumpers
-  circleBumper name=Circle1 x=14 y=6
-  circleBumper name=Circle3 x=14 y=8
+  circleBumper name=CircleA x=14 y=6
+  circleBumper name=CircleB x=14 y=8
   
   # define a series of triangle bumpers
-  triangleBumper name=Circle2 x=19 y=7 orientation=90
+  triangleBumper name=triA x=19 y=7 orientation=90
  
   # add some flippers
   leftFlipper name=FlipL1 x=4 y=14 orientation=90
@@ -25,4 +26,4 @@ board name=Ex1 gravity=20.0 friction1=0.020 friction2=0.020
   
   #Correspond keys to flippers
   keyup key=left action=FlipL1
-  keyup key=left action=FlipR1
+  keyup key=right action=FlipR1
