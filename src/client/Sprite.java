@@ -2,6 +2,7 @@ package client;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -14,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkState.Field;
 
 public abstract class Sprite {
@@ -51,6 +51,7 @@ public abstract class Sprite {
             sprites.put(SquareBumper.ID, SquareBumper.class);
             sprites.put(TriangularBumper.ID, TriangularBumper.class);
             sprites.put(Wall.ID, Wall.class);
+            sprites.put(Letter.ID, Letter.class);
         }
         
         if(sprites.containsKey(uid)) {
@@ -64,18 +65,12 @@ public abstract class Sprite {
         }
     }
     
-    @SuppressWarnings("unchecked") // certain the returned array contains classes extending Sprite
-    public static Class<? extends Sprite>[] getSprites() {
-        return new Class[] { Ball.class, Absorber.class, CircularBumper.class,
-                Flipper.class, Portal.class, SquareBumper.class, TriangularBumper.class, Wall.class };
-    }
-    
     /*
      * Game Sprites
      */
     
     public static class Ball extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 0;
         
         public final static long FIXED_POINT = Long.MAX_VALUE / 32;
         private final static Color color = getUniqueColor(127);
@@ -116,7 +111,7 @@ public abstract class Sprite {
     }
 
     public static class Absorber extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 1;
         
         private final static Color color = Color.RED;
         
@@ -166,7 +161,7 @@ public abstract class Sprite {
     }
     
     public static class CircularBumper extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 2;
         
         private final static Color color = getUniqueColor(127);
         private final static double RADIUS = 0.5;
@@ -206,7 +201,7 @@ public abstract class Sprite {
     }
     
     public static class Flipper extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 3;
         
         private final static Color color = getUniqueColor(127);
         private final static double LENGTH = 2.0;
@@ -222,7 +217,7 @@ public abstract class Sprite {
                 AffineTransform saved = g2.getTransform();
                 
                 g2.translate(x, y);
-                g2.rotate(-angle);
+                g2.rotate(Math.toRadians(-angle));
                 
                 g2.setColor(color);
                 Stroke oldStroke = g2.getStroke();
@@ -255,7 +250,7 @@ public abstract class Sprite {
     }
     
     public static class Portal extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 4;
         
         private final static Color outerColor = getUniqueColor(127);
         private final static Color innerColor = getUniqueColor(127);
@@ -301,7 +296,7 @@ public abstract class Sprite {
     }
     
     public static class SquareBumper extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 5;
         
         private final static Color color = getUniqueColor(127);
         private final static int SIZE = 1;
@@ -342,7 +337,7 @@ public abstract class Sprite {
     }
     
     public static class TriangularBumper extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 6;
         
         private final static Color color = getUniqueColor(127);
         private final static int SIZE = 1;
@@ -361,7 +356,7 @@ public abstract class Sprite {
                 AffineTransform saved = g2.getTransform();
                 
                 g2.translate(x, y);
-                g2.rotate(-angle);
+                g2.rotate(Math.toRadians(-angle));
                 g2.setColor(color);
                 g2.fill(SHAPE);
                 
@@ -390,7 +385,7 @@ public abstract class Sprite {
     }
     
     public static class Wall extends Sprite {
-        public final static int ID = NetworkProtocol.getUID();
+        public final static int ID = 7;
         
         private final static Color color = getUniqueColor(127);
         private final static int SIZE = 1;
@@ -420,6 +415,51 @@ public abstract class Sprite {
                     break;
                 case Y:
                     y = (int)field.getValue();
+                    break;
+                case VISIBLE:
+                    visible = field.getValue() == 1? true : false;
+                    break;
+                default:
+                    throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
+            }
+        }
+    }
+    
+    public static class Letter extends Sprite {
+        public final static int ID = 8;
+        
+        private final static Color color = Color.BLACK;
+        private final static Font font = new Font("Monospaced", Font.PLAIN, 1);
+        
+        private boolean visible = true;
+        private int x, y;
+        private char c = 'x';
+        
+        @Override
+        public void render(Graphics2D g2) {
+            if(visible) {
+                AffineTransform saved = g2.getTransform();
+                
+                g2.translate(x, y);
+                
+                g2.setColor(color);
+                g2.setFont(font);
+                g2.drawString("" + c, x, y);
+                
+                g2.setTransform(saved);
+            }
+        }
+        
+        public void set(Field field) {
+            switch(field.getFieldName()) {
+                case X:
+                    x = (int)field.getValue();
+                    break;
+                case Y:
+                    y = (int)field.getValue();
+                    break;
+                case CHARACTER:
+                    c = (char)field.getValue();
                     break;
                 case VISIBLE:
                     visible = field.getValue() == 1? true : false;

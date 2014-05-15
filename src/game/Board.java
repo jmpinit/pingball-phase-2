@@ -9,12 +9,12 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import boardfile.KeyControl;
 import physics.Vect;
 import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkEvent;
 import server.NetworkProtocol.NetworkState;
 import server.NetworkProtocol.NetworkState.FieldName;
+import boardfile.KeyControl;
 
 
 /***

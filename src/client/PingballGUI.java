@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -21,17 +22,21 @@ import java.util.Queue;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import server.NetworkClient;
 import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkState.Field;
+import util.BoardPreview;
 import boardfile.BoardFactory;
 
 public class PingballGUI extends JFrame {
@@ -43,6 +48,11 @@ public class PingballGUI extends JFrame {
     public static final int BOARD_WIDTH = 22;
     public static final int BOARD_HEIGHT = 22;
     
+    private static final String BOARDS_DIRECTORY = "./boards";
+    
+    private String host;
+    private int port;
+    private NetworkListener listener;
     private PrintWriter out;
         
     /*
@@ -60,6 +70,9 @@ public class PingballGUI extends JFrame {
      * @throws IOException if connection not successful.
      */
     public PingballGUI(String filename, String host, int port) {
+        this.host = host;
+        this.port = port;
+        
         makeGUI();
         
         connect(filename, host, port); // FIXME debugging
@@ -106,11 +119,44 @@ public class PingballGUI extends JFrame {
         itemExit.setMnemonic(KeyEvent.VK_ESCAPE);
         menuFile.add(itemExit);
         
+        JMenuItem itemColorScheme = new JMenuItem("Color Scheme");
+        itemExit.setMnemonic(KeyEvent.VK_C);
+        menuFile.add(itemColorScheme);
+        
+        itemSelectBoard.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectBoard();
+            }
+        });
+        
+        itemRestart.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                restart();
+            }
+        });
+        
+        itemExit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+        
+        itemColorScheme.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectColors();
+            }
+        });
+        
         setJMenuBar(menuBar);
         
         canvas = new SpriteRenderer(300, 300);
         
         final JButton pauseButton = new JButton("Pause");
+        pauseButton.setActionCommand("pause");
         pauseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -159,6 +205,31 @@ public class PingballGUI extends JFrame {
         }
     }
     
+    private void restart() {
+        synchronized(out) {
+            out.println(NetworkProtocol.MESSAGE_RESTART);
+        }
+    }
+    
+    private void selectBoard() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Board File", "pb");
+
+        final JFileChooser fc = new JFileChooser(BOARDS_DIRECTORY);
+        fc.setFileFilter(filter);
+        int returnVal = fc.showOpenDialog(PingballGUI.this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File boardFile = fc.getSelectedFile();
+            
+            listener.stop();
+            connect(boardFile.getPath(), host, port);
+        }
+    }
+    
+    private void selectColors() {
+        
+    }
+    
     private void connect(String filename, String host, int port) {
         try {
             Socket socket = new Socket(host, port);
@@ -174,7 +245,7 @@ public class PingballGUI extends JFrame {
             final Board board = BoardFactory.parse(content);
             setBoardName(board.getName());
             
-            NetworkListener listener = new NetworkListener(socket);
+            listener = new NetworkListener(socket);
             Thread networkingThread = new Thread(listener);
             networkingThread.start();
         } catch (UnknownHostException e) {
@@ -207,9 +278,19 @@ public class PingballGUI extends JFrame {
 
                 try {
                     while(true) {
-                        for(byte[] preamble = new byte[NetworkProtocol.PREAMBLE.length];
-                                !Arrays.equals(preamble, NetworkProtocol.PREAMBLE);
-                                in.read(preamble, 0, preamble.length)) { }
+                        byte[] scan = new byte[NetworkProtocol.PREAMBLE.length];
+                        while(true) { // look for preamble
+                            // make space in buffer
+                            for(int i=0; i < scan.length - 1; i++)
+                                scan[i] = scan[i+1];
+                            
+                            // read in from network
+                            in.read(scan, scan.length - 1, 1);
+                            
+                            // stop searching if it's the preamble
+                            if(Arrays.equals(scan, NetworkProtocol.PREAMBLE))
+                                break;
+                        }
                         
                         byte[] message = new byte[NetworkProtocol.MESSAGE_LENGTH];
                         in.read(message, 0, NetworkProtocol.MESSAGE_LENGTH);
