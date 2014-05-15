@@ -36,7 +36,16 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkState.Field;
 import boardfile.BoardFactory;
-
+/**
+ * Thread safety argument:
+ * - All information passing between network and GUI is threadsafe because it synchronizes on the writer to the network protocol.
+ * Therefore, messages must be handled in the order they are given, and will only be processed when the previous one is done processing.
+ * 
+ * All GUI-related listeners are threadsafe due to Swing's event dispatch thread. All of these threads are queued and dealt with
+ * in the order they occur. Therefore, the next GUI action will not occur until the previous one has been completed. 
+ * @author meghana
+ *
+ */
 public class PingballGUI extends JFrame {
     private static final long serialVersionUID = 1L;
     
@@ -209,18 +218,28 @@ public class PingballGUI extends JFrame {
         connect(filename, fieldHost.getText(), Integer.parseInt(fieldPort.getText()));
     }
     
+    /**
+     * Sends appropriate message to network to pause gameplay
+     */
     private void pause() {
         synchronized(out) {
             out.println(NetworkProtocol.MESSAGE_PAUSE);
         }
     }
     
+    /**
+     * Sends appropriate message to network to continue gameplay
+     */
     private void play() {
         synchronized(out) {
             out.println(NetworkProtocol.MESSAGE_PLAY);
         }
     }
     
+    
+    /**
+     * Sends appropriate message to network to restart gameplay
+     */
     private void restart() {
         synchronized(out) {
             out.println(NetworkProtocol.MESSAGE_RESTART);

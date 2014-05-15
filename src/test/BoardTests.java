@@ -97,7 +97,7 @@ public class BoardTests {
         ccb = new CircularBumper("ccb", 6, 5);
         trib1 = new TriangularBumper("trib", 6, 5, 0);
         trib2 = new TriangularBumper("trib", 6, 5, 180);
-        portal = new Portal("portal1",18.5,5.5,board,"portal2");
+        portal = new Portal("portal1",18.5,5.5,"portal2");
         abs = new Absorber("abs", 6,5,3,2);
         leftf = new Flipper("left", "leftl", 7, 6, 0);
         balls = new HashSet<Ball>();

@@ -1,0 +1,13 @@
+The following document explains manual tests that were done to test features that could not easily be automated. 
+
+Portal physics correctness was testing by the board simplePortal.pb. The ball should go directly into the Alpha portal, 
+pop out of the Beta portal, enter the absorber, and then bounce on the right hand side of the screen indefinitely. 
+
+Testing for boards traveling to different boards via portals was done with portalPairA.pb and portalPairB.pb.
+If a portal on one board cannot detect that the other board on which its other portal resides, then it does 
+not affect the ball at all. This was tested by only opening portalPairA.pb. The ball passes straight through
+the portal and hits the absorber and then bounces on the right hand side of the screen indefinitely.
+
+Testing for multiple clients and concurrency issues was done by running the PingballServer and then opening
+multiple PingballGUIs with different boards. All the boards continue to work even with six boards concurrently open.
+

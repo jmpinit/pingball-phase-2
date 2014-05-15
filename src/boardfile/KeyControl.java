@@ -87,7 +87,7 @@ public class KeyControl {
     }
     
     @Override public String toString() {
-        return this.getKey()+":"+this.getEventType();
+        return this.getKey()+":"+this.gadget.getName();
     }
 
 }
