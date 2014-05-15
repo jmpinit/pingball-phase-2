@@ -173,7 +173,7 @@ public class BoardFactory {
             Portal port = new Portal(name,
                     Integer.parseInt(ctx.xfield().INT().getText()),
                     Integer.parseInt(ctx.yfield().INT().getText()),
-                    this.board,ctx.othportfield().NAME().getText());
+                    ctx.othportfield().NAME().getText());
             gadgets.put(name, port);
             actions.put(port, new HashSet<Gadget>());
 
