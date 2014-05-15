@@ -420,6 +420,9 @@ public class Board {
 
             gamePiece.hasBeenSent(true);
         }//done examining all GamePieces
+        for (Ball ball: this.balls) {
+            System.out.println(ball.getVelocity());
+        }
         return events;
     }    
 
@@ -502,6 +505,8 @@ public class Board {
         balls.addAll(newBalls);
 
         for (Ball ball : balls) { //add balls to GamePieces
+            //TODO: 
+            ball.hasBeenSent(false);
             this.gamePieceStates.put(ball, ball.getState());
         }
 

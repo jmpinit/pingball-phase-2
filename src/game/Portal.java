@@ -101,7 +101,11 @@ public class Portal implements Gadget  {
     @Override
     public void progressAndCollide(double amountOfTime, Ball ball){
         checkRep();
+        System.out.println("Progressing and colliding");
         ball.setPosition(targetPortal.getCenter());
+        System.out.println("Going here: " + targetPortal.getName());
+        System.out.println(targetPortal.getCenter().toString());
+        ball.setActive(false);
         //velocity stays the same
         try {
             sourceBoard.queueToRemove(ball);
@@ -148,8 +152,7 @@ public class Portal implements Gadget  {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result
-                + ((sourceBoard == null) ? 0 : sourceBoard.hashCode());
+        result = prime * result;
         return result;
     }
 
