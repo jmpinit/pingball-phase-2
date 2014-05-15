@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -72,8 +73,11 @@ public class NetworkClient implements Runnable {
                     }
                 }
                 Thread.sleep(100); // FIXME
-            } catch (InterruptedException | IOException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
+            } catch (IOException e) {
+                shouldDisconnect();
+                break; // disconnect this client
             }
         }
     }
