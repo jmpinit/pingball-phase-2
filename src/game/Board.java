@@ -294,8 +294,10 @@ public class Board {
             keyString = keyString.replaceAll("\\s+","").toLowerCase();
             if (keysToEffects.containsKey(keyString)) {
                 for (KeyControl kc : keysToEffects.get(key)) {
-                    Gadget gadggetBcOfKey = kc.getGadget();
-                    gadggetBcOfKey.doAction();
+                    if (kc.getEventType() == key.getID()) {
+                        Gadget gadggetBcOfKey = kc.getGadget();
+                        gadggetBcOfKey.doAction();
+                    }
                 }
             }
         }//done dealing w/ key presses
