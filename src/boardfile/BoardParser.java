@@ -20,15 +20,15 @@ public class BoardParser extends Parser {
 		BOARDW=1, EQ=2, NAMEL=3, GRAVITY=4, FRICTION1=5, FRICTION2=6, XV=7, YV=8, 
 		X=9, Y=10, ORT=11, WIDTH=12, HEIGHT=13, TRIGGER=14, ACTION=15, KEYLABEL=16, 
 		OTHBOARDL=17, OTHPORTL=18, BALL=19, SQB=20, CCB=21, TRIB=22, LEFTF=23, 
-		RIGHTF=24, ABS=25, FIRE=26, KEYL=27, PORTAL=28, INT=29, FLOAT=30, NAME=31, 
-		KEY=32, WHITESPACE=33, COMMENT=34;
+		RIGHTF=24, ABS=25, FIRE=26, KEYL=27, PORTAL=28, KEY=29, INT=30, FLOAT=31, 
+		NAME=32, WHITESPACE=33, COMMENT=34;
 	public static final String[] tokenNames = {
 		"<INVALID>", "'board'", "'='", "'name'", "'gravity'", "'friction1'", "'friction2'", 
 		"'xVelocity'", "'yVelocity'", "'x'", "'y'", "'orientation'", "'width'", 
 		"'height'", "'trigger'", "'action'", "'key'", "'otherBoard'", "'otherPortal'", 
 		"'ball'", "'squareBumper'", "'circleBumper'", "'triangleBumper'", "'leftFlipper'", 
-		"'rightFlipper'", "'absorber'", "'fire'", "KEYL", "'portal'", "INT", "FLOAT", 
-		"NAME", "KEY", "WHITESPACE", "COMMENT"
+		"'rightFlipper'", "'absorber'", "'fire'", "KEYL", "'portal'", "KEY", "INT", 
+		"FLOAT", "NAME", "WHITESPACE", "COMMENT"
 	};
 	public static final int
 		RULE_board = 0, RULE_topline = 1, RULE_lines = 2, RULE_line = 3, RULE_ballline = 4, 
@@ -1694,25 +1694,25 @@ public class BoardParser extends Parser {
 		"\33\3\2\2\2\u0099\u009a\7\36\2\2\u009a\u009b\5\36\20\2\u009b\u009c\5."+
 		"\30\2\u009c\u009e\5\60\31\2\u009d\u009f\5> \2\u009e\u009d\3\2\2\2\u009e"+
 		"\u009f\3\2\2\2\u009f\u00a0\3\2\2\2\u00a0\u00a1\5@!\2\u00a1\35\3\2\2\2"+
-		"\u00a2\u00a3\7\5\2\2\u00a3\u00a4\7\4\2\2\u00a4\u00a5\7!\2\2\u00a5\37\3"+
-		"\2\2\2\u00a6\u00a7\7\6\2\2\u00a7\u00a8\7\4\2\2\u00a8\u00a9\7 \2\2\u00a9"+
-		"!\3\2\2\2\u00aa\u00ab\7\7\2\2\u00ab\u00ac\7\4\2\2\u00ac\u00ad\7 \2\2\u00ad"+
-		"#\3\2\2\2\u00ae\u00af\7\b\2\2\u00af\u00b0\7\4\2\2\u00b0\u00b1\7 \2\2\u00b1"+
-		"%\3\2\2\2\u00b2\u00b3\7\13\2\2\u00b3\u00b4\7\4\2\2\u00b4\u00b5\7 \2\2"+
+		"\u00a2\u00a3\7\5\2\2\u00a3\u00a4\7\4\2\2\u00a4\u00a5\7\"\2\2\u00a5\37"+
+		"\3\2\2\2\u00a6\u00a7\7\6\2\2\u00a7\u00a8\7\4\2\2\u00a8\u00a9\7!\2\2\u00a9"+
+		"!\3\2\2\2\u00aa\u00ab\7\7\2\2\u00ab\u00ac\7\4\2\2\u00ac\u00ad\7!\2\2\u00ad"+
+		"#\3\2\2\2\u00ae\u00af\7\b\2\2\u00af\u00b0\7\4\2\2\u00b0\u00b1\7!\2\2\u00b1"+
+		"%\3\2\2\2\u00b2\u00b3\7\13\2\2\u00b3\u00b4\7\4\2\2\u00b4\u00b5\7!\2\2"+
 		"\u00b5\'\3\2\2\2\u00b6\u00b7\7\f\2\2\u00b7\u00b8\7\4\2\2\u00b8\u00b9\7"+
-		" \2\2\u00b9)\3\2\2\2\u00ba\u00bb\7\t\2\2\u00bb\u00bc\7\4\2\2\u00bc\u00bd"+
-		"\7 \2\2\u00bd+\3\2\2\2\u00be\u00bf\7\n\2\2\u00bf\u00c0\7\4\2\2\u00c0\u00c1"+
-		"\7 \2\2\u00c1-\3\2\2\2\u00c2\u00c3\7\13\2\2\u00c3\u00c4\7\4\2\2\u00c4"+
-		"\u00c5\7\37\2\2\u00c5/\3\2\2\2\u00c6\u00c7\7\f\2\2\u00c7\u00c8\7\4\2\2"+
-		"\u00c8\u00c9\7\37\2\2\u00c9\61\3\2\2\2\u00ca\u00cb\7\r\2\2\u00cb\u00cc"+
-		"\7\4\2\2\u00cc\u00cd\7\37\2\2\u00cd\63\3\2\2\2\u00ce\u00cf\7\16\2\2\u00cf"+
-		"\u00d0\7\4\2\2\u00d0\u00d1\7\37\2\2\u00d1\65\3\2\2\2\u00d2\u00d3\7\17"+
-		"\2\2\u00d3\u00d4\7\4\2\2\u00d4\u00d5\7\37\2\2\u00d5\67\3\2\2\2\u00d6\u00d7"+
-		"\7\20\2\2\u00d7\u00d8\7\4\2\2\u00d8\u00d9\7!\2\2\u00d99\3\2\2\2\u00da"+
-		"\u00db\7\21\2\2\u00db\u00dc\7\4\2\2\u00dc\u00dd\7!\2\2\u00dd;\3\2\2\2"+
-		"\u00de\u00df\7\22\2\2\u00df\u00e0\7\4\2\2\u00e0\u00e1\7\"\2\2\u00e1=\3"+
-		"\2\2\2\u00e2\u00e3\7\23\2\2\u00e3\u00e4\7\4\2\2\u00e4\u00e5\7!\2\2\u00e5"+
-		"?\3\2\2\2\u00e6\u00e7\7\24\2\2\u00e7\u00e8\7\4\2\2\u00e8\u00e9\7!\2\2"+
+		"!\2\2\u00b9)\3\2\2\2\u00ba\u00bb\7\t\2\2\u00bb\u00bc\7\4\2\2\u00bc\u00bd"+
+		"\7!\2\2\u00bd+\3\2\2\2\u00be\u00bf\7\n\2\2\u00bf\u00c0\7\4\2\2\u00c0\u00c1"+
+		"\7!\2\2\u00c1-\3\2\2\2\u00c2\u00c3\7\13\2\2\u00c3\u00c4\7\4\2\2\u00c4"+
+		"\u00c5\7 \2\2\u00c5/\3\2\2\2\u00c6\u00c7\7\f\2\2\u00c7\u00c8\7\4\2\2\u00c8"+
+		"\u00c9\7 \2\2\u00c9\61\3\2\2\2\u00ca\u00cb\7\r\2\2\u00cb\u00cc\7\4\2\2"+
+		"\u00cc\u00cd\7 \2\2\u00cd\63\3\2\2\2\u00ce\u00cf\7\16\2\2\u00cf\u00d0"+
+		"\7\4\2\2\u00d0\u00d1\7 \2\2\u00d1\65\3\2\2\2\u00d2\u00d3\7\17\2\2\u00d3"+
+		"\u00d4\7\4\2\2\u00d4\u00d5\7 \2\2\u00d5\67\3\2\2\2\u00d6\u00d7\7\20\2"+
+		"\2\u00d7\u00d8\7\4\2\2\u00d8\u00d9\7\"\2\2\u00d99\3\2\2\2\u00da\u00db"+
+		"\7\21\2\2\u00db\u00dc\7\4\2\2\u00dc\u00dd\7\"\2\2\u00dd;\3\2\2\2\u00de"+
+		"\u00df\7\22\2\2\u00df\u00e0\7\4\2\2\u00e0\u00e1\7\37\2\2\u00e1=\3\2\2"+
+		"\2\u00e2\u00e3\7\23\2\2\u00e3\u00e4\7\4\2\2\u00e4\u00e5\7\"\2\2\u00e5"+
+		"?\3\2\2\2\u00e6\u00e7\7\24\2\2\u00e7\u00e8\7\4\2\2\u00e8\u00e9\7\"\2\2"+
 		"\u00e9A\3\2\2\2\bILOXe\u009e";
 	public static final ATN _ATN =
 		ATNSimulator.deserialize(_serializedATN.toCharArray());

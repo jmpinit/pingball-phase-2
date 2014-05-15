@@ -14,7 +14,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 public class Main {
     
     public static void main(String[] args) throws IOException {
-        FileReader reader = new FileReader("boards/phase2features/KeyFlippers.pb");
+        FileReader reader = new FileReader("boards/phase2features/allkeys.pb");
         CharStream stream = new ANTLRInputStream(reader);
        BoardLexer lexer = new BoardLexer(stream);
         lexer.reportErrorsAsExceptions();

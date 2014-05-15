@@ -61,10 +61,6 @@ FIRE : 'fire';
 KEYL : 'keyup' | 'keydown';
 PORTAL : 'portal';
 
-INT : ('0'..'9')+;
-FLOAT : ('-')?((('0'..'9')+'.'('0'..'9')*)|('.'?('0'..'9')+));
-NAME : (('A'..'Z')|('a'..'z')|'_')(('A'..'Z')|('a'..'z')|'_'|'0'..'9')*;
-
 KEY: (('a'..'z') | ('0'..'9')
         | ('shift') | ('ctrl') | ('alt') | ('meta')
         | ('space')
@@ -73,6 +69,11 @@ KEY: (('a'..'z') | ('0'..'9')
         | ('openbracket') | ('closebracket') | ('backslash')
         | ('semicolon') | ('quote') | ('enter')
         | ('comma') | ('period') | ('slash'));
+INT : ('0'..'9')+;
+FLOAT : ('-')?((('0'..'9')+'.'('0'..'9')*)|('.'?('0'..'9')+));
+NAME : (('A'..'Z')|('a'..'z')|'_')(('A'..'Z')|('a'..'z')|'_'|'0'..'9')*;
+
+
 WHITESPACE : [ \t\r\n]+ -> skip ;
 
 
