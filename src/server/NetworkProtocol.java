@@ -12,6 +12,8 @@ public class NetworkProtocol {
     public final static String MESSAGE_PAUSE = "pause";
     public final static String MESSAGE_PLAY = "play";
     public final static String MESSAGE_RESTART = "restart";
+    public final static char MESSAGE_KEYPRESSED = 'd';
+    public final static char MESSAGE_KEYRELEASED = 'u';
     
     private static int uid = 0;
     

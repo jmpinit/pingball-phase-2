@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import client.PingKeyEvent;
 import physics.Vect;
 import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkEvent;
@@ -274,7 +275,7 @@ public class Board {
     /*** temp step
      * @throws InterruptedException ***/
     public ArrayList<NetworkEvent> step() throws InterruptedException {
-        return step(new ArrayList<KeyEvent>());
+        return step(new ArrayList<PingKeyEvent>());
     }
 
     /***
@@ -288,7 +289,7 @@ public class Board {
      * 
      * @throws InterruptedException 
      */
-    public ArrayList<NetworkEvent> step(ArrayList<KeyEvent> keys) throws InterruptedException{
+    public ArrayList<NetworkEvent> step(List<PingKeyEvent> keys) throws InterruptedException{
         ArrayList<NetworkEvent> events = new ArrayList<NetworkEvent>();
 
         for(Ball ball: addQueuedBalls()) {
@@ -299,12 +300,10 @@ public class Board {
         double timeTillEndOfStep = stepSize; //Currently at beginning of time step
 
         //respond to all key presses
-        for (KeyEvent key : keys) {
-            String keyString = key.getKeyText(key.getKeyCode());
-            keyString = keyString.replaceAll("\\s+","").toLowerCase();
-            if (keysToEffects.containsKey(keyString)) {
-                for (KeyControl kc : keysToEffects.get(key)) {
-                    if (kc.getEventType() == key.getID()) {
+        for (PingKeyEvent kv : keys) {
+            if (keysToEffects.containsKey(kv.getKey())) {
+                for(KeyControl kc : keysToEffects.get(kv.getKey())) {
+                    if (kc.isKeyPressed() == kv.getState()) {
                         Gadget gadggetBcOfKey = kc.getGadget();
                         gadggetBcOfKey.doAction();
                     }

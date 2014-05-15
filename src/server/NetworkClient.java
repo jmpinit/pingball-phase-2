@@ -12,9 +12,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
+import client.PingKeyEvent;
 import boardfile.BoardFactory;
 import server.NetworkProtocol.NetworkEvent;
 import server.NetworkProtocol.NetworkState.FieldName;
@@ -31,6 +34,7 @@ public class NetworkClient implements Runnable {
     private final BufferedReader in;
     private final BufferedOutputStream out;
     
+    private final List<PingKeyEvent> keyEvents = Collections.synchronizedList(new ArrayList<PingKeyEvent>());
     private final BlockingQueue<String> userInputQueue;
     private final String source;
     private Board board;
@@ -77,7 +81,8 @@ public class NetworkClient implements Runnable {
             if(!paused) {
                 try {
                     synchronized(Board.class) {
-                        List<NetworkEvent> events = board.step();
+                        List<NetworkEvent> events = board.step(keyEvents);
+                        keyEvents.clear();
                         
                         // send event updates
                         for(NetworkEvent event: events) {
@@ -108,13 +113,30 @@ public class NetworkClient implements Runnable {
                 try {
                     String message;
                     while((message = in.readLine()) != null) {
-                        userInputQueue.add(message);
+                        switch(message.charAt(0)) {
+                            case NetworkProtocol.MESSAGE_KEYPRESSED:
+                                keyPressed(message.charAt(2));
+                                break;
+                            case NetworkProtocol.MESSAGE_KEYRELEASED:
+                                keyReleased(message.charAt(2));
+                                break;
+                            default:
+                                userInputQueue.add(message);
+                        }
                     }
                 } catch(IOException e) {
                     disconnect = true; // disconnect this client
                 }
             }
         }
+    }
+    
+    private void keyPressed(char key) {
+        keyEvents.add(new PingKeyEvent(key, true));
+    }
+    
+    private void keyReleased(char key) {
+        keyEvents.add(new PingKeyEvent(key, false));
     }
     
     public void pause() {
