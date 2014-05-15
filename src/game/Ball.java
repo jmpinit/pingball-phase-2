@@ -120,8 +120,8 @@ public class Ball implements GamePiece {
     @Override
     public NetworkState getState() {
         Field[] fields = new Field[] {
-                new Field(FieldName.X, (long)(position.x()-RADIUS)), // TODO more precision (multiply by constant)
-                new Field(FieldName.Y, (long)(position.y()-RADIUS))
+                new Field(FieldName.X, (long)(position.x()*Sprite.Ball.FIXED_POINT)), // TODO more precision (multiply by constant)
+                new Field(FieldName.Y, (long)(position.y()*Sprite.Ball.FIXED_POINT))
         };
         
         return new NetworkState(fields);

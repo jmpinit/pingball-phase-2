@@ -77,6 +77,7 @@ public abstract class Sprite {
     public static class Ball extends Sprite {
         public final static int ID = NetworkProtocol.getUID();
         
+        public final static long FIXED_POINT = Long.MAX_VALUE / 32;
         private final static Color color = getUniqueColor(127);
         private final static double RADIUS = 0.5;
         private final static Shape shape = new Ellipse2D.Double(0, 0, RADIUS*2, RADIUS*2);
@@ -86,7 +87,7 @@ public abstract class Sprite {
         public void render(Graphics2D g2) {
             AffineTransform saved = g2.getTransform();
             
-            g2.translate(x, y);
+            g2.translate(x - RADIUS, y - RADIUS);
             
             g2.setColor(color);
             g2.fill(shape);
@@ -97,10 +98,10 @@ public abstract class Sprite {
         public void set(Field field) {
             switch(field.getFieldName()) {
                 case X:
-                    x = field.getValue();
+                    x = field.getValue() / ((double)FIXED_POINT);
                     break;
                 case Y:
-                    y = field.getValue();
+                    y = field.getValue() / ((double)FIXED_POINT);
                     break;
                 default:
                     throw new RuntimeException("No such field on Sprite.");
