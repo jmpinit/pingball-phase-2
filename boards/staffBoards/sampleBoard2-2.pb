@@ -39,12 +39,11 @@ board name=sampleBoard2_2 gravity=20.0 friction1=0.020 friction2=0.020
   triangleBumper name=Tri2 x=2 y=11 orientation=180
   
   # add some flippers
-  rightFlipper name=FlipR1 x=3 y=2 orientation=0
-  rightFlipper name=FlipR2 x=3 y=9 orientation=0
+  rightFlipper name=FlipR1 x=2 y=2 orientation=0
+  rightFlipper name=FlipR2 x=2 y=9 orientation=0
 
   # define an absorber to catch the ball at the bottom
   absorber name=Abs x=0 y=19 width=20 height=1 
 
   # make the absorber self-triggering
   fire trigger=Abs action=Abs 
-

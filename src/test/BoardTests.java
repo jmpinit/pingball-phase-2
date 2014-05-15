@@ -10,6 +10,7 @@ import game.Board;
 import game.CircularBumper;
 import game.Flipper;
 import game.Gadget;
+import game.Portal;
 import game.SquareBumper;
 import game.TriangularBumper;
 
@@ -77,6 +78,7 @@ public class BoardTests {
     CircularBumper ccb;
     TriangularBumper trib1;
     TriangularBumper trib2;
+    Portal portal;
     Absorber abs;
     Flipper leftf;
     Map<Gadget, Set<Gadget>> actions;
@@ -95,11 +97,31 @@ public class BoardTests {
         ccb = new CircularBumper("ccb", 6, 5);
         trib1 = new TriangularBumper("trib", 6, 5, 0);
         trib2 = new TriangularBumper("trib", 6, 5, 180);
+        portal = new Portal("portal1",18.5,5.5,board,"portal2");
         abs = new Absorber("abs", 6,5,3,2);
         leftf = new Flipper("left", "leftl", 7, 6, 0);
         balls = new HashSet<Ball>();
         actions = new HashMap<Gadget, Set<Gadget>>();
+
     }
+
+    @Test public void PortalCollisionTest() {
+        actions.put(portal, new HashSet<Gadget>());
+        balls.add(ball1);
+        board = new Board("board", 0.0, 0.0, 0.0,
+                actions, 0.05, balls);    
+
+        for (int i = 0; i < 50; i++) {
+            try {
+                board.step();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        Vect diff = new Vect(ball1.getPosition().x() - 4.5,
+                ball1.getPosition().y() - 5.5);
+        assertTrue(diff.length() > 2.25);
+    } 
 
     @Test public void WallDirectCollisionTest() {
         balls.add(ball1);

@@ -23,6 +23,8 @@ package boardfile;
             throw new RuntimeException(msg);
         }
     }
+    
+    private boolean lookingForKey = false;
 }
 
 /*
@@ -46,6 +48,9 @@ WIDTH : 'width';
 HEIGHT : 'height';
 TRIGGER : 'trigger';
 ACTION : 'action';
+KEYLABEL: 'key';
+OTHBOARDL : 'otherBoard';
+OTHPORTL : 'otherPortal';
 
 BALL : 'ball';
 SQB : 'squareBumper';
@@ -55,10 +60,21 @@ LEFTF : 'leftFlipper';
 RIGHTF : 'rightFlipper';
 ABS : 'absorber';
 FIRE : 'fire';
+KEYL : ('keyup' | 'keydown'){lookingForKey = true;};
+PORTAL : 'portal';
 
+KEY: {lookingForKey}? (('a'..'z') | ('0'..'9')
+        | ('shift') | ('ctrl') | ('alt') | ('meta')
+        | ('space')
+        | ('left') | ('right') | ('up') | ('down')
+        | ('minus') | ('equals') | ('backspace')
+        | ('openbracket') | ('closebracket') | ('backslash')
+        | ('semicolon') | ('quote') | ('enter')
+        | ('comma') | ('period') | ('slash')){lookingForKey = false;};
 INT : ('0'..'9')+;
 FLOAT : ('-')?((('0'..'9')+'.'('0'..'9')*)|('.'?('0'..'9')+));
 NAME : (('A'..'Z')|('a'..'z')|'_')(('A'..'Z')|('a'..'z')|'_'|'0'..'9')*;
+
 
 WHITESPACE : [ \t\r\n]+ -> skip ;
 
@@ -75,7 +91,7 @@ COMMENT : '#' (~( '\r' | '\n' ))* -> skip ;
  topline : BOARDW namefield (gravityfield)? (friction1field)? (friction2field)?;
  
  lines : lines line | line;
- line : ballline | sqbline | ccbline | tribline | leftfline | rightfline | absline | fireline;
+ line : ballline | sqbline | ccbline | tribline | leftfline | rightfline | absline | fireline | keyline | portalline;
  
  ballline : BALL namefield xffield yffield xvfield yvfield;
  sqbline : SQB namefield xfield yfield;
@@ -85,6 +101,8 @@ COMMENT : '#' (~( '\r' | '\n' ))* -> skip ;
  rightfline : RIGHTF namefield xfield yfield ortfield;
  absline : ABS namefield xfield yfield widthfield heightfield;
  fireline : FIRE triggerfield actionfield;
+ keyline: KEYL keyfield actionfield;
+ portalline: PORTAL namefield xfield yfield (othboardfield)? othportfield;
  
  namefield : NAMEL EQ NAME;
  gravityfield : GRAVITY EQ FLOAT;
@@ -105,3 +123,6 @@ COMMENT : '#' (~( '\r' | '\n' ))* -> skip ;
  heightfield : HEIGHT EQ INT;
  triggerfield : TRIGGER EQ NAME;
  actionfield : ACTION EQ NAME;
+ keyfield : KEYLABEL EQ KEY;
+ othboardfield : OTHBOARDL EQ NAME;
+ othportfield : OTHPORTL EQ NAME;

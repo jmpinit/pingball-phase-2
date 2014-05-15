@@ -2,9 +2,9 @@ package game;
 
 
 
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +43,7 @@ public class Board {
     private final Double mu2; //coefficient of acceleration against direction of motion, due to a friction force acting per L
     private final Map<Gadget, Set<Gadget>> gadgetsToEffects;//mapping of each gadget on the board to any *other* gadgets that react when the original gadget is triggered
     //Note: It is the trigger-effect relationships between gadgets that are immutable and are maintained by this map. The gadgets themselves may be mutable.
+    private final Map<KeyEvent, Set<Gadget>> keysToEffects;
     private final double stepSize; //step size, in seconds
     private final Map<String, Set<Portal>> referencedBoards;
 
@@ -57,7 +58,7 @@ public class Board {
 
     /*** Temp constructor***/
     public Board(String name, Double gravity, Double mu, Double mu2, Map<Gadget, Set<Gadget>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls) {
-        this(name,  gravity,  mu,  mu2,  gadgetsToEffects,  stepSizeInSeconds,  startingBalls, new HashMap<String,Set<Portal>>());
+        this(   name,  gravity,  mu,  mu2,  gadgetsToEffects,  stepSizeInSeconds,  startingBalls, new HashMap<String,Set<Portal>>(), new HashMap<KeyEvent, Set<Gadget>>()   );
     }
 
     
@@ -72,7 +73,7 @@ public class Board {
      * @param stepSize length of this board's step size in seconds
      * @param balls a set of balls that start on the board
      */
-    public Board(String name, Double gravity, Double mu, Double mu2, Map<Gadget, Set<Gadget>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls, Map<String,Set<Portal>> referencedBoards) {
+    public Board(String name, Double gravity, Double mu, Double mu2, Map<Gadget, Set<Gadget>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls, Map<String,Set<Portal>> referencedBoards, Map<KeyEvent, Set<Gadget>> keysToEffects) {
         //CONSTRUCTED AS ALWAYS
         this.ballQueue = new LinkedBlockingQueue<Ball>();
         this.ballsToRemoveQueue = new LinkedBlockingQueue<Ball>();
@@ -95,6 +96,7 @@ public class Board {
         this.mu = mu;
         this.mu2 = mu2;
         this.gadgetsToEffects = gadgetsToEffects;
+        this.keysToEffects = keysToEffects;
         this.stepSize = stepSizeInSeconds;
         this.balls = startingBalls;
         this.gamePieceStates = new HashMap<GamePiece, NetworkState>();
@@ -258,6 +260,12 @@ public class Board {
         return stringRep;
     }
     
+    /*** temp step
+     * @throws InterruptedException ***/
+    public ArrayList<NetworkEvent> step() throws InterruptedException {
+        return step(new ArrayList<KeyEvent>());
+    }
+    
     /***
      * Progresses the board by one time step,
      * adding any queued balls,
@@ -269,7 +277,7 @@ public class Board {
      * 
      * @throws InterruptedException 
      */
-    public List<NetworkEvent> step(/*List<KeyEvent> keyPresses*/) throws InterruptedException{
+    public ArrayList<NetworkEvent> step(ArrayList<KeyEvent> keys) throws InterruptedException{
         ArrayList<NetworkEvent> events = new ArrayList<NetworkEvent>();
         
         for(Ball ball: addQueuedBalls()) {
@@ -279,12 +287,15 @@ public class Board {
         }
         double timeTillEndOfStep = stepSize; //Currently at beginning of time step
         
-        // carry out keypress actions
-        /*for(KeyEvent kv: keyPresses) {
-            keyEvents.get(kv).doAction();
-        }*/
+        //respond to all key presses
+        for (KeyEvent key : keys) {
+            if (keysToEffects.containsKey(key)) {
+                for (Gadget gadggetBcOfKey : keysToEffects.get(key)) {
+                    gadggetBcOfKey.doAction();
+                }
+            }
+        }//done dealing w/ key presses
         
-        // update physics
         while (timeTillEndOfStep > 0) {
             //FIND TIME TO FAST FORWARD THROUGH
             double timeToFastForwardThrough = timeTillEndOfStep; //If no collisions is found, next update is to the end of this time step
