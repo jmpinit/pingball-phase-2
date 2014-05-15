@@ -44,7 +44,6 @@ public class NetworkProtocol {
             private int uid;
             
             FieldName(int uid) {
-                System.out.println("FieldName uid = " + uid);
                 this.uid = uid;
             }
             
