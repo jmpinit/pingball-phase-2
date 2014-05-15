@@ -35,6 +35,7 @@ public class NetworkProtocol {
         }
 
         public static enum FieldName {
+            VISIBLE(NetworkProtocol.getUID()),
             X(NetworkProtocol.getUID()),
             Y(NetworkProtocol.getUID()),
             WIDTH(NetworkProtocol.getUID()),

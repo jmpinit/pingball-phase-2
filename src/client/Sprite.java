@@ -82,17 +82,20 @@ public abstract class Sprite {
         private final static double RADIUS = 0.5;
         private final static Shape shape = new Ellipse2D.Double(0, 0, RADIUS*2, RADIUS*2);
         
+        private boolean visible = true;
         private double x, y;
         
         public void render(Graphics2D g2) {
-            AffineTransform saved = g2.getTransform();
-            
-            g2.translate(x - RADIUS, y - RADIUS);
-            
-            g2.setColor(color);
-            g2.fill(shape);
-            
-            g2.setTransform(saved);
+            if(visible) {
+                AffineTransform saved = g2.getTransform();
+                
+                g2.translate(x - RADIUS, y - RADIUS);
+                
+                g2.setColor(color);
+                g2.fill(shape);
+                
+                g2.setTransform(saved);
+            }
         }
         
         public void set(Field field) {
@@ -102,6 +105,9 @@ public abstract class Sprite {
                     break;
                 case Y:
                     y = field.getValue() / ((double)FIXED_POINT);
+                    break;
+                case VISIBLE:
+                    visible = field.getValue() == 1? true : false;
                     break;
                 default:
                     throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
@@ -114,6 +120,7 @@ public abstract class Sprite {
         
         private final static Color color = Color.RED;
         
+        private boolean visible = true;
         private int width, height;
         private int x, y;
         
@@ -123,14 +130,16 @@ public abstract class Sprite {
         }
         
         public void render(Graphics2D g2) {
-            AffineTransform saved = g2.getTransform();
-            
-            g2.translate(x, y);
-            
-            g2.setColor(color);
-            g2.fill(new Rectangle(0, 0, width, height)); // TODO more efficient
-            
-            g2.setTransform(saved);
+            if(visible) {
+                AffineTransform saved = g2.getTransform();
+                
+                g2.translate(x, y);
+                
+                g2.setColor(color);
+                g2.fill(new Rectangle(0, 0, width, height)); // TODO more efficient
+                
+                g2.setTransform(saved);
+            }
         }
         
         public void set(Field field) {
@@ -147,6 +156,9 @@ public abstract class Sprite {
                 case HEIGHT:
                     height = (int)field.getValue();
                     break;
+                case VISIBLE:
+                    visible = field.getValue() == 1? true : false;
+                    break;
                 default:
                     throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
             }
@@ -160,17 +172,20 @@ public abstract class Sprite {
         private final static double RADIUS = 0.5;
         private final static Shape shape = new Ellipse2D.Double(0, 0, RADIUS*2, RADIUS*2);
         
+        private boolean visible = true;
         private int x, y;
         
         public void render(Graphics2D g2) {
-            AffineTransform saved = g2.getTransform();
-            
-            g2.translate(x, y);
-            
-            g2.setColor(color);
-            g2.fill(shape);
-            
-            g2.setTransform(saved);
+            if(visible) {
+                AffineTransform saved = g2.getTransform();
+                
+                g2.translate(x, y);
+                
+                g2.setColor(color);
+                g2.fill(shape);
+                
+                g2.setTransform(saved);
+            }
         }
         
         public void set(Field field) {
@@ -180,6 +195,9 @@ public abstract class Sprite {
                     break;
                 case Y:
                     y = (int)field.getValue();
+                    break;
+                case VISIBLE:
+                    visible = field.getValue() == 1? true : false;
                     break;
                 default:
                     throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
@@ -195,22 +213,25 @@ public abstract class Sprite {
         private final static Shape shape = new Line2D.Double(0, 0, 0, LENGTH);
         private final static Stroke stroke = new BasicStroke(0.1f);
         
+        private boolean visible = true;
         private int x, y;
         private double angle;
 
         public void render(Graphics2D g2) {
-            AffineTransform saved = g2.getTransform();
-            
-            g2.translate(x, y);
-            g2.rotate(-angle);
-            
-            g2.setColor(color);
-            Stroke oldStroke = g2.getStroke();
-            g2.setStroke(stroke);
-            g2.draw(shape);
-            g2.setStroke(oldStroke);
-            
-            g2.setTransform(saved);
+            if(visible) {
+                AffineTransform saved = g2.getTransform();
+                
+                g2.translate(x, y);
+                g2.rotate(-angle);
+                
+                g2.setColor(color);
+                Stroke oldStroke = g2.getStroke();
+                g2.setStroke(stroke);
+                g2.draw(shape);
+                g2.setStroke(oldStroke);
+                
+                g2.setTransform(saved);
+            }
         }
         
         public void set(Field field) {
@@ -223,6 +244,9 @@ public abstract class Sprite {
                     break;
                 case ANGLE:
                     angle = field.getValue();
+                    break;
+                case VISIBLE:
+                    visible = field.getValue() == 1? true : false;
                     break;
                 default:
                     throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
@@ -239,21 +263,24 @@ public abstract class Sprite {
         private final static Shape shape = new Ellipse2D.Double(0, 0, RADIUS*2, RADIUS*2);
         private final static Shape inner = new Ellipse2D.Double(0, 0, RADIUS, RADIUS);
         
+        private boolean visible = true;
         private int x, y;
         
         public void render(Graphics2D g2) {
-            AffineTransform saved = g2.getTransform();
-            
-            g2.translate(x, y);
-            
-            g2.setColor(outerColor);
-            g2.fill(shape);
-            
-            g2.translate(RADIUS/2, RADIUS/2);
-            g2.setColor(innerColor);
-            g2.fill(inner);
-            
-            g2.setTransform(saved);
+            if(visible) {
+                AffineTransform saved = g2.getTransform();
+                
+                g2.translate(x, y);
+                
+                g2.setColor(outerColor);
+                g2.fill(shape);
+                
+                g2.translate(RADIUS/2, RADIUS/2);
+                g2.setColor(innerColor);
+                g2.fill(inner);
+                
+                g2.setTransform(saved);
+            }
         }
         
         public void set(Field field) {
@@ -263,6 +290,9 @@ public abstract class Sprite {
                     break;
                 case Y:
                     y = (int)field.getValue();
+                    break;
+                case VISIBLE:
+                    visible = field.getValue() == 1? true : false;
                     break;
                 default:
                     throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
@@ -277,18 +307,21 @@ public abstract class Sprite {
         private final static int SIZE = 1;
         private final static Shape shape = new Rectangle(0, 0, SIZE, SIZE);
         
+        private boolean visible = true;
         private int x, y;
         
         @Override
         public void render(Graphics2D g2) {
-            AffineTransform saved = g2.getTransform();
-            
-            g2.translate(x, y);
-            
-            g2.setColor(color);
-            g2.fill(shape);
-            
-            g2.setTransform(saved);
+            if(visible) {
+                AffineTransform saved = g2.getTransform();
+                
+                g2.translate(x, y);
+                
+                g2.setColor(color);
+                g2.fill(shape);
+                
+                g2.setTransform(saved);
+            }
         }
         
         public void set(Field field) {
@@ -298,6 +331,9 @@ public abstract class Sprite {
                     break;
                 case Y:
                     y = (int)field.getValue();
+                    break;
+                case VISIBLE:
+                    visible = field.getValue() == 1? true : false;
                     break;
                 default:
                     throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
@@ -315,19 +351,22 @@ public abstract class Sprite {
                 new int[] { 0, 0, SIZE },
         3);
         
+        private boolean visible = true;
         private int x, y;
         private int angle;
         
         @Override
         public void render(Graphics2D g2) {
-            AffineTransform saved = g2.getTransform();
-            
-            g2.translate(x, y);
-            g2.rotate(-angle);
-            g2.setColor(color);
-            g2.fill(SHAPE);
-            
-            g2.setTransform(saved);
+            if(visible) {
+                AffineTransform saved = g2.getTransform();
+                
+                g2.translate(x, y);
+                g2.rotate(-angle);
+                g2.setColor(color);
+                g2.fill(SHAPE);
+                
+                g2.setTransform(saved);
+            }
         }
         
         public void set(Field field) {
@@ -340,6 +379,9 @@ public abstract class Sprite {
                     break;
                 case ANGLE:
                     angle = (int)field.getValue();
+                    break;
+                case VISIBLE:
+                    visible = field.getValue() == 1? true : false;
                     break;
                 default:
                     throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
@@ -354,18 +396,21 @@ public abstract class Sprite {
         private final static int SIZE = 1;
         private final static Shape shape = new Rectangle(0, 0, SIZE, SIZE);
         
+        private boolean visible = true;
         private int x, y;
         
         @Override
         public void render(Graphics2D g2) {
-            AffineTransform saved = g2.getTransform();
-            
-            g2.translate(x, y);
-            
-            g2.setColor(color);
-            g2.fill(shape);
-            
-            g2.setTransform(saved);
+            if(visible) {
+                AffineTransform saved = g2.getTransform();
+                
+                g2.translate(x, y);
+                
+                g2.setColor(color);
+                g2.fill(shape);
+                
+                g2.setTransform(saved);
+            }
         }
         
         public void set(Field field) {
@@ -375,6 +420,9 @@ public abstract class Sprite {
                     break;
                 case Y:
                     y = (int)field.getValue();
+                    break;
+                case VISIBLE:
+                    visible = field.getValue() == 1? true : false;
                     break;
                 default:
                     throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
