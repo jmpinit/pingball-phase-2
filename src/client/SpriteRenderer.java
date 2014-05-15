@@ -77,6 +77,7 @@ public class SpriteRenderer extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         clearWindow(g2);
         
+        g2.scale(getWidth()/20, getHeight()/20);
         for(Sprite sprite: sprites.values()) {
             sprite.render(g2);
         }

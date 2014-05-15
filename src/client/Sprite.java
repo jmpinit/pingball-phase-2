@@ -1,10 +1,12 @@
 package client;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
@@ -76,8 +78,8 @@ public abstract class Sprite {
         public final static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
-        private final static double RADIUS = 8.0;
-        private final static Shape shape = new Ellipse2D.Double(0, 0, RADIUS, RADIUS);
+        private final static double RADIUS = 0.5;
+        private final static Shape shape = new Ellipse2D.Double(0, 0, RADIUS*2, RADIUS*2);
         
         private double x, y;
         
@@ -114,6 +116,11 @@ public abstract class Sprite {
         private int width, height;
         private int x, y;
         
+        public Absorber() {
+            width = 1;
+            height = 1;
+        }
+        
         public void render(Graphics2D g2) {
             AffineTransform saved = g2.getTransform();
             
@@ -149,8 +156,8 @@ public abstract class Sprite {
         public final static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
-        private final static double RADIUS = 8.0;
-        private final static Shape shape = new Ellipse2D.Double(0, 0, RADIUS, RADIUS);
+        private final static double RADIUS = 0.5;
+        private final static Shape shape = new Ellipse2D.Double(0, 0, RADIUS*2, RADIUS*2);
         
         private int x, y;
         
@@ -183,8 +190,9 @@ public abstract class Sprite {
         public final static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
-        private final static double LENGTH = 8.0;
+        private final static double LENGTH = 2.0;
         private final static Shape shape = new Line2D.Double(0, 0, 0, LENGTH);
+        private final static Stroke stroke = new BasicStroke(0.1f);
         
         private int x, y;
         private double angle;
@@ -196,7 +204,10 @@ public abstract class Sprite {
             g2.rotate(-angle);
             
             g2.setColor(color);
-            g2.fill(shape);
+            Stroke oldStroke = g2.getStroke();
+            g2.setStroke(stroke);
+            g2.draw(shape);
+            g2.setStroke(oldStroke);
             
             g2.setTransform(saved);
         }
@@ -221,10 +232,11 @@ public abstract class Sprite {
     public static class Portal extends Sprite {
         public final static int ID = NetworkProtocol.getUID();
         
-        private final static Color fillColor = getUniqueColor(127);
-        private final static Color strokeColor = getUniqueColor(127);
-        private final static int RADIUS = 8;
-        private final static Shape shape = new Ellipse2D.Double(0, 0, RADIUS, RADIUS);
+        private final static Color outerColor = getUniqueColor(127);
+        private final static Color innerColor = getUniqueColor(127);
+        private final static double RADIUS = 0.5;
+        private final static Shape shape = new Ellipse2D.Double(0, 0, RADIUS*2, RADIUS*2);
+        private final static Shape inner = new Ellipse2D.Double(0, 0, RADIUS, RADIUS);
         
         private int x, y;
         
@@ -233,10 +245,12 @@ public abstract class Sprite {
             
             g2.translate(x, y);
             
-            g2.setColor(fillColor);
+            g2.setColor(outerColor);
             g2.fill(shape);
-            g2.setColor(strokeColor);
-            g2.draw(shape);
+            
+            g2.translate(RADIUS/2, RADIUS/2);
+            g2.setColor(innerColor);
+            g2.fill(inner);
             
             g2.setTransform(saved);
         }
@@ -259,7 +273,7 @@ public abstract class Sprite {
         public final static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
-        private final static int SIZE = 8;
+        private final static int SIZE = 1;
         private final static Shape shape = new Rectangle(0, 0, SIZE, SIZE);
         
         private int x, y;
@@ -294,7 +308,7 @@ public abstract class Sprite {
         public final static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
-        private final static int SIZE = 8;
+        private final static int SIZE = 1;
         private final static Polygon SHAPE = new Polygon(
                 new int[] { 0, SIZE, 0 },
                 new int[] { 0, 0, SIZE },
@@ -336,7 +350,7 @@ public abstract class Sprite {
         public final static int ID = NetworkProtocol.getUID();
         
         private final static Color color = getUniqueColor(127);
-        private final static int SIZE = 8;
+        private final static int SIZE = 1;
         private final static Shape shape = new Rectangle(0, 0, SIZE, SIZE);
         
         private int x, y;

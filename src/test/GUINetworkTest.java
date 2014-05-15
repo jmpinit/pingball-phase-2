@@ -33,6 +33,18 @@ public class GUINetworkTest implements Runnable {
             BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
             //BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             
+            create(out, Sprite.Absorber.ID, 0, 0);
+            create(out, Sprite.CircularBumper.ID, 1, 0);
+            create(out, Sprite.Flipper.ID, 2, 0);
+            create(out, Sprite.Portal.ID, 3, 0);
+            create(out, Sprite.SquareBumper.ID, 4, 0);
+            create(out, Sprite.TriangularBumper.ID, 5, 0);
+            create(out, Sprite.Wall.ID, 6, 0);
+            
+            try {
+                Thread.sleep(3000);
+            } catch(InterruptedException e) { }
+            
             for(int i=0; i < 100; i++) {
                 create(out, Sprite.Ball.ID, (int)(Math.random()*20), (int)(Math.random()*20));
                 
@@ -40,8 +52,6 @@ public class GUINetworkTest implements Runnable {
                     Thread.sleep((long)((1.0/60.0)*1000));
                 } catch(InterruptedException e) { }
             }
-            
-            System.out.println("Created ball?");
         } catch(IOException e) {
             e.printStackTrace();
             System.exit(1);
