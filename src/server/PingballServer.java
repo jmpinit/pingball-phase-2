@@ -204,6 +204,11 @@ public class PingballServer {
                         Set<String> names = clientFromName.keySet();
                         Board clientBoard = client.getBoard();
                         
+                        // tell all other boards about this new one
+                        for(NetworkClient client2: clientFromName.values()) {
+                            client2.getBoard().tellAbout(clientBoard);
+                        }
+                        
                         synchronized(Board.class) {
                             for (String name: names) {
                                 NetworkClient other = clientFromName.get(name);
@@ -244,6 +249,11 @@ public class PingballServer {
                     
                     // create a Board from the board data
                     Board board = BoardFactory.parse(content.toString());
+                    
+                    // tell all other boards about this new one
+                    for(NetworkClient client: clientFromName.values()) {
+                        client.getBoard().tellAbout(board);
+                    }
                     
                     // add the data for the client
                     if (board.getName() != null) { // if client with that name doesn't already exist
