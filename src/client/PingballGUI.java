@@ -5,10 +5,8 @@ import game.Board;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -16,7 +14,9 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
@@ -33,10 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import server.NetworkClient;
 import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkState.Field;
-import util.BoardPreview;
 import boardfile.BoardFactory;
 
 public class PingballGUI extends JFrame {
@@ -50,8 +48,12 @@ public class PingballGUI extends JFrame {
     
     private static final String BOARDS_DIRECTORY = "./boards";
     
-    private String host;
-    private int port;
+    private static final String ARG_FILENAME = "filename";
+    private static final String ARG_HOST = "host";
+    private static final String ARG_PORT = "port";
+    
+    private String filename;
+    
     private NetworkListener listener;
     private PrintWriter out;
         
@@ -61,6 +63,7 @@ public class PingballGUI extends JFrame {
     
     private SpriteRenderer canvas;
     private JMenuBar menuBar;
+    private JTextField fieldHost, fieldPort;
 
     /**
      * Constructor to be called for online play.
@@ -69,30 +72,23 @@ public class PingballGUI extends JFrame {
      * @param file constructor to create File
      * @throws IOException if connection not successful.
      */
-    public PingballGUI(String filename, String host, int port) {
-        this.host = host;
-        this.port = port;
-        
+    public PingballGUI(Map<String, String> argMap) {
         makeGUI();
         
-        connect(filename, host, port); // FIXME debugging
+        if(argMap.containsKey(ARG_HOST))
+            fieldHost.setText(argMap.get(ARG_HOST));
+        else
+            fieldHost.setText("localhost");
+        
+        if(argMap.containsKey(ARG_PORT))
+            fieldPort.setText("" + argMap.get(ARG_PORT));
+        else
+            fieldPort.setText("" + DEFAULT_PORT);
+        
+        if(argMap.containsKey(ARG_FILENAME))
+            this.filename = argMap.get(ARG_FILENAME);
     }
 
-    /**
-     * Constructor for single player local play.
-     * @param file File to be parsed to initialize the board
-     * @throws IOException if reading file is unsuccessful
-     */
-    /*public PingballGUI(String filename) throws IOException {
-        String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
-        Board board = BoardFactory.parse(content);
-        NetworkClient client = new NetworkClient(board, null, false);
-        Thread t = new Thread(client); // disconnects
-        t.start();
-        
-        makeGUI();
-    }*/
-    
     private void makeGUI() {
         setTitle("Pingball");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -126,7 +122,7 @@ public class PingballGUI extends JFrame {
         itemSelectBoard.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectBoard();
+                changeBoard();
             }
         });
         
@@ -179,10 +175,20 @@ public class PingballGUI extends JFrame {
         JPanel netControls = new JPanel();
         netControls.setLayout(new BoxLayout(netControls, BoxLayout.LINE_AXIS));
         netControls.add(new JLabel("Hostname:"));
-        netControls.add(new JTextField("test"));
+        fieldHost = new JTextField();
+        netControls.add(fieldHost);
         netControls.add(new JLabel("Port:"));
-        netControls.add(new JTextField("123"));
-        netControls.add(new JButton("Connect"));
+        fieldPort = new JTextField();
+        netControls.add(fieldPort);
+        JButton buttonConnect = new JButton("Connect");
+        netControls.add(buttonConnect);
+        
+        buttonConnect.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                connect();
+            }
+        });
         
         content.add(gameControls, BorderLayout.NORTH);
         content.add(canvas, BorderLayout.CENTER);
@@ -190,7 +196,17 @@ public class PingballGUI extends JFrame {
         add(content, BorderLayout.CENTER);
         
         pack();
-        setVisible(true);        
+        setVisible(true);
+    }
+    
+    private void connect() {
+        if(filename == null)
+            selectBoard();
+        
+        if(listener != null)
+            listener.stop();
+        
+        connect(filename, fieldHost.getText(), Integer.parseInt(fieldPort.getText()));
     }
     
     private void pause() {
@@ -211,6 +227,12 @@ public class PingballGUI extends JFrame {
         }
     }
     
+    private void changeBoard() {
+        canvas.clear();
+        selectBoard();
+        connect();
+    }
+    
     private void selectBoard() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Board File", "pb");
 
@@ -219,10 +241,7 @@ public class PingballGUI extends JFrame {
         int returnVal = fc.showOpenDialog(PingballGUI.this);
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File boardFile = fc.getSelectedFile();
-            
-            listener.stop();
-            connect(boardFile.getPath(), host, port);
+            filename = fc.getSelectedFile().getPath();
         }
     }
     
@@ -249,11 +268,9 @@ public class PingballGUI extends JFrame {
             Thread networkingThread = new Thread(listener);
             networkingThread.start();
         } catch (UnknownHostException e) {
-            System.err.println("Could not find host.");
-            System.exit(1);
+            JOptionPane.showMessageDialog(null, "Could not find host.", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (IOException e) {
-            System.err.println("Could not connect to host.");
-            System.exit(1);
+            JOptionPane.showMessageDialog(null, "Could not connect to host.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -351,9 +368,9 @@ public class PingballGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        boolean onlinePlay = false;
-        String host = "";
+        String host = null;
         int port = DEFAULT_PORT;
+        boolean portSpecified = false;
         String filename = null;
         
         Queue<String> arguments = new LinkedList<String>(Arrays.asList(args));
@@ -364,10 +381,10 @@ public class PingballGUI extends JFrame {
                 
                 try {
                     if (flag.equals("--host")) {
-                        onlinePlay = true;
                         host = arguments.remove();
                     } else if (flag.equals("--port")) {
                         port = Integer.parseInt(arguments.remove());
+                        portSpecified = true;
                         
                         if(port < 0 || port > MAX_PORT_NUM)
                             throw new IllegalArgumentException("port " + port + " out of range");
@@ -388,17 +405,15 @@ public class PingballGUI extends JFrame {
             return;
         }
         
-        new PingballGUI(filename, host, port);
-
-        /*try {
-            // TODO constructors should construct and then exit (put 4=-14
-            if(onlinePlay) {
-                new PingballGUI(host, port, filename);
-            } else {
-                new PingballGUI(filename);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
+        Map<String, String> argMap = new HashMap<String, String>();
+        
+        if(filename != null)
+            argMap.put(ARG_FILENAME, filename);
+        if(host != null)
+            argMap.put(ARG_HOST, host);
+        if(portSpecified)
+            argMap.put(ARG_PORT, ""+port);
+        
+        new PingballGUI(argMap);
     }
 }
