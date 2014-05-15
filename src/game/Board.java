@@ -420,9 +420,7 @@ public class Board {
 
             gamePiece.hasBeenSent(true);
         }//done examining all GamePieces
-        for (Ball ball: this.balls) {
-            System.out.println(ball.getVelocity());
-        }
+
         return events;
     }    
 
@@ -491,6 +489,7 @@ public class Board {
      * @throws InterruptedException if interrupted
      */
     public void queueToAdd(Ball ball) throws InterruptedException {
+        ball.setActive(true);
         ballQueue.put(ball);
     }
 

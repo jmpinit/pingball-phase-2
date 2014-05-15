@@ -101,10 +101,7 @@ public class Portal implements Gadget  {
     @Override
     public void progressAndCollide(double amountOfTime, Ball ball){
         checkRep();
-        System.out.println("Progressing and colliding");
         ball.setPosition(targetPortal.getCenter());
-        System.out.println("Going here: " + targetPortal.getName());
-        System.out.println(targetPortal.getCenter().toString());
         ball.setActive(false);
         //velocity stays the same
         try {
