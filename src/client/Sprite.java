@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import server.NetworkProtocol;
 import server.NetworkProtocol.NetworkState.Field;
 
 public abstract class Sprite {
