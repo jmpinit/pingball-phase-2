@@ -69,5 +69,25 @@ public class KeyControl {
     public boolean isKeyReleased() {
         return (eventType == KeyEvent.KEY_RELEASED);
     }
+    
+    /**
+     * Checks for equality between passed in object
+     * @param obj, Object to check for equality with
+     * @return true if two objects are equal
+     */
+    @Override public boolean equals(Object obj) {
+        if (this.getClass() != obj.getClass())
+            return false;
+        KeyControl other = (KeyControl) obj;
+        if (this.key.equals(other.getKey()))
+            if (this.eventType == other.getEventType())
+                if (this.gadget.equals(other.getGadget()))
+                    return true;
+        return false;
+    }
+    
+    @Override public String toString() {
+        return this.getKey()+":"+this.getEventType();
+    }
 
 }

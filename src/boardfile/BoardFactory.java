@@ -81,6 +81,7 @@ public class BoardFactory {
         Map<String, Set<Portal>> referencedBoards = new HashMap<String,Set<Portal>>();
         private Map<String, Gadget> gadgets = new HashMap<String, Gadget>();
         private Board board;
+        private String boardName;
 
         @Override public void enterSqbline(BoardParser.SqblineContext ctx) { 
             SquareBumper sqb = new SquareBumper(ctx.namefield().NAME().getText(), 
@@ -168,26 +169,30 @@ public class BoardFactory {
         }
         
         @Override public void enterPortalline(BoardParser.PortallineContext ctx) {
-            Portal toAdd;
             String name = ctx.namefield().NAME().getText();
-            int x = Integer.parseInt(ctx.xfield().INT().getText());
-            int y = Integer.parseInt(ctx.yfield().INT().getText());
-            String othPortal = ctx.othportfield().NAME().getText();
-            Portal port = new Portal(name,x,y,this.board,othPortal);
+            Portal port = new Portal(name,
+                    Integer.parseInt(ctx.xfield().INT().getText()),
+                    Integer.parseInt(ctx.yfield().INT().getText()),
+                    this.board,ctx.othportfield().NAME().getText());
             gadgets.put(name, port);
             actions.put(port, new HashSet<Gadget>());
-            
+
+            String connectBoardName = boardName;
             if (ctx.othboardfield() != null) {
-                String othBoardName = ctx.othboardfield().NAME().getText();
-                Set<Portal> temp = new HashSet<Portal>();
-                if(referencedBoards.containsKey(othBoardName)) {
-                    temp = referencedBoards.get(othBoardName);
-                }
-                temp.add(port);
-                referencedBoards.put(othBoardName, temp);
-            } 
+                boardName = ctx.othboardfield().NAME().getText();
+            }
+            Set<Portal> temp = new HashSet<Portal>();
+            if (referencedBoards.containsKey(boardName)) {
+                temp = referencedBoards.get(boardName);
+            }
+            temp.add(port);
+            referencedBoards.put(boardName, temp);
         }
+
         
+        @Override public void enterBoard(BoardParser.BoardContext ctx) {
+            this.boardName = ctx.topline().namefield().NAME().getText();
+        }
         @Override public void exitBoard(BoardParser.BoardContext ctx) { 
             double gravity = (ctx.topline().gravityfield()!=null) ? 
                 Double.parseDouble(ctx.topline().gravityfield().FLOAT().getText()) : Board.DEFAULTGRAVITY;
@@ -195,8 +200,10 @@ public class BoardFactory {
                 Double.parseDouble(ctx.topline().friction1field().FLOAT().getText()) : Board.DEFAULTMU1;
             double mu2 = (ctx.topline().friction2field()!=null) ? 
                 Double.parseDouble(ctx.topline().friction2field().FLOAT().getText()) : Board.DEFAULTMU2;
-            this.board = new Board(ctx.topline().namefield().NAME().getText(),gravity, mu1, mu2,actions, 1.0/(double)PingballServer.FRAMERATE, balls, referencedBoards, keys);
-        }    
+            this.board = new Board(boardName,gravity, mu1, mu2,actions, 1.0/(double)PingballServer.FRAMERATE, balls, referencedBoards, keys);
+        }  
+        
+
 
 
         
