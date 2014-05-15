@@ -23,6 +23,8 @@ package boardfile;
             throw new RuntimeException(msg);
         }
     }
+    
+    private boolean lookingForKey = false;
 }
 
 /*
@@ -58,17 +60,17 @@ LEFTF : 'leftFlipper';
 RIGHTF : 'rightFlipper';
 ABS : 'absorber';
 FIRE : 'fire';
-KEYL : 'keyup' | 'keydown';
+KEYL : ('keyup' | 'keydown'){lookingForKey = true;};
 PORTAL : 'portal';
 
-KEY: (('a'..'z') | ('0'..'9')
+KEY: {lookingForKey}? (('a'..'z') | ('0'..'9')
         | ('shift') | ('ctrl') | ('alt') | ('meta')
         | ('space')
         | ('left') | ('right') | ('up') | ('down')
         | ('minus') | ('equals') | ('backspace')
         | ('openbracket') | ('closebracket') | ('backslash')
         | ('semicolon') | ('quote') | ('enter')
-        | ('comma') | ('period') | ('slash'));
+        | ('comma') | ('period') | ('slash')){lookingForKey = false;};
 INT : ('0'..'9')+;
 FLOAT : ('-')?((('0'..'9')+'.'('0'..'9')*)|('.'?('0'..'9')+));
 NAME : (('A'..'Z')|('a'..'z')|'_')(('A'..'Z')|('a'..'z')|'_'|'0'..'9')*;

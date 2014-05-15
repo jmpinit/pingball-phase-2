@@ -379,7 +379,7 @@ public class BoardFactoryTests {
         
         SquareBumper sq = new SquareBumper("Square", 15, 12);
         
-        CircularBumper ccA = new CircularBumper("CircleA", 14, 16);
+        CircularBumper ccA = new CircularBumper("CircleA", 14, 6);
         CircularBumper ccB = new CircularBumper("CircleB", 14, 8);
         
         TriangularBumper triA = new TriangularBumper("TriA", 19, 7, 90);
@@ -405,4 +405,29 @@ public class BoardFactoryTests {
         
     }
 
+    @Test public void AllKeysBoardConstructorTest() {
+        String content = null;
+        try {
+            content = BoardFactory.readFile("boards/phase2features/allkeys.pb", StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Board board = BoardFactory.parse(content);
+        
+        Ball ball = new Ball("Ball", new Vect(0.5, 0.5), new Vect(2.5, 2.5));
+        Set<Ball> balls = new HashSet<Ball>();
+        balls.add(ball);
+   
+        Flipper flipL1 = new Flipper("left", "FlipL1", 4, 14, 90);
+        Flipper flipR1 = new Flipper("right", "FlipR", 6, 11, 0);
+        
+        
+        Map<Gadget, Set<Gadget>> actions = new HashMap<Gadget, Set<Gadget>>();
+        actions.put(flipL1, new HashSet<Gadget>());
+        actions.put(flipR1, new HashSet<Gadget>());
+        
+        
+        Board constructedBoard = new Board("ExampleA", 20.0, 0.020,0.020, actions, 1.0/(double)PingballServer.FRAMERATE, balls);
+        assertEquals(board, constructedBoard);
+    }
 }

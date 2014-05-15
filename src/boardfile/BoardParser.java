@@ -77,6 +77,8 @@ public class BoardParser extends Parser {
 	            throw new RuntimeException(msg);
 	        }
 	    }
+	    
+	    private boolean lookingForKey = false;
 
 	public BoardParser(TokenStream input) {
 		super(input);
