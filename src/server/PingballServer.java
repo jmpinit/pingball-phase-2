@@ -51,6 +51,8 @@ public class PingballServer {
     private final BlockingQueue<String> userInputQueue;
     private final List<Connection> boardConnections;
     
+    private boolean paused = false;
+    
     private static enum Direction { VERTICAL, HORIZONTAL }
     
     /**
@@ -223,6 +225,7 @@ public class PingballServer {
     }
     
     private void pause() {
+        paused = true;
         synchronized(clientFromName) {
             for(NetworkClient c: clientFromName.values()) {
                 c.pause();
@@ -231,6 +234,7 @@ public class PingballServer {
     }
     
     private void play() {
+        paused = false;
         synchronized(clientFromName) {
             for(NetworkClient c: clientFromName.values()) {
                 c.play();
@@ -260,6 +264,7 @@ public class PingballServer {
                 }
             }
         }
+        play();
     }
     
     private NetworkClient clientWithBoard(String name) {
@@ -370,8 +375,8 @@ public class PingballServer {
                     if (board.getName() != null) { // if client with that name doesn't already exist
                         synchronized(clientFromName) {
                             NetworkClient client = new NetworkClient(userInputQueue, board, content.toString(), clientSocket, true);
-                            
                             clientFromName.put(board.getName(), client);
+                            if(paused) client.pause();
                             
                             Thread t = new Thread(client);
                             t.start();
