@@ -48,4 +48,3 @@ board name=sampleBoard2_1 gravity=20.0 friction1=0.020 friction2=0.020
 
   # make the absorber self-triggering
   fire trigger=Abs action=Abs 
-
