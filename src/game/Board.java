@@ -55,12 +55,6 @@ public class Board {
     private final Map<GamePiece, NetworkState> gamePieceStates; //the recorded state of all GamePieces
 
 
-    /*** Temp constructor***/
-    public Board(String name, Double gravity, Double mu, Double mu2, Map<Gadget, Set<Gadget>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls) {
-        this(   name,  gravity,  mu,  mu2,  gadgetsToEffects,  stepSizeInSeconds,  startingBalls, new HashMap<String,Set<Portal>>(), new HashMap<String, Set<KeyControl>>()   );
-    }
-
-
     /***
      * Creates a new board from the given parameters
      * 
@@ -71,6 +65,8 @@ public class Board {
      * @param gadgetsToEffects a map of each gadget to a set of all *other* gadgets that act when it is triggered
      * @param stepSize length of this board's step size in seconds
      * @param balls a set of balls that start on the board
+     * @param referencedboards, mapping of any other boards a portal on this board may go to and the other board portal that is connected
+     * @param keysToEffects, mapping of a key to its gadget and KeyEvent type
      */
     public Board(String name, Double gravity, Double mu, Double mu2, Map<Gadget, Set<Gadget>> gadgetsToEffects, double stepSizeInSeconds, Set<Ball> startingBalls, Map<String,Set<Portal>> referencedBoards, Map<String, Set<KeyControl>> keysToEffects) {
         //CONSTRUCTED AS ALWAYS
@@ -101,6 +97,7 @@ public class Board {
         this.gamePieceStates = new HashMap<GamePiece, NetworkState>();
 
         for (Gadget gadget : gadgetsToEffects.keySet()) { //add gadgets to GamePieces
+            System.out.println(gadget.getName());
             this.gamePieceStates.put(gadget, gadget.getState());
         }
 
@@ -265,12 +262,6 @@ public class Board {
             stringRep += '\n';
         }
         return stringRep;
-    }
-
-    /*** temp step
-     * @throws InterruptedException ***/
-    public ArrayList<NetworkEvent> step() throws InterruptedException {
-        return step(new ArrayList<KeyEvent>());
     }
 
     /***
