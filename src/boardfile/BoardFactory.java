@@ -77,7 +77,7 @@ public class BoardFactory {
     private static class BoardCreatorListener extends BoardBaseListener {
         private Set<Ball> balls = new HashSet<Ball>();
         private Map<Gadget, Set<Gadget>> actions = new HashMap<Gadget, Set<Gadget>>();
-        private Map<String, KeyControl> keys = new HashMap<String, KeyControl>();
+        private Map<String, Set<KeyControl>> keys = new HashMap<String, Set<KeyControl>>();
         Map<String, Set<Portal>> referencedBoards = new HashMap<String,Set<Portal>>();
         private Map<String, Gadget> gadgets = new HashMap<String, Gadget>();
         private Board board;
@@ -159,8 +159,12 @@ public class BoardFactory {
             KeyControl keycntrl = new KeyControl(key, 
                     gadgets.get(ctx.actionfield().NAME().getText()),
                     ctx.KEYL().getText().equals("keyup"));
-            keys.put(key, keycntrl);
-
+            Set<KeyControl> keycntrls = new HashSet<KeyControl>();
+            if (keys.containsKey(key)) {
+                keycntrls = keys.get(key);
+            }
+            keycntrls.add(keycntrl);
+            keys.put(key, keycntrls);
         }
         
         @Override public void enterPortalline(BoardParser.PortallineContext ctx) {
@@ -191,7 +195,7 @@ public class BoardFactory {
                 Double.parseDouble(ctx.topline().friction1field().FLOAT().getText()) : Board.DEFAULTMU1;
             double mu2 = (ctx.topline().friction2field()!=null) ? 
                 Double.parseDouble(ctx.topline().friction2field().FLOAT().getText()) : Board.DEFAULTMU2;
-            this.board = new Board(ctx.topline().namefield().NAME().getText(),gravity, mu1, mu2,actions, 1.0/(double)PingballServer.FRAMERATE, balls, referencedBoards);
+            this.board = new Board(ctx.topline().namefield().NAME().getText(),gravity, mu1, mu2,actions, 1.0/(double)PingballServer.FRAMERATE, balls, referencedBoards, keys);
         }    
 
 
