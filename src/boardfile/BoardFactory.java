@@ -105,14 +105,21 @@ public class BoardFactory {
             actions.put(trib, new HashSet<Gadget>());
         }
 
-        @Override public void enterAbsline(BoardParser.AbslineContext ctx) { 
-            Absorber abs = new Absorber(ctx.namefield().NAME().getText(), 
-                    Integer.parseInt(ctx.xfield().INT().getText()), 
-                    Integer.parseInt(ctx.yfield().INT().getText()),
-                    Integer.parseInt(ctx.widthfield().INT().getText()),
-                    Integer.parseInt(ctx.heightfield().INT().getText()));
-            gadgets.put(ctx.namefield().NAME().getText(), abs);
-            actions.put(abs, new HashSet<Gadget>());
+        @Override public void enterAbsline(BoardParser.AbslineContext ctx) {
+            int x = Integer.parseInt(ctx.xfield().INT().getText());
+            int y = Integer.parseInt(ctx.yfield().INT().getText());
+            int width = Integer.parseInt(ctx.widthfield().INT().getText());
+            int height = Integer.parseInt(ctx.heightfield().INT().getText());
+            if (width > 20 || height > 20) {
+                System.err.println("Absorber's dimensions are too large; will not be added to board");
+            }
+            else {
+                Absorber abs = new Absorber(ctx.namefield().NAME().getText(), 
+                        x, y, width, height
+                        );
+                gadgets.put(ctx.namefield().NAME().getText(), abs);
+                actions.put(abs, new HashSet<Gadget>());
+            }
         }
 
         @Override public void enterRightfline(BoardParser.RightflineContext ctx) { 
@@ -198,7 +205,4 @@ public class BoardFactory {
             return this.board;
         }
     }
-
-
-
 }
