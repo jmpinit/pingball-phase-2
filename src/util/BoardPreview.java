@@ -103,6 +103,7 @@ public class BoardPreview extends JFrame {
         
         g2.setFont(new Font( "SansSerif", Font.BOLD, FONT_SIZE));
         
+        g2.clearRect(0, 0, getWidth(), getHeight());
         for(int y=0; y < renderLines.length; y++) {
             String line = renderLines[y];
             for(int x=0; x < line.length(); x++) {
