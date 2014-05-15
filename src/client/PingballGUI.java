@@ -156,6 +156,7 @@ public class PingballGUI extends JFrame {
         canvas = new SpriteRenderer(300, 300);
         
         final JButton pauseButton = new JButton("Pause");
+        pauseButton.setActionCommand("pause");
         pauseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
