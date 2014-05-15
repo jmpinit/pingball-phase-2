@@ -6,6 +6,7 @@ import game.Board;
 import game.CircularBumper;
 import game.Flipper;
 import game.Gadget;
+import game.Portal;
 import game.SquareBumper;
 import game.TriangularBumper;
 
@@ -75,6 +76,7 @@ public class BoardFactory {
     private static class BoardCreatorListener extends BoardBaseListener {
         private Set<Ball> balls = new HashSet<Ball>();
         private Map<Gadget, Set<Gadget>> actions = new HashMap<Gadget, Set<Gadget>>();
+        private Map<String, Gadget> keys = new HashMap<String,Gadget>();
         private Map<String, Gadget> gadgets = new HashMap<String, Gadget>();
         private Board board;
 
@@ -151,6 +153,26 @@ public class BoardFactory {
             actions.get(gadgets.get(ctx.triggerfield().NAME().getText())).add(
                     gadgets.get(ctx.actionfield().NAME().getText()));
         }
+        
+        @Override public void enterKeyline(BoardParser.KeylineContext ctx) {
+            keys.put(ctx.keyfield().KEY().getText(), gadgets.get(ctx.actionfield().NAME().getText()));
+        }
+        
+        @Override public void enterPortalline(BoardParser.PortallineContext ctx) {
+            Portal toAdd;
+            String name = ctx.namefield().NAME().getText();
+            int x = Integer.parseInt(ctx.xfield().INT().getText());
+            int y = Integer.parseInt(ctx.yfield().INT().getText());
+            String othPortal = ctx.othportfield().NAME().getText();
+            toAdd = new Portal(name,x,y,this.board,othPortal);
+            gadgets.put(name, toAdd);
+            if (ctx.othboardfield() != null) {
+                //TODO: Adding portal logic to other boards?
+            } 
+        }
+
+
+        
 
         public Board getBoard() {
             return this.board;
