@@ -43,7 +43,8 @@ public class NetworkProtocol {
             Y(2),
             WIDTH(3),
             HEIGHT(4),
-            ANGLE(5);
+            ANGLE(5),
+            CHARACTER(6);
             
             private int uid;
             

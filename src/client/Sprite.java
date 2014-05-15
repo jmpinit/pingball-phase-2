@@ -2,6 +2,7 @@ package client;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -50,6 +51,7 @@ public abstract class Sprite {
             sprites.put(SquareBumper.ID, SquareBumper.class);
             sprites.put(TriangularBumper.ID, TriangularBumper.class);
             sprites.put(Wall.ID, Wall.class);
+            sprites.put(Letter.ID, Letter.class);
         }
         
         if(sprites.containsKey(uid)) {
@@ -61,12 +63,6 @@ public abstract class Sprite {
         } else {
             return null;
         }
-    }
-    
-    @SuppressWarnings("unchecked") // certain the returned array contains classes extending Sprite
-    public static Class<? extends Sprite>[] getSprites() {
-        return new Class[] { Ball.class, Absorber.class, CircularBumper.class,
-                Flipper.class, Portal.class, SquareBumper.class, TriangularBumper.class, Wall.class };
     }
     
     /*
@@ -419,6 +415,51 @@ public abstract class Sprite {
                     break;
                 case Y:
                     y = (int)field.getValue();
+                    break;
+                case VISIBLE:
+                    visible = field.getValue() == 1? true : false;
+                    break;
+                default:
+                    throw new RuntimeException(field.getFieldName().toString() + " not a field on Sprite.");
+            }
+        }
+    }
+    
+    public static class Letter extends Sprite {
+        public final static int ID = 8;
+        
+        private final static Color color = Color.BLACK;
+        private final static Font font = new Font("Monospaced", Font.PLAIN, 1);
+        
+        private boolean visible = true;
+        private int x, y;
+        private char c = 'x';
+        
+        @Override
+        public void render(Graphics2D g2) {
+            if(visible) {
+                AffineTransform saved = g2.getTransform();
+                
+                g2.translate(x, y);
+                
+                g2.setColor(color);
+                g2.setFont(font);
+                g2.drawString("" + c, x, y);
+                
+                g2.setTransform(saved);
+            }
+        }
+        
+        public void set(Field field) {
+            switch(field.getFieldName()) {
+                case X:
+                    x = (int)field.getValue();
+                    break;
+                case Y:
+                    y = (int)field.getValue();
+                    break;
+                case CHARACTER:
+                    c = (char)field.getValue();
                     break;
                 case VISIBLE:
                     visible = field.getValue() == 1? true : false;
