@@ -4,11 +4,21 @@ import game.Board;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -19,8 +29,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import server.NetworkClient;
+import server.NetworkProtocol;
+import server.NetworkProtocol.NetworkState.Field;
 import boardfile.BoardFactory;
 
 public class PingballGUI extends JFrame {
@@ -32,20 +45,14 @@ public class PingballGUI extends JFrame {
     public static final int BOARD_WIDTH = 22;
     public static final int BOARD_HEIGHT = 22;
     
+    private ConcurrentMap<Integer, Sprite> sprites;
+    
     /*
      * GUI Elements
      */
     
+    private SpriteRenderer canvas;
     private JMenuBar menuBar;
-    
-    private Canvas canvas;
-    private Color[] lookup;
-    {
-        lookup = new Color[127];
-        Random generator = new Random(1337);
-        for(int i=0; i < lookup.length; i++)
-            lookup[i] = new Color(127+generator.nextInt(128), 127+generator.nextInt(128), 127+generator.nextInt(128));
-    }
 
     /**
      * Constructor to be called for online play.
@@ -55,37 +62,7 @@ public class PingballGUI extends JFrame {
      * @throws IOException if connection not successful.
      */
     public PingballGUI() {
-        /*Socket socket = null;
-        PrintWriter out = null;
-        BufferedReader in = null;*/
-        
-        /*
-         * Setup networking
-         */
-
         String name = "unknown";
-        
-        /*try {
-            socket = new Socket(host, port);
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        } catch (UnknownHostException e) {
-            System.err.println("Could not find host.");
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Could not connect to host.");
-            System.exit(1);
-        }
-        
-        try {
-            String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
-            Board board = BoardFactory.parse(content);
-            name = board.getName();
-            out.println(content);
-            out.println("STOP");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
         
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -100,18 +77,7 @@ public class PingballGUI extends JFrame {
         
         makeGUI(name);
         
-        /*String line;
-        StringBuilder boardBuilder = new StringBuilder();
-        while((line = in.readLine()) != null) {
-            if(line.length() > 0) {
-                if((int)line.charAt(0) == 12) {
-                    parseEvent(boardBuilder.toString());
-                    boardBuilder.setLength(0);
-                } else {
-                    boardBuilder.append(line+"\n");
-                }
-            }
-        }*/
+        connect("localhost", 10987); // FIXME debugging
     }
 
     /**
@@ -157,7 +123,7 @@ public class PingballGUI extends JFrame {
         
         setJMenuBar(menuBar);
         
-        canvas = new Canvas(300, 300);
+        canvas = new SpriteRenderer(300, 300);
         
         JPanel gameControls = new JPanel();
         gameControls.setLayout(new BoxLayout(gameControls, BoxLayout.LINE_AXIS));
@@ -180,17 +146,100 @@ public class PingballGUI extends JFrame {
         setVisible(true);        
     }
     
-    public void parseEvent(String board) {
-        String[] lines = board.split("\n");
+    private void connect(String host, int port) {
+        try {
+            NetworkListener listener = new NetworkListener(host, port);
+            Thread networkingThread = new Thread(listener);
+            networkingThread.start();
+        } catch (UnknownHostException e) {
+            System.err.println("Could not find host.");
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Could not connect to host.");
+            System.exit(1);
+        }
+    }
+    
+    private class NetworkListener implements Runnable {
+        private final Socket socket;
+        private final PrintWriter out;
+        private final BufferedInputStream in;
         
-        for(int y=0; y < lines.length && y < BOARD_HEIGHT; y++) {
-            String line = lines[y];
-            for(int x=0; x < line.length() && x < BOARD_WIDTH; x++) {
-                canvas.set(x, y, lookup[line.charAt(x)]);
+        private boolean listening;
+        
+        public NetworkListener(String host, int port) throws IOException {
+            socket = new Socket(host, port);
+            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedInputStream(socket.getInputStream());
+            
+            listening = true;
+        }
+        
+        public void run() {
+            /*try {
+                String content = BoardFactory.readFile(filename, StandardCharsets.UTF_8);
+                Board board = BoardFactory.parse(content);
+                name = board.getName();
+                out.println(content);
+                out.println("STOP");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }*/
+            
+            while(listening) {        
+                System.out.println("listening");
+
+                try {
+                    while(true) {
+                        for(byte[] preamble = new byte[NetworkProtocol.PREAMBLE.length];
+                                !Arrays.equals(preamble, NetworkProtocol.PREAMBLE);
+                                in.read(preamble, 0, preamble.length)) { }
+                        
+                        byte[] message = new byte[NetworkProtocol.MESSAGE_LENGTH];
+                        in.read(message, 0, NetworkProtocol.MESSAGE_LENGTH);
+                        
+                        boolean successful = parseMessage(message);
+                        if(!successful)
+                            System.out.println("Message not parsed successfully.");
+                    }
+                } catch(IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    stop();
+                }
             }
         }
         
-        canvas.repaint();
+        private boolean parseMessage(byte[] message) {
+            System.out.println("Parsing message.");
+            if(message.length == NetworkProtocol.MESSAGE_LENGTH) {
+                ByteBuffer buffer = ByteBuffer.allocate(message.length);                    
+                buffer.put(message);
+                buffer.position(0);
+                
+                int spriteID = buffer.getInt();
+                int instanceID = buffer.getInt();
+                int fieldID = buffer.getInt();
+                long value = buffer.getLong();
+    
+                // update
+                canvas.update(spriteID, instanceID, new Field(fieldID, value));
+                
+                return true;
+            } else {
+                return false;
+            }
+        }
+        
+        public void stop() {
+            try {
+                socket.close();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+            
+            listening = false;
+        }
     }
 
     public static void main(String[] args) {

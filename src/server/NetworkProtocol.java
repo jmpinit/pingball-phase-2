@@ -1,6 +1,15 @@
 package server;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class NetworkProtocol {
+    private final static int BYTES_INT = 4;
+    private final static int BYTES_LONG = 8;
+    
+    public final static int MESSAGE_LENGTH = BYTES_INT*3 + BYTES_LONG;
+    public final static byte[] PREAMBLE = new byte[] { Byte.MAX_VALUE, Byte.MAX_VALUE };
+            
     private static int uid = 0;
     
     /**
@@ -19,21 +28,28 @@ public class NetworkProtocol {
     public static class NetworkState {
         private Field[] fields;
         
+        private static Map<Integer, FieldName> idToFieldName = new HashMap<>();
+        static {
+            for(FieldName n: FieldName.values())
+                idToFieldName.put(n.getUID(), n);
+        }
+        
         public enum FieldName {
-            X(getUID()), Y(getUID()),
-            WIDTH(getUID()), HEIGHT(getUID()),
-            ANGLE(getUID()),
-            ORIENTATION(getUID());
+            X(NetworkProtocol.getUID()),
+            Y(NetworkProtocol.getUID()),
+            WIDTH(NetworkProtocol.getUID()),
+            HEIGHT(NetworkProtocol.getUID()),
+            ANGLE(NetworkProtocol.getUID()),
+            ORIENTATION(NetworkProtocol.getUID());
             
+            private int uid;
             
-            private int id;
-            
-            FieldName(int id) {
-                this.id = id;
+            FieldName(int uid) {
+                this.uid = uid;
             }
             
-            public int UID() {
-                return id;
+            public int getUID() {
+                return uid;
             }
         }
         
@@ -52,7 +68,16 @@ public class NetworkProtocol {
                 this.value = value;
             }
             
-            public FieldName getFiedName() {
+            public Field(int fieldID, long value) {
+                if(idToFieldName.containsKey(fieldID)) {
+                    this.fieldName = idToFieldName.get(fieldID);
+                    this.value = value;
+                } else {
+                    throw new RuntimeException("Invalid fieldID " + fieldID + ".");
+                }
+            }
+            
+            public FieldName getFieldName() {
                 return fieldName;
             }
             
