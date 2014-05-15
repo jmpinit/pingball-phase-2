@@ -221,7 +221,7 @@ public abstract class Sprite {
                 AffineTransform saved = g2.getTransform();
                 
                 g2.translate(x, y);
-                g2.rotate(-angle);
+                g2.rotate(Math.toRadians(-angle));
                 
                 g2.setColor(color);
                 Stroke oldStroke = g2.getStroke();
@@ -360,7 +360,7 @@ public abstract class Sprite {
                 AffineTransform saved = g2.getTransform();
                 
                 g2.translate(x, y);
-                g2.rotate(-angle);
+                g2.rotate(Math.toRadians(-angle));
                 g2.setColor(color);
                 g2.fill(SHAPE);
                 
