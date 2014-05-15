@@ -1,5 +1,6 @@
 package game;
 
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -111,7 +112,15 @@ public class Board {
             this.gamePieceStates.put(wall, wall.getState());
         }
         
+        System.out.println("REF BOARD STUFF");
         this.referencedBoards = referencedBoards;
+        for (String key: referencedBoards.keySet()){
+
+            String value = referencedBoards.get(key).toString();  
+            System.out.println(key + " " + value);  
+
+
+} 
     }
     
     
